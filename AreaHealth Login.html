@@ -61,6 +61,11 @@
       text-align: center;
       margin-top: 12px;
     }
+    #error-message {
+      color: red;
+      text-align: center;
+      margin-top: 10px;
+    }
   </style>
 </head>
 <body>
@@ -77,36 +82,40 @@
       <button type="submit">Login</button>
       <p>Don't have an account? <a href="AreaHealth Register.html">Register</a></p>
       <p><a href="Forgot Password.html">Forgot Password?</a></p>
+      <p id="error-message"></p>
     </form>
   </div>
 
-  <!-- Firebase SDKs -->
-  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js"></script>
+  <!-- ✅ Firebase SDKs (v9 modular) -->
+  <script type="module">
+    // Import Firebase SDKs
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
+    import { getAuth, signInWithEmailAndPassword, onAuthStateChanged } 
+      from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
 
-  <script>
     // ✅ Firebase config
     const firebaseConfig = {
       apiKey: "AIzaSyC79cSDPpC4bbhlRBpu7WhON3j8AMxMLyE",
       authDomain: "areahealth-ng.firebaseapp.com",
       projectId: "areahealth-ng",
-      storageBucket: "areahealth-ng.firebasestorage.app",
+      storageBucket: "areahealth-ng.appspot.com",  // ✅ fixed
       messagingSenderId: "986651954303",
       appId: "1:986651954303:web:3f38dc24e246b7047d834a"
     };
 
     // Initialize Firebase
-    const app = firebase.initializeApp(firebaseConfig);
-    const auth = firebase.auth();
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
 
     // ✅ Redirect if already logged in
-    auth.onAuthStateChanged(user => {
+    onAuthStateChanged(auth, (user) => {
       if (user) {
         window.location.href = "AreaHealth dashboard.html";
       }
     });
 
-    function togglePassword(fieldId, icon) {
+    // ✅ Toggle password
+    window.togglePassword = function(fieldId, icon) {
       const input = document.getElementById(fieldId);
       if (input.type === "password") {
         input.type = "text";
@@ -118,20 +127,28 @@
     }
 
     // ✅ Login with Firebase
-    document.getElementById("loginForm").addEventListener("submit", function(e){
+    document.getElementById("loginForm").addEventListener("submit", async (e) => {
       e.preventDefault();
 
       const email = document.getElementById("email").value;
       const password = document.getElementById("password").value;
+      const errorBox = document.getElementById("error-message");
 
-      auth.signInWithEmailAndPassword(email, password)
-        .then((userCredential) => {
-          alert("✅ Login successful!");
-          window.location.href = "AreaHealth dashboard.html";
-        })
-        .catch((error) => {
-          alert("❌ " + error.message);
-        });
+      try {
+        await signInWithEmailAndPassword(auth, email, password);
+        window.location.href = "AreaHealth dashboard.html";
+      } catch (error) {
+        // Show friendly error messages
+        let message = "❌ Something went wrong!";
+        if (error.code === "auth/user-not-found") {
+          message = "❌ No user found with this email.";
+        } else if (error.code === "auth/wrong-password") {
+          message = "❌ Incorrect password.";
+        } else if (error.code === "auth/invalid-email") {
+          message = "❌ Invalid email format.";
+        }
+        errorBox.textContent = message;
+      }
     });
   </script>
 </body>
