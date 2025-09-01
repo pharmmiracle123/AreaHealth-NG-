@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login - AreaHealth</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f4f4;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+    .form-box {
+      background: white;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.2);
+      width: 350px;
+    }
+    .form-box h2 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    .input-group {
+      position: relative;
+      margin: 10px 0;
+    }
+    input {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+    }
+    .toggle-password {
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      cursor: pointer;
+      font-size: 16px;
+      color: #0077cc;
+    }
+    button {
+      width: 100%;
+      padding: 12px;
+      margin-top: 10px;
+      background: #0077cc;
+      color: white;
+      font-weight: bold;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #005fa3;
+    }
+    p {
+      text-align: center;
+      margin-top: 12px;
+    }
+  </style>
+</head>
+<body>
+  <div class="form-box">
+    <h2>Login</h2>
+    <form id="loginForm">
+      <input type="email" id="email" placeholder="Email" required>
+      
+      <div class="input-group">
+        <input type="password" id="password" placeholder="Password" required>
+        <span class="toggle-password" onclick="togglePassword('password', this)">👁</span>
+      </div>
+      
+      <button type="submit">Login</button>
+      <p>Don't have an account? <a href="AreaHealth Register.html">Register</a></p>
+      <p><a href="Forgot Password.html">Forgot Password?</a></p>
+    </form>
+  </div>
+
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js"></script>
+
+  <script>
+    // ✅ Firebase config
+    const firebaseConfig = {
+      apiKey: "AIzaSyC79cSDPpC4bbhlRBpu7WhON3j8AMxMLyE",
+      authDomain: "areahealth-ng.firebaseapp.com",
+      projectId: "areahealth-ng",
+      storageBucket: "areahealth-ng.firebasestorage.app",
+      messagingSenderId: "986651954303",
+      appId: "1:986651954303:web:3f38dc24e246b7047d834a"
+    };
+
+    // Initialize Firebase
+    const app = firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+
+    // ✅ Redirect if already logged in
+    auth.onAuthStateChanged(user => {
+      if (user) {
+        window.location.href = "AreaHealth dashboard.html";
+      }
+    });
+
+    function togglePassword(fieldId, icon) {
+      const input = document.getElementById(fieldId);
+      if (input.type === "password") {
+        input.type = "text";
+        icon.textContent = "🙈";
+      } else {
+        input.type = "password";
+        icon.textContent = "👁";
+      }
+    }
+
+    // ✅ Login with Firebase
+    document.getElementById("loginForm").addEventListener("submit", function(e){
+      e.preventDefault();
+
+      const email = document.getElementById("email").value;
+      const password = document.getElementById("password").value;
+
+      auth.signInWithEmailAndPassword(email, password)
+        .then((userCredential) => {
+          alert("✅ Login successful!");
+          window.location.href = "AreaHealth dashboard.html";
+        })
+        .catch((error) => {
+          alert("❌ " + error.message);
+        });
+    });
+  </script>
+</body>
+</html>

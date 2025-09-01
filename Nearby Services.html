@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AreaHealth Dashboard - Nearby Services</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
+<style>
+  /* Animated gradient background for body */
+  body {
+    margin:0;
+    font-family: Arial, sans-serif;
+    background: linear-gradient(270deg, #00c6ff, #0072ff, #6a11cb, #2575fc);
+    background-size: 800% 800%;
+    animation: gradientShift 20s ease infinite;
+    color:#222;
+  }
+  @keyframes gradientShift {
+    0% { background-position:0% 50%; }
+    50% { background-position:100% 50%; }
+    100% { background-position:0% 50%; }
+  }
+
+  header {
+    background: linear-gradient(270deg, #6a11cb, #2575fc, #00c6ff);
+    background-size: 600% 600%;
+    animation: gradientShift 15s ease infinite;
+    padding: 16px 24px;
+    color:#fff;
+    display:flex;
+    justify-content: space-between;
+    align-items:center;
+  }
+  header h1 { margin:0; font-size:1.5rem; }
+  nav ul { list-style:none; margin:0; padding:0; display:flex; gap:16px; align-items:center; }
+  nav li { position:relative; }
+  nav a { color:#fff; text-decoration:none; font-weight:600; }
+  nav .dropdown:hover .dropdown-menu { display:block; }
+  .dropdown-menu {
+    display:none;
+    position:absolute;
+    top:100%;
+    right:0;
+    background:#fff;
+    color:#222;
+    min-width:160px;
+    box-shadow:0 4px 8px rgba(0,0,0,0.1);
+    border-radius:8px;
+    overflow:hidden;
+  }
+  .dropdown-menu a {
+    display:block;
+    padding:10px 14px;
+    color:#222;
+    text-decoration:none;
+  }
+  .dropdown-menu a:hover {
+    background:#f0f0f0;
+  }
+
+  main { padding:20px; }
+
+  /* Nearby Services */
+  #nearby h2 { margin:0 0 12px; font-size:1.5rem; color:#fff; text-shadow:0 2px 6px rgba(0,0,0,0.5); }
+  .nh-controls { display:flex; gap:8px; margin-bottom:12px; flex-wrap:wrap; }
+  .nh-controls input[type="search"] { flex:1 1 200px; padding:10px; border-radius:8px; border:1px solid #ccc; }
+  .nh-controls select, .nh-controls button { padding:10px; border-radius:8px; border:1px solid #ccc; background:#fff; }
+  .nh-controls .toggle { display:flex; align-items:center; gap:6px; font-size:0.95rem; }
+
+  .nh-grid { display:grid; grid-template-columns: 1fr; gap:12px; }
+  .nh-map { min-height:220px; border-radius:10px; overflow:hidden; }
+  .nh-list { display:flex; flex-direction:column; gap:12px; }
+
+  .ph-card { background:#fff; padding:12px; border-radius:10px; box-shadow:0 2px 8px rgba(0,0,0,0.06); display:flex; gap:12px; align-items:flex-start; cursor:pointer; transition: transform 0.2s; }
+  .ph-card:hover { transform: scale(1.02); }
+  .ph-avatar { width:64px; height:64px; border-radius:8px; background:#f1f1f1; display:flex; align-items:center; justify-content:center; font-weight:bold; color:#087; font-size:1.2rem; }
+  .ph-info { flex:1; }
+  .ph-info h3 { margin:0 0 6px; font-size:1.05rem; color:#0077b6; }
+  .ph-meta { font-size:0.9rem; color:#555; margin-bottom:6px; }
+  .ph-actions { display:flex; gap:8px; flex-wrap:wrap; }
+  .ph-actions a { padding:8px 10px; border-radius:8px; text-decoration:none; background:#f6f6f6; color:#222; font-weight:600; }
+  .badge { padding:4px 8px; border-radius:999px; font-size:0.85rem; background:#e7f7ed; color:#0b6; border:1px solid #cfead6; }
+
+  /* Responsive */
+  @media(min-width:900px){
+    .nh-grid { grid-template-columns: 48% 52%; align-items:start; }
+    .nh-map { min-height:360px; }
+  }
+</style>
+</head>
+<body>
+<header>
+  <h1>AreaHealth Dashboard</h1>
+  <nav>
+    <ul>
+      <li><a href="#">Dashboard</a></li>
+      <li><a href="#nearby">Nearby Services</a></li>
+      <li class="dropdown">
+        <a href="#">Profile ▾</a>
+        <div class="dropdown-menu">
+          <a href="#">My Account</a>
+          <a href="#">Settings</a>
+          <a href="#">Logout</a>
+        </div>
+      </li>
+    </ul>
+  </nav>
+</header>
+
+<main>
+  <!-- Nearby Services -->
+  <section id="nearby" aria-labelledby="nearby-title">
+    <h2 id="nearby-title">Nearby Pharmacies & Services</h2>
+
+    <div class="nh-controls">
+      <input id="drugSearch" type="search" placeholder="Search drugs or pharmacy name..." aria-label="Search drugs or pharmacy name">
+      <select id="filterHasDrug" aria-label="Filter pharmacies that have the drug">
+        <option value="">All pharmacies</option>
+        <option value="hasDrug">Only those that have the searched drug</option>
+      </select>
+      <label class="toggle"><input id="openNow" type="checkbox"> Open now</label>
+      <button id="locateBtn" title="Use my location">Use my location ⊙</button>
+    </div>
+
+    <div class="nh-grid">
+      <div class="nh-map" id="map" aria-hidden="true"></div>
+      <div class="nh-list" id="list" aria-live="polite"></div>
+    </div>
+  </section>
+</main>
+
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+<script>
+const pharmacies = [
+  { id:1, name:"HealthPlus Pharmacy", lat:4.927, lng:6.284, address:"Yenagoa Main Market", phone:"08012345678",
+    hours:{open:"08:00", close:"22:00"}, drugs:["Paracetamol","Amoxicillin","Metformin"], rating:4.5, delivery:true
+  },
+  { id:2, name:"MediCare Pharmacy", lat:4.932, lng:6.267, address:"Oxbow Lake Road", phone:"07055555555",
+    hours:{open:"09:00", close:"21:00"}, drugs:["Ceftriaxone","Ibuprofen"], rating:4.0, delivery:false
+  },
+  { id:3, name:"WellCare Drugs", lat:4.920, lng:6.280, address:"Swali Market", phone:"08123456789",
+    hours:{open:"07:30", close:"20:00"}, drugs:["Paracetamol","Omeprazole","Amlodipine"], rating:4.2, delivery:true
+  }
+];
+
+function toMinutes(hhmm){ const [h,m]=hhmm.split(':').map(Number); return h*60+m; }
+function isOpenNow(hours){ const now=new Date(); const mins=now.getHours()*60+now.getMinutes(); return mins>=toMinutes(hours.open)&&mins<=toMinutes(hours.close); }
+function haversine(lat1, lon1, lat2, lon2){ function toRad(x){return x*Math.PI/180;} const R=6371; const dLat=toRad(lat2-lat1), dLon=toRad(lon2-lon1); const a=Math.sin(dLat/2)**2+Math.cos(toRad(lat1))*Math.cos(toRad(lat2))*Math.sin(dLon/2)**2; return R*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a)); }
+
+const listNode = document.getElementById('list');
+let map = L.map('map').setView([4.927,6.284], 14);
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{ attribution:'© OpenStreetMap contributors' }).addTo(map);
+let markers = {};
+
+function renderPharmacies(list, userPos){
+  listNode.innerHTML='';
+  Object.values(markers).forEach(m=>map.removeLayer(m));
+  markers={};
+
+  list.forEach(ph=>{
+    const dist = userPos?(haversine(userPos.lat,userPos.lng,ph.lat,ph.lng)).toFixed(2):null;
+    const isOpen = isOpenNow(ph.hours);
+
+    const card=document.createElement('article');
+    card.className='ph-card';
+    card.innerHTML=`
+      <div class="ph-avatar">${ph.name.split(' ').map(s=>s[0]).slice(0,2).join('')}</div>
+      <div class="ph-info">
+        <h3>${ph.name} ${isOpen?'<span class="badge">Open</span>':'<span class="badge" style="background:#fdecea;color:#b00020;border-color:#f5c6cb">Closed</span>'}</h3>
+        <div class="ph-meta">${ph.address} • ${ph.rating}★ ${dist? '• '+dist+' km':''}</div>
+        <div><strong>Drugs:</strong> ${ph.drugs.slice(0,5).join(', ')}</div>
+        <div><strong>Delivery:</strong> ${ph.delivery?'✅ Available':'❌ Not available'}</div>
+        <div class="ph-actions" style="margin-top:8px;">
+          <a href="tel:${ph.phone}">📞 Call</a>
+          <a href="https://www.google.com/maps/dir/?api=1&destination=${ph.lat},${ph.lng}" target="_blank">🧭 Directions</a>
+        </div>
+      </div>
+    `;
+    listNode.appendChild(card);
+
+    const marker=L.marker([ph.lat,ph.lng]).addTo(map).bindPopup(ph.name);
+    markers[ph.id]=marker;
+
+    card.addEventListener('click',()=>{
+      map.setView([ph.lat,ph.lng],15);
+      marker.openPopup();
+    });
+    marker.on('click',()=>{
+      card.scrollIntoView({behavior:'smooth',block:'center'});
+      card.style.background='#e7f7ed';
+      setTimeout(()=>card.style.background='#fff',1000);
+    });
+  });
+}
+
+/* Filters */
+const searchInput=document.getElementById('drugSearch');
+const hasDrugFilter=document.getElementById('filterHasDrug');
+const openNowCheckbox=document.getElementById('openNow');
+const locateBtn=document.getElementById('locateBtn');
+let userPos=null;
+
+function applyFilters(){
+  const q=searchInput.value.trim().toLowerCase();
+  const wantHasDrug=hasDrugFilter.value==='hasDrug';
+  const openOnly=openNowCheckbox.checked;
+
+  let filtered=pharmacies.filter(ph=>{
+    const match=ph.name.toLowerCase().includes(q)||ph.address.toLowerCase().includes(q)||ph.drugs.some(d=>d.toLowerCase().includes(q));
+    if(q&&!match)return false;
+    if(wantHasDrug&&q&&!ph.drugs.some(d=>d.toLowerCase().includes(q))) return false;
+    if(openOnly&&!isOpenNow(ph.hours)) return false;
+    return true;
+  });
+
+  if(userPos){
+    filtered=filtered.map(p=>({...p,distance:haversine(userPos.lat,userPos.lng,p.lat,p.lng)})).sort((a,b)=>a.distance-b.distance);
+  }
+
+  renderPharmacies(filtered,userPos);
+}
+
+searchInput.addEventListener('input',()=>setTimeout(applyFilters,250));
+hasDrugFilter.addEventListener('change',applyFilters);
+openNowCheckbox.addEventListener('change',applyFilters);
+
+locateBtn.addEventListener('click',()=>{
+  if(navigator.geolocation){
+    navigator.geolocation.getCurrentPosition(pos=>{
+      userPos={lat:pos.coords.latitude,lng:pos.coords.longitude};
+      map.setView([userPos.lat,userPos.lng],14);
+      L.marker([userPos.lat,userPos.lng],{title:"You are here"}).addTo(map);
+      applyFilters();
+    },err=>alert('Location error: '+err.message),{enableHighAccuracy:true});
+  }
+});
+
+renderPharmacies(pharmacies);
+</script>
+</body>
+</html>

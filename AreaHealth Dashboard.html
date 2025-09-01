@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Dashboard - AreaHealth NG</title>
+
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/9.1.3/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.1.3/firebase-auth.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.1.3/firebase-firestore.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.1.3/firebase-storage.js"></script>
+
+<style>
+body { font-family: Arial, sans-serif; margin: 0; background: #f5f7fa; color: #333; }
+/* header, sidebar, sections styles same as before */
+header { background: linear-gradient(270deg,#06b6d4,#3b82f6,#8b5cf6,#ec4899); background-size: 800% 800%; animation: gradientShift 10s ease infinite; color: #fff; padding: 15px 20px; display: flex; align-items: center; justify-content: space-between; }
+@keyframes gradientShift {0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
+.header-left { display: flex; align-items: center; gap: 12px; }
+header h1 { margin: 0; font-size: 1.3rem; }
+.user-greeting { display: flex; align-items: center; gap: 10px; }
+.user-greeting img { width: 40px; height: 40px; border-radius: 50%; border: 2px solid #fff; cursor:pointer; }
+header button { background: none; border: none; color: #fff; font-size: 24px; cursor: pointer; margin-left: 15px; }
+.sidebar { position: fixed; left: -220px; top: 0; height: 100%; width: 220px; background: #023e8a; padding-top: 60px; transition: 0.3s; z-index: 1000; }
+.sidebar.active { left: 0; }
+.sidebar a { color: #fff; padding: 12px 20px; text-decoration: none; display: block; }
+.sidebar a:hover { background: #0077b6; }
+.paragraph-header, .profile-box, .form-box, .hero, .features, .nearby { margin: 20px; padding: 20px; border-radius: 10px; background: #fff; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+.paragraph-header { text-align: center; }
+.profile-box { text-align: center; }
+.profile-box img { border-radius: 50%; width: 100px; height: 100px; margin-bottom: 10px; cursor:pointer; }
+.form-box input, .form-box button { display: block; margin: 10px 0; padding: 10px; width: 100%; border-radius: 5px; border: 1px solid #ccc; }
+.form-box button { background: #0077cc; color: #fff; cursor: pointer; }
+.form-box button:hover { background: #005fa3; }
+.success { color: green; font-weight: bold; }
+.hero { background: linear-gradient(to right, #0077cc, #00aaff); color: #fff; text-align: center; }
+.hero .btn { background: #fff; color: #0077cc; padding: 10px 20px; border-radius: 5px; text-decoration: none; font-weight: bold; }
+.features { text-align: center; }
+.features ul { list-style: none; padding: 0; }
+.features li { margin: 10px 0; font-size: 1.1rem; }
+.font { font-size: 20px; }
+footer { text-align: center; padding: 15px; background: #0077cc; color: #fff; margin-top: 30px; }
+.nearby-header { display:flex; justify-content:space-between; flex-wrap:wrap; margin-bottom:15px; }
+.nearby-header input, .nearby-header select { padding:10px; border:1px solid #ddd; border-radius:8px; margin:5px 0; }
+.services-grid { display:grid; grid-template-columns: repeat(auto-fit, minmax(250px,1fr)); gap:20px; }
+.card { background:white; padding:15px; border-radius:12px; box-shadow:0 2px 6px rgba(0,0,0,0.1); transition: transform 0.2s; }
+.card:hover { transform: translateY(-5px); }
+.card h3 {margin-bottom:8px;}
+.card p {font-size:14px; color:#555; margin-bottom:6px;}
+.card button { background:#3b82f6; color:white; border:none; padding:8px 12px; border-radius:6px; cursor:pointer; }
+.card button:hover { background:#2563eb; }
+</style>
+</head>
+
+<body>
+<header>
+  <div class="user-greeting" id="userGreeting">
+    <img id="headerPic" onclick="document.getElementById('profilePicInput').click()">
+    <span id="headerName"></span>
+  </div>
+  <div class="header-left"><h1>AreaHealth NG</h1></div>
+  <button onclick="toggleSidebar()">☰</button>
+</header>
+
+<div class="sidebar" id="sidebar">
+  <a href="#">🏠 Home</a>
+  <a href="Pharmacies..html">💊 Find Pharmacies</a>
+  <a href="Medication.html">📦 Medications</a>
+  <a href="Nearby Services.html">📍 Nearby Services</a>
+  <a href="#">⚙ Settings</a>
+  <a href="#" onclick="logout()">🚪 Logout</a>
+</div>
+
+<div class="paragraph-header" id="welcomeBox">
+  <h2>Hello, <span id="userName"></span> 👋</h2>
+  <p>Welcome to your dashboard. Here’s where you can access all your features and services.</p>
+</div>
+
+<div class="profile-box" id="profileBox">
+  <input type="file" id="profilePicInput" accept="image/*" onchange="updateProfilePic()" style="display:none;">
+  <img id="userPic">
+  <p><strong>Email:</strong> <span id="userEmail"></span></p>
+</div>
+
+<div class="form-box" id="formBox">
+  <p class="success" id="msgBox"></p>
+  <label>Upload Document:</label>
+  <input type="file" id="document">
+  <button onclick="uploadDocument()">Save Info</button>
+</div>
+
+<section class="hero">
+  <h2>Your Trusted Pharmaceutical Service Provider</h2>
+  <a href="#" class="btn">View Packages</a>
+</section>
+
+<section class="features">
+  <p class="font">
+    This platform helps you quickly locate nearby pharmacies and find where medications are available closest to you. With <b>AreaHealth NG</b>, you don’t have to stress—just search and connect instantly.
+  </p>
+</section>
+
+<section class="nearby" id="nearby">
+  <h2>Nearby Health Services</h2>
+  <div class="nearby-header">
+    <input type="text" id="searchBox" placeholder="Search services...">
+    <select id="filterCategory">
+      <option value="all">All</option>
+      <option value="pharmacy">Pharmacy</option>
+      <option value="hospital">Hospital</option>
+      <option value="clinic">Clinic</option>
+      <option value="laboratory">Laboratory</option>
+    </select>
+  </div>
+  <div class="services-grid" id="servicesGrid"></div>
+</section>
+
+<footer>
+  <p>&copy; 2025 Pharmaceutical Supplies. All rights reserved.</p>
+</footer>
+
+<script>
+const firebaseConfig = {
+  apiKey: "AIzaSyC79cSDPpC4bbhlRBpu7WhON3j8AMxMLyE",
+  authDomain: "areahealth-ng.firebaseapp.com",
+  projectId: "areahealth-ng",
+  storageBucket: "areahealth-ng.appspot.com",   // ✅ FIXED
+  messagingSenderId: "986651954303",
+  appId: "1:986651954303:web:3f38dc24e246b7047d834a"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+const storage = firebase.storage();
+
+// Sidebar toggle
+function toggleSidebar() { document.getElementById("sidebar").classList.toggle("active"); }
+
+// Load user data from Firebase
+async function loadUser(username) {
+  const doc = await db.collection("users").doc(username).get();
+  if(doc.exists){
+    const user = doc.data();
+    showUser(user.name, user.email, user.profilePic);
+  }
+}
+
+function showUser(name, email, profilePic) {
+  document.getElementById("userGreeting").style.display = "flex";
+  document.getElementById("headerName").textContent = `Hi, ${name} 👋`;
+  document.getElementById("userName").textContent = name;
+  document.getElementById("userEmail").textContent = email;
+  document.getElementById("userPic").src = profilePic || "https://via.placeholder.com/100";
+}
+
+// Update profile picture
+function updateProfilePic(){
+  const file = document.getElementById("profilePicInput").files[0];
+  const username = JSON.parse(localStorage.getItem("userData")).username;
+  if(file){
+    const ref = storage.ref(`profiles/${username}_${file.name}`);
+    ref.put(file).then(() => ref.getDownloadURL().then(url => {
+      db.collection("users").doc(username).update({profilePic: url});
+      document.getElementById("userPic").src = url;
+      alert("Profile picture updated!");
+    }));
+  }
+}
+
+// Upload document
+function uploadDocument(){
+  const file = document.getElementById("document").files[0];
+  const username = JSON.parse(localStorage.getItem("userData")).username;
+  if(file){
+    const ref = storage.ref(`documents/${username}_${file.name}`);
+    ref.put(file).then(() => ref.getDownloadURL().then(url => {
+      db.collection("users").doc(username).update({document: url});
+      alert("Document uploaded successfully!");
+    }));
+  }
+}
+
+// Logout
+function logout(){
+  localStorage.removeItem("userData");
+  alert("Logged out!");
+  location.href = "AreaHealth Login.html";
+}
+// Nearby Services
+const services = [
+  { name: "CityCare Pharmacy", type: "pharmacy", location: "Yenagoa", contact: "08012345678" },
+  { name: "General Hospital", type: "hospital", location: "Otuoke", contact: "08023456789" },
+  { name: "Divine Clinic", type: "clinic", location: "Kpansia", contact: "08034567890" },
+  { name: "MegaLab Diagnostics", type: "laboratory", location: "Amarata", contact: "08045678901" },
+  { name: "Blessed Pharmacy", type: "pharmacy", location: "Opolo", contact: "08056789012" },
+  { name: "Faith Hospital", type: "hospital", location: "Okutukutu", contact: "08067890123" }
+];
+
+function renderServices(filter = "all", search = "") {
+  const grid = document.getElementById("servicesGrid");
+  grid.innerHTML = "";
+  const filtered = services.filter(s =>
+    (filter === "all" || s.type === filter) &&
+    (s.name.toLowerCase().includes(search.toLowerCase()) ||
+      s.location.toLowerCase().includes(search.toLowerCase()))
+  );
+  if (filtered.length === 0) {
+    grid.innerHTML = "<p>No services found.</p>";
+    return;
+  }
+  filtered.forEach(s => {
+    const card = document.createElement("div");
+    card.className = "card";
+    card.innerHTML = `
+      <h3>${s.name}</h3>
+      <p>Type: ${s.type}</p>
+      <p>Location: ${s.location}</p>
+      <p>Contact: ${s.contact}</p>
+      <button onclick="alert('Contacting ${s.name} at ${s.contact}...')">Contact</button>
+    `;
+    grid.appendChild(card);
+  });
+}
+
+// Event listeners for filter/search
+document.getElementById("filterCategory").addEventListener("change", e => {
+  renderServices(e.target.value, document.getElementById("searchBox").value);
+});
+document.getElementById("searchBox").addEventListener("input", e => {
+  renderServices(document.getElementById("filterCategory").value, e.target.value);
+});
+
+// Initialize dashboard
+window.onload = async function() {
+  const storedUser = localStorage.getItem("userData");
+  if(storedUser){
+    const user = JSON.parse(storedUser);
+    await loadUser(user.username || user.email);
+  }
+  renderServices();
+};
+</script>
+</body>
+</html>

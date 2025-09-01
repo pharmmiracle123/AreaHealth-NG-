@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Medication Finder - AreaHealth NG</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      color: #333;
+      transition: background 2s ease;
+    }
+
+    header {
+      text-align: center;
+      padding: 20px;
+      color: white;
+    }
+
+    .search-box {
+      margin: 20px auto;
+      width: 90%;
+      max-width: 600px;
+      display: flex;
+      gap: 10px;
+    }
+    .search-box input {
+      flex: 1;
+      padding: 12px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+    }
+    .search-box button {
+      background: #0077b6;
+      color: white;
+      padding: 12px 18px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    .search-box button:hover {
+      background: #005f8a;
+    }
+
+    .drug-list {
+      width: 90%;
+      max-width: 900px;
+      margin: 20px auto;
+    }
+
+    .drug-card {
+      background: #fff;
+      padding: 20px;
+      margin-bottom: 15px;
+      border-radius: 12px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    }
+
+    .drug-card h3 {
+      margin: 0 0 10px 0;
+      color: #0077b6;
+    }
+
+    .pharmacy-availability {
+      margin-top: 10px;
+      font-size: 0.95rem;
+      background: #f4f4f4;
+      padding: 8px;
+      border-radius: 6px;
+    }
+
+    footer {
+      text-align: center;
+      padding: 15px;
+      background: #0077b6;
+      color: #fff;
+      margin-top: 30px;
+    }
+
+    @media (max-width: 600px) {
+      .drug-card {
+        font-size: 0.9rem;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>Medication Finder</h1>
+    <p>Search drugs, indications, side effects, and pharmacies near you</p>
+  </header>
+
+  <!-- Search Box -->
+  <div class="search-box">
+    <input type="text" id="searchDrug" placeholder="Search drug by name...">
+    <button onclick="searchDrug()">🔍 Search</button>
+  </div>
+
+  <!-- Drug List -->
+  <div class="drug-list" id="drugList">
+    <!-- Example drug -->
+    <div class="drug-card">
+      <h3>Paracetamol</h3>
+      <p><b>Indication:</b> Pain relief, fever reduction</p>
+      <p><b>How to use:</b> 500mg every 6-8 hours as needed (max 4g daily)</p>
+      <p><b>Side effects:</b> Nausea, rash, liver damage (if overdosed)</p>
+      <div class="pharmacy-availability">
+        📍 Available at:  
+        <ul>
+          <li>HealthPlus Pharmacy (Yenagoa Main Market Road) - 📞 08012345678</li>
+          <li>City Health Pharmacy (Ekeki Park, Yenagoa) - 📞 08198765432</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <p>&copy; 2025 AreaHealth NG. All rights reserved.</p>
+  </footer>
+
+  <script>
+    // Background gradient changer
+    const gradients = [
+      "linear-gradient(135deg, #0077b6, #90e0ef)",
+      "linear-gradient(135deg, #ff6b6b, #fcd34d)",
+      "linear-gradient(135deg, #6d28d9, #f472b6)",
+      "linear-gradient(135deg, #16a34a, #86efac)",
+      "linear-gradient(135deg, #f97316, #facc15)"
+    ];
+    let index = 0;
+    function changeBackground() {
+      document.body.style.background = gradients[index];
+      index = (index + 1) % gradients.length;
+    }
+    setInterval(changeBackground, 10000);
+    changeBackground();
+
+    // Example drug data (you can expand this to 100 drugs)
+    const drugs = [
+      {
+        name: "Paracetamol",
+        indication: "Pain relief, fever reduction",
+        usage: "500mg every 6-8 hours as needed (max 4g daily)",
+        sideEffects: "Nausea, rash, liver damage (if overdosed)",
+        pharmacies: [
+          { name: "HealthPlus Pharmacy", location: "Yenagoa Main Market Road", contact: "08012345678" },
+          { name: "City Health Pharmacy", location: "Ekeki Park, Yenagoa", contact: "08198765432" }
+        ]
+      },
+      {
+        name: "Amoxicillin",
+        indication: "Bacterial infections",
+        usage: "500mg every 8 hours for 5–7 days",
+        sideEffects: "Diarrhea, rash, nausea, allergic reaction",
+        pharmacies: [
+          { name: "MediCare Pharmacy", location: "Oxbow Lake Road, Yenagoa", contact: "07055555555" },
+          { name: "WellCare Drugs", location: "Swali Market, Yenagoa", contact: "08123456789" }
+        ]
+      }
+      // 👉 Add up to 100 drugs here
+    ];
+
+    // Populate drug list
+    function renderDrugs(list) {
+      const container = document.getElementById("drugList");
+      container.innerHTML = "";
+      list.forEach(drug => {
+        const div = document.createElement("div");
+        div.className = "drug-card";
+        div.innerHTML = `
+          <h3>${drug.name}</h3>
+          <p><b>Indication:</b> ${drug.indication}</p>
+          <p><b>How to use:</b> ${drug.usage}</p>
+          <p><b>Side effects:</b> ${drug.sideEffects}</p>
+          <div class="pharmacy-availability">
+            📍 Available at:
+            <ul>
+              ${drug.pharmacies.map(p => `<li>${p.name} (${p.location}) - 📞 ${p.contact}</li>`).join("")}
+            </ul>
+          </div>
+        `;
+        container.appendChild(div);
+      });
+    }
+
+    renderDrugs(drugs);
+
+    // Search function
+    function searchDrug() {
+      const input = document.getElementById("searchDrug").value.toLowerCase();
+      const filtered = drugs.filter(d => d.name.toLowerCase().includes(input));
+      renderDrugs(filtered);
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Register - Pharmaceutical</title>
+
+<!-- ✅ Firebase v8 CDN -->
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-storage.js"></script>
+
+<style>
+  body {font-family: Arial,sans-serif; background: #f4f4f4; display:flex; justify-content:center; align-items:center; height:100vh;}
+  .form-box {background:white; padding:30px; border-radius:12px; box-shadow:0 0 10px rgba(0,0,0,0.2); width:350px;}
+  .form-box h2 {text-align:center; margin-bottom:20px;}
+  .input-group {position: relative; margin: 10px 0;}
+  input {width:100%; padding:12px; border:1px solid #ddd; border-radius:6px;}
+  .toggle-password {position:absolute; right:12px; top:50%; transform:translateY(-50%); cursor:pointer; font-size:16px; color:#0077cc;}
+  button {width:100%; padding:12px; margin-top:10px; background:#0077cc; color:white; font-weight:bold; border:none; border-radius:6px; cursor:pointer;}
+  button:hover {background:#005fa3;}
+  .terms {font-size:13px;}
+</style>
+</head>
+<body>
+
+<div class="form-box">
+<h2>Sign Up</h2>
+<form id="registerForm">
+  <input type="text" id="name" placeholder="Full Name" required>
+  <input type="text" id="username" placeholder="Username" required>
+  <input type="email" id="email" placeholder="Email" required>
+  <input type="tel" id="phone" placeholder="Phone Number" required>
+  
+  <div class="input-group">
+    <input type="password" id="password" placeholder="Password" required>
+    <span class="toggle-password" onclick="togglePassword('password', this)">👁</span>
+  </div>
+  
+  <div class="input-group">
+    <input type="password" id="confirmPassword" placeholder="Confirm Password" required>
+    <span class="toggle-password" onclick="togglePassword('confirmPassword', this)">👁</span>
+  </div>
+
+  <label>Profile Picture:</label>
+  <input type="file" id="profilePic" accept="image/*">
+
+  <label>Upload Document:</label>
+  <input type="file" id="document">
+
+  <label class="terms">
+    <input type="checkbox" required> Yes, I agree to the 
+    <a href="#">Terms & Services</a>
+  </label>
+
+  <button type="submit">Register</button>
+  <p>Already have an account? <a href="AreaHealth Login.html">Login</a></p>
+</form>
+</div>
+
+<script>
+  function togglePassword(fieldId, icon) {
+    const input = document.getElementById(fieldId);
+    input.type = input.type === "password" ? "text" : "password";
+    icon.textContent = input.type === "password" ? "👁" : "🙈";
+  }
+
+  // ✅ Firebase config
+  const firebaseConfig = {
+  apiKey: "AIzaSyC79cSDPpC4bbhlRBpu7WhON3j8AMxMLyE",
+  authDomain: "areahealth-ng.firebaseapp.com",
+  projectId: "areahealth-ng",
+  storageBucket: "areahealth-ng.appspot.com",   // ✅ FIXED
+  messagingSenderId: "986651954303",
+  appId: "1:986651954303:web:3f38dc24e246b7047d834a"
+};
+
+  firebase.initializeApp(firebaseConfig);
+  const auth = firebase.auth();
+  const db = firebase.firestore();
+  const storage = firebase.storage();
+
+  // ✅ Register user with Firebase Auth + Firestore
+  document.getElementById("registerForm").addEventListener("submit", async function(e){
+    e.preventDefault();
+
+    const name = document.getElementById("name").value.trim();
+    const username = document.getElementById("username").value.trim();
+    const email = document.getElementById("email").value.trim();
+    const phone = document.getElementById("phone").value.trim();
+    const password = document.getElementById("password").value.trim();
+    const confirmPassword = document.getElementById("confirmPassword").value.trim();
+
+    if(password !== confirmPassword){
+      alert("❌ Passwords do not match!");
+      return;
+    }
+
+    const profilePicFile = document.getElementById("profilePic").files[0];
+    const docFile = document.getElementById("document").files[0];
+
+    try {
+      // ✅ Create user in Firebase Auth
+      const userCredential = await auth.createUserWithEmailAndPassword(email, password);
+      const userId = userCredential.user.uid;
+
+      // ✅ Upload files
+      let profileURL = "";
+      if(profilePicFile){
+        const picRef = storage.ref(`profiles/${userId}_${Date.now()}_${profilePicFile.name}`);
+        await picRef.put(profilePicFile);
+        profileURL = await picRef.getDownloadURL();
+      }
+
+      let docURL = "";
+      if(docFile){
+        const docRef = storage.ref(`documents/${userId}_${Date.now()}_${docFile.name}`);
+        await docRef.put(docFile);
+        docURL = await docRef.getDownloadURL();
+      }
+
+      // ✅ Save user data to Firestore (no password saved!)
+      await db.collection("users").doc(userId).set({
+        name, username, email, phone,
+        profilePic: profileURL,
+        document: docURL,
+        registeredAt: firebase.firestore.FieldValue.serverTimestamp()
+      });
+
+      // ✅ Send admin notification
+      fetch("https://formsubmit.co/ajax/areahealthng@gmail.com", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          Name: name,
+          Username: username,
+          Email: email,
+          Phone: phone,
+          _cc: "onyekaudechukwum@gmail.com,bolayefaaprezi@gmail.com",
+          _subject: "🆕 New AreaHealth Registration"
+        })
+      });
+
+      alert("✅ Registration successful! You can now log in.");
+      window.location.href = "AreaHealth Login.html";
+
+    } catch(err) {
+      console.error("🔥 Registration Error:", err);
+      alert("⚠️ " + err.message);
+    }
+  });
+</script>
+</body>
+</html>
