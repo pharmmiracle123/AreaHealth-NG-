@@ -4,8 +4,52 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Bayelsa Hospitals</title>
-  <link rel="stylesheet" href="css/styles.css" />
 </head>
+<style>
+  
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+  background-color: #f5f5f5;
+  
+}
+
+header {
+  background-color: #007BFF;
+  color: white;
+  padding: 20px;
+  text-align: center;
+}
+
+main {
+  padding: 20px;
+  max-width: 1000px;
+  margin: auto;
+}
+
+.hospital-card {
+  background: white;
+  margin: 15px 0;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 5px hsla(276, 31%, 8%, 0.43);
+}
+
+.hospital-card h2 {
+  color: #007BFF;
+  margin-top: 0;
+}
+
+.hospital-card a {
+  display: inline-block;
+  margin-top: 10px;
+  color: #007BFF;
+  font-weight: bold;
+  text-decoration: none;
+}
+
+</style>
 <body>
   <header>
     <img srcset="" src="IMG-20240712-WA0037.jpg" width="50px" lenght ="50px">
@@ -15,6 +59,60 @@
 
   <main id="hospital-list"></main>
 
-  <script src="js/script.js"></script>
+  <script>
+    const hospitals = [
+  {
+    name: "Niger Delta University Teaching Hospital (NDUTH)",
+    description: "Located in Okolobiri, NDUTH is the leading teaching hospital in Bayelsa. It provides specialist services, training, and research. It is affiliated with Niger Delta University.",
+    link: "https://nduth.org.ng"
+  },
+   {
+   name: " Tobis Hospital",
+   description: "Located after Agudama bridge, Akenfa Bayelsa State. It provides specialist services, training, and research. It is affiliated with Niger Delta University.",
+   link: "https://nduth.org.ng"
+ },
+  {
+    name: "Federal Medical Centre (FMC), Yenagoa",
+    description: "FMC Yenagoa is a federal tertiary healthcare institution offering a wide range of services, including surgery, maternity, paediatrics, and internal medicine.",
+    link: "https://fmcyenagoa.org.ng"
+  },
+  {
+    name: "Diette-Koki Memorial Hospital",
+    description: "This hospital is known for its well-equipped surgical services, private specialist care, and a serene environment for in-patient and out-patient services.",
+    link: "https://dietekokimemorialhospital.org/"
+  },
+  {
+    name: "General Hospital, Ogbia",
+    description: "Serving the Ogbia area, this hospital provides general and emergency healthcare, with improved infrastructure and increasing patient intake.",
+    link: "#"
+  },
+  {
+    name: "Gloryland Hospital, Yenagoa",
+    description: "A reputable private hospital with modern medical equipment, Gloryland is known for maternal and child health services, diagnostics, and fast emergency response.",
+    link: "#"
+  }
+  ,
+  {
+    name: "Website development/management",
+    description: "Pharmt Miracle Tech World is one of the best web development company in Nigeria, you can contact us now to get a Website for your hospital, school, organizations.",
+    link: "https://wa.link/s0e7eh"
+
+  }
+  
+];
+
+const container = document.getElementById('hospital-list');
+hospitals.forEach(hospital => {
+  const card = document.createElement('div');
+  card.className = 'hospital-card';
+  card.innerHTML = `
+    <h2>${hospital.name}</h2>
+    <p>${hospital.description}</p>
+    <a href="${hospital.link}" target="_blank">Visit Website</a>
+  `;
+  container.appendChild(card);
+});
+
+  </script>
 </body> 
 </html>
