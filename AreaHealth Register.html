@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Register - Pharmaceutical</title>
+<title>Register - AreaHealth</title>
 
 <!-- ✅ Firebase v8 CDN -->
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
@@ -12,51 +12,144 @@
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-storage.js"></script>
 
 <style>
-  body {font-family: Arial,sans-serif; background: #f4f4f4; display:flex; justify-content:center; align-items:center; height:100vh;}
-  .form-box {background:white; padding:30px; border-radius:12px; box-shadow:0 0 10px rgba(0,0,0,0.2); width:350px;}
-  .form-box h2 {text-align:center; margin-bottom:20px;}
-  .input-group {position: relative; margin: 10px 0;}
-  input {width:100%; padding:12px; border:1px solid #ddd; border-radius:6px;}
-  .toggle-password {position:absolute; right:12px; top:50%; transform:translateY(-50%); cursor:pointer; font-size:16px; color:#0077cc;}
-  button {width:100%; padding:12px; margin-top:10px; background:#0077cc; color:white; font-weight:bold; border:none; border-radius:6px; cursor:pointer;}
-  button:hover {background:#005fa3;}
-  .terms {font-size:13px;}
+  body {
+    font-family: Arial, sans-serif;
+    background: linear-gradient(135deg, #0077cc, #00c6ff);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+    animation: bgShift 5s infinite alternate;
+  }
+
+  @keyframes bgShift {
+    0% { background: linear-gradient(135deg, #0077cc, #00c6ff); }
+    50% { background: linear-gradient(135deg, #ff7e5f, #feb47b); }
+    100% { background: linear-gradient(135deg, #6a11cb, #2575fc); }
+  }
+
+  .form-box {
+    background: white;
+    padding: 30px;
+    border-radius: 15px;
+    box-shadow: 0 6px 15px rgba(0,0,0,0.3);
+    width: 350px;
+    animation: fadeIn 1s ease-in-out;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .form-box h2 {
+    text-align: center;
+    margin-bottom: 20px;
+    color: #0077cc;
+  }
+
+  .input-group {
+    position: relative;
+    margin: 10px 0;
+  }
+
+  input {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    outline: none;
+    font-size: 14px;
+  }
+
+  .toggle-password {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: pointer;
+    font-size: 16px;
+    color: #0077cc;
+  }
+
+  button {
+    width: 100%;
+    padding: 12px;
+    margin-top: 10px;
+    background: #0077cc;
+    color: white;
+    font-weight: bold;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: 0.3s ease;
+  }
+
+  button:hover {
+    background: #005fa3;
+  }
+
+  .terms {
+    font-size: 13px;
+    display: block;
+    margin: 10px 0;
+  }
+
+  .terms a {
+    color: #0077cc;
+    text-decoration: none;
+  }
+
+  .terms a:hover {
+    text-decoration: underline;
+  }
+
+  p {
+    text-align: center;
+    font-size: 14px;
+  }
+
+  p a {
+    color: #0077cc;
+    font-weight: bold;
+  }
 </style>
 </head>
 <body>
 
 <div class="form-box">
-<h2>Sign Up</h2>
-<form id="registerForm">
-  <input type="text" id="name" placeholder="Full Name" required>
-  <input type="text" id="username" placeholder="Username" required>
-  <input type="email" id="email" placeholder="Email" required>
-  <input type="tel" id="phone" placeholder="Phone Number" required>
-  
-  <div class="input-group">
-    <input type="password" id="password" placeholder="Password" required>
-    <span class="toggle-password" onclick="togglePassword('password', this)">👁</span>
-  </div>
-  
-  <div class="input-group">
-    <input type="password" id="confirmPassword" placeholder="Confirm Password" required>
-    <span class="toggle-password" onclick="togglePassword('confirmPassword', this)">👁</span>
-  </div>
+  <h2>Create Your Account</h2>
+  <form id="registerForm">
+    <input type="text" id="name" placeholder="Full Name" required>
+    <input type="text" id="username" placeholder="Username" required>
+    <input type="email" id="email" placeholder="Email" required>
+    <input type="tel" id="phone" placeholder="Phone Number" required>
+    
+    <div class="input-group">
+      <input type="password" id="password" placeholder="Password" required>
+      <span class="toggle-password" onclick="togglePassword('password', this)">👁</span>
+    </div>
+    
+    <div class="input-group">
+      <input type="password" id="confirmPassword" placeholder="Confirm Password" required>
+      <span class="toggle-password" onclick="togglePassword('confirmPassword', this)">👁</span>
+    </div>
 
-  <label>Profile Picture:</label>
-  <input type="file" id="profilePic" accept="image/*">
+    <label>Profile Picture:</label>
+    <input type="file" id="profilePic" accept="image/*">
 
-  <label>Upload Document:</label>
-  <input type="file" id="document">
+    <label>Upload Document:</label>
+    <input type="file" id="document">
 
-  <label class="terms">
-    <input type="checkbox" required> Yes, I agree to the 
-    <a href="#">Terms & Services</a>
-  </label>
+    <label class="terms">
+      <input type="checkbox" required> I agree to the 
+      <a href="#">Terms & Services</a>
+    </label>
 
-  <button type="submit">Register</button>
-  <p>Already have an account? <a href="AreaHealth Login.html">Login</a></p>
-</form>
+    <button type="submit">Register</button>
+    <p>Already have an account? <a href="AreaHealth Login.html">Login</a></p>
+  </form>
 </div>
 
 <script>
@@ -68,13 +161,13 @@
 
   // ✅ Firebase config
   const firebaseConfig = {
-  apiKey: "AIzaSyC79cSDPpC4bbhlRBpu7WhON3j8AMxMLyE",
-  authDomain: "areahealth-ng.firebaseapp.com",
-  projectId: "areahealth-ng",
-  storageBucket: "areahealth-ng.appspot.com",   // ✅ FIXED
-  messagingSenderId: "986651954303",
-  appId: "1:986651954303:web:3f38dc24e246b7047d834a"
-};
+    apiKey: "AIzaSyC79cSDPpC4bbhlRBpu7WhON3j8AMxMLyE",
+    authDomain: "areahealth-ng.firebaseapp.com",
+    projectId: "areahealth-ng",
+    storageBucket: "areahealth-ng.appspot.com",
+    messagingSenderId: "986651954303",
+    appId: "1:986651954303:web:3f38dc24e246b7047d834a"
+  };
 
   firebase.initializeApp(firebaseConfig);
   const auth = firebase.auth();
@@ -120,7 +213,7 @@
         docURL = await docRef.getDownloadURL();
       }
 
-      // ✅ Save user data to Firestore (no password saved!)
+      // ✅ Save user data to Firestore
       await db.collection("users").doc(userId).set({
         name, username, email, phone,
         profilePic: profileURL,
