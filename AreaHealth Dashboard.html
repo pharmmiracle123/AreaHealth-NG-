@@ -224,339 +224,180 @@
     </main>
   </div>
 
-  <script>
-    /* -------------------- Firebase Init -------------------- */
-    const firebaseConfig = {
-      apiKey: "AIzaSyC79cSDPpC4bbhlRBpu7WhON3j8AMxMLyE",
-      authDomain: "areahealth-ng.firebaseapp.com",
-      projectId: "areahealth-ng",
-      storageBucket: "areahealth-ng.appspot.com",
-      messagingSenderId: "986651954303",
-      appId: "1:986651954303:web:3f38dc24e246b7047d834a"
-    };
-    firebase.initializeApp(firebaseConfig);
-    const auth = firebase.auth();
-    const db = firebase.firestore();
-    const storage = firebase.storage();
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
+  import { getAuth, onAuthStateChanged, sendEmailVerification, signOut } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js";
+  import { getFirestore, doc, getDoc, setDoc, updateDoc, arrayUnion, serverTimestamp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js";
+  import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-storage.js";
 
-    /* ---------------- Sidebar Toggle (mobile) --------------- */
-    const sidebar = document.getElementById('sidebar');
-    const overlay = document.getElementById('overlay');
-    const sidebarToggle = document.getElementById('sidebarToggle');
-    function openSidebar() {
-      sidebar.classList.remove('-translate-x-full');
-      overlay.classList.remove('hidden');
+  /* -------------------- Firebase Init -------------------- */
+  const firebaseConfig = {
+    apiKey: "AIzaSyC79cSDPpC4bbhlRBpu7WhON3j8AMxMLyE",
+    authDomain: "areahealth-ng.firebaseapp.com",
+    projectId: "areahealth-ng",
+    storageBucket: "areahealth-ng.appspot.com",
+    messagingSenderId: "986651954303",
+    appId: "1:986651954303:web:3f38dc24e246b7047d834a"
+  };
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getFirestore(app);
+  const storage = getStorage(app);
+
+  /* ---------------- Sidebar Toggle (mobile) --------------- */
+  const sidebar = document.getElementById('sidebar');
+  const overlay = document.getElementById('overlay');
+  const sidebarToggle = document.getElementById('sidebarToggle');
+  function openSidebar() { sidebar.classList.remove('-translate-x-full'); overlay.classList.remove('hidden'); }
+  function closeSidebar() { sidebar.classList.add('-translate-x-full'); overlay.classList.add('hidden'); }
+  sidebarToggle?.addEventListener('click', openSidebar);
+  overlay?.addEventListener('click', closeSidebar);
+  sidebar.querySelectorAll('a,button').forEach(el => el.addEventListener('click', () => { if (window.innerWidth < 768) closeSidebar(); }));
+
+  /* ------------------ DOM helpers ------------------ */
+  const $ = (id) => document.getElementById(id);
+  const headerGreeting = $('headerGreeting');
+  const headerPic = $('headerPic');
+  const userNameSpan = $('userName');
+  const profileName = $('profileName');
+  const userEmailSpan = $('userEmail');
+  const userPic = $('userPic');
+  const verifiedBadge = $('verifiedBadge');
+  const emailStatus = $('emailStatus');
+  const lastLogin = $('lastLogin');
+  const docCount = $('docCount');
+  const memberSince = $('memberSince');
+  const resendVerifyBtn = $('resendVerifyBtn');
+  const profilePicInput = $('profilePicInput');
+  const profileProgress = $('profileProgress');
+  const profileUploadStatus = $('profileUploadStatus');
+  const documentInput = $('documentInput');
+  const uploadDocBtn = $('uploadDocBtn');
+  const docProgress = $('docProgress');
+  const docUploadStatus = $('docUploadStatus');
+  const docList = $('docList');
+
+  /* ------------------ Auth State & User Load ------------------ */
+  let currentUser = null;
+  let userDocRef = null;
+  let userData = null;
+
+  onAuthStateChanged(auth, async (u) => {
+    if (!u) { window.location.href = "AreaHealth Login.html"; return; }
+    currentUser = u;
+    userDocRef = doc(db, 'users', u.uid);
+
+    const snap = await getDoc(userDocRef);
+    userData = snap.exists() ? snap.data() : null;
+
+    // ------------------ Migration: old 'document' → 'documents[]' ------------------
+    if (userData?.document && !userData?.documents) {
+      await setDoc(userDocRef, {
+        documents: [{
+          name: "Uploaded Document",
+          url: userData.document,
+          ts: serverTimestamp()
+        }]
+      }, { merge: true });
+      userData.documents = [{
+        name: "Uploaded Document",
+        url: userData.document,
+        ts: { toDate: () => new Date() } // fallback
+      }];
     }
-    function closeSidebar() {
-      sidebar.classList.add('-translate-x-full');
-      overlay.classList.add('hidden');
-    }
-    sidebarToggle?.addEventListener('click', openSidebar);
-    overlay?.addEventListener('click', closeSidebar);
-    // Auto close on nav link click (mobile)
-    sidebar.querySelectorAll('a,button').forEach(el => {
-      el.addEventListener('click', () => { if (window.innerWidth < 768) closeSidebar(); });
-    });
 
-    /* ------------------ DOM helpers ------------------ */
-    const $ = (id) => document.getElementById(id);
-    const headerGreeting = $('headerGreeting');
-    const headerPic = $('headerPic');
-    const userNameSpan = $('userName');
-    const profileName = $('profileName');
-    const userEmailSpan = $('userEmail');
-    const userPic = $('userPic');
-    const verifiedBadge = $('verifiedBadge');
-    const emailStatus = $('emailStatus');
-    const lastLogin = $('lastLogin');
-    const docCount = $('docCount');
-    const memberSince = $('memberSince');
-    const resendVerifyBtn = $('resendVerifyBtn');
+    // Populate UI
+    const name = (userData && (userData.name || userData.username)) || u.displayName || 'User';
+    const email = u.email || userData?.email || '—';
+    const pic = (userData && userData.profilePic) || 'https://via.placeholder.com/120?text=Profile';
 
-    const profilePicInput = $('profilePicInput');
-    const profileProgress = $('profileProgress');
-    const profileUploadStatus = $('profileUploadStatus');
+    userNameSpan.textContent = name;
+    profileName.textContent = name;
+    headerGreeting.textContent = `Hello, ${name} 👋`;
+    userEmailSpan.textContent = email;
+    userPic.src = pic;
+    headerPic.src = pic;
 
-    const documentInput = $('documentInput');
-    const uploadDocBtn = $('uploadDocBtn');
-    const docProgress = $('docProgress');
-    const docUploadStatus = $('docUploadStatus');
-    const docList = $('docList');
+    emailStatus.textContent = u.emailVerified ? 'Verified' : 'Not verified';
+    verifiedBadge.classList.toggle('hidden', !u.emailVerified);
+    resendVerifyBtn.classList.toggle('hidden', !!u.emailVerified);
 
-    /* ------------------ Auth State & User Load ------------------ */
-    let currentUser = null;
-    let userDocRef = null; // Firestore doc ref (users/{uid})
-    let userData = null;
+    lastLogin.textContent = (u.metadata && u.metadata.lastSignInTime) ? new Date(u.metadata.lastSignInTime).toLocaleString() : '—';
+    memberSince.textContent = (userData && userData.registeredAt?.toDate) ? userData.registeredAt.toDate().toLocaleDateString() : '—';
 
-    auth.onAuthStateChanged(async (u) => {
-      if (!u) {
-        // Not logged in → go to login
-        window.location.href = "AreaHealth Login.html";
-        return;
-      }
-      currentUser = u;
-      userDocRef = db.collection('users').doc(u.uid);
+    const docs = Array.isArray(userData?.documents) ? userData.documents : [];
+    renderDocList(docs);
+    docCount.textContent = docs.length;
+  });
 
-      // Fetch Firestore data
-      const snap = await userDocRef.get();
-      userData = snap.exists ? snap.data() : null;
+  resendVerifyBtn.addEventListener('click', async () => {
+    if (!currentUser) return;
+    try {
+      await sendEmailVerification(currentUser, { url: "https://areahealth-ng.firebaseapp.com" });
+      alert("Verification email sent. Please check your inbox.");
+    } catch (e) { console.error(e); alert("Couldn't send verification email. Try later."); }
+  });
 
-      // Populate UI
-      const name = (userData && (userData.name || userData.username)) || (u.displayName) || 'User';
-      const email = u.email || (userData?.email) || '—';
-      const pic = (userData && userData.profilePic) || 'https://via.placeholder.com/120?text=Profile';
+  /* ------------------ Profile Picture Upload ------------------ */
+  profilePicInput.addEventListener('change', async (e) => {
+    const file = e.target.files[0];
+    if (!file || !currentUser) return;
+    const storageRef = ref(storage, `profiles/${currentUser.uid}_${Date.now()}_${file.name}`);
+    profileUploadStatus.textContent = 'Uploading…'; profileProgress.style.width = '0%';
+    try {
+      const snapshot = await uploadBytes(storageRef, file, {
+        onProgress: (snap) => profileProgress.style.width = Math.round((snap.bytesTransferred / snap.totalBytes) * 100) + '%'
+      });
+      const url = await getDownloadURL(storageRef);
+      await updateDoc(userDocRef, { profilePic: url });
+      userPic.src = url; headerPic.src = url;
+      profileUploadStatus.textContent = 'Profile picture updated!';
+    } catch (err) { console.error(err); profileUploadStatus.textContent = 'Upload failed.'; }
+  });
 
-      userNameSpan.textContent = name;
-      profileName.textContent = name;
-      headerGreeting.textContent = `Hello, ${name} 👋`;
-      userEmailSpan.textContent = email;
-      userPic.src = pic;
-      headerPic.src = pic;
+  /* ------------------ Document Upload ------------------ */
+  let selectedDoc = null;
+  documentInput.addEventListener('change', (e) => { selectedDoc = e.target.files[0] || null; uploadDocBtn.disabled = !selectedDoc; });
 
-      // Stats
-      emailStatus.textContent = u.emailVerified ? 'Verified' : 'Not verified';
-      verifiedBadge.classList.toggle('hidden', !u.emailVerified);
-      resendVerifyBtn.classList.toggle('hidden', !!u.emailVerified);
+  uploadDocBtn.addEventListener('click', async () => {
+    if (!selectedDoc || !currentUser) return;
+    const storageRef = ref(storage, `documents/${currentUser.uid}_${Date.now()}_${selectedDoc.name}`);
+    docUploadStatus.textContent = 'Uploading…'; docProgress.style.width = '0%'; uploadDocBtn.disabled = true;
+    try {
+      await uploadBytes(storageRef, selectedDoc);
+      const url = await getDownloadURL(storageRef);
+      const entry = { name: selectedDoc.name, url, ts: serverTimestamp() };
+      await setDoc(userDocRef, { documents: arrayUnion(entry) }, { merge: true });
 
-      lastLogin.textContent = (u.metadata && u.metadata.lastSignInTime) ? new Date(u.metadata.lastSignInTime).toLocaleString() : '—';
-      memberSince.textContent = (userData && userData.registeredAt?.toDate) ? userData.registeredAt.toDate().toLocaleDateString() : '—';
-
-      // Documents
-      const docs = Array.isArray(userData?.documents) ? userData.documents : (userData?.document ? [userData.document] : []);
+      const updatedSnap = await getDoc(userDocRef);
+      const docs = updatedSnap.data()?.documents || [];
       renderDocList(docs);
       docCount.textContent = docs.length;
+
+      docUploadStatus.textContent = 'Upload complete!'; uploadDocBtn.disabled = false;
+      documentInput.value = ''; selectedDoc = null;
+    } catch (err) { console.error(err); docUploadStatus.textContent = 'Upload failed.'; uploadDocBtn.disabled = false; }
+  });
+
+  function renderDocList(docs) {
+    docList.innerHTML = '';
+    if (!docs || docs.length === 0) { docList.innerHTML = '<li class="text-slate-500">No documents yet.</li>'; return; }
+    docs.slice().sort((a,b) => (b.ts?.seconds || 0) - (a.ts?.seconds || 0)).forEach(d => {
+      const li = document.createElement('li');
+      li.className = "flex items-center justify-between gap-3 p-2 border border-slate-100 rounded-lg";
+      li.innerHTML = `
+        <div class="truncate">
+          <div class="font-medium truncate">${d.name || 'Document'}</div>
+          <div class="text-slate-500 text-xs">${d.ts?.toDate ? new Date(d.ts.toDate()).toLocaleString() : ''}</div>
+        </div>
+        <a target="_blank" href="${d.url}" class="px-3 py-1 rounded-lg bg-slate-800 text-white text-xs hover:bg-slate-900">View</a>
+      `;
+      docList.appendChild(li);
     });
+  }
 
-    resendVerifyBtn.addEventListener('click', async () => {
-      if (!currentUser) return;
-      try {
-        await currentUser.sendEmailVerification({ url: "https://areahealth-ng.firebaseapp.com" });
-        alert("Verification email sent. Please check your inbox.");
-      } catch (e) {
-        console.error(e);
-        alert("Couldn't send verification email. Please try again later.");
-      }
-    });
-
-    /* ------------------ Profile Picture Upload ------------------ */
-    profilePicInput.addEventListener('change', async (e) => {
-      const file = e.target.files[0];
-      if (!file || !currentUser) return;
-
-      const ref = storage.ref(`profiles/${currentUser.uid}_${Date.now()}_${file.name}`);
-      const task = ref.put(file);
-
-      profileUploadStatus.textContent = 'Uploading…';
-      profileProgress.style.width = '0%';
-
-      task.on('state_changed',
-        (snap) => {
-          const pct = Math.round((snap.bytesTransferred / snap.totalBytes) * 100);
-          profileProgress.style.width = pct + '%';
-        },
-        (err) => {
-          console.error(err);
-          profileUploadStatus.textContent = 'Upload failed.';
-        },
-        async () => {
-          const url = await ref.getDownloadURL();
-          await userDocRef.update({ profilePic: url });
-          userPic.src = url;
-          headerPic.src = url;
-          profileUploadStatus.textContent = 'Profile picture updated!';
-        }
-      );
-    });
-
-    /* ------------------ Document Upload ------------------ */
-    let selectedDoc = null;
-    documentInput.addEventListener('change', (e) => {
-      selectedDoc = e.target.files[0] || null;
-      uploadDocBtn.disabled = !selectedDoc;
-    });
-
-    uploadDocBtn.addEventListener('click', async () => {
-      if (!selectedDoc || !currentUser) return;
-
-      const ref = storage.ref(`documents/${currentUser.uid}_${Date.now()}_${selectedDoc.name}`);
-      const task = ref.put(selectedDoc);
-
-      docUploadStatus.textContent = 'Uploading…';
-      docProgress.style.width = '0%';
-      uploadDocBtn.disabled = true;
-
-      task.on('state_changed',
-        (snap) => {
-          const pct = Math.round((snap.bytesTransferred / snap.totalBytes) * 100);
-          docProgress.style.width = pct + '%';
-        },
-        (err) => {
-          console.error(err);
-          docUploadStatus.textContent = 'Upload failed.';
-          uploadDocBtn.disabled = false;
-        },
-        async () => {
-          const url = await ref.getDownloadURL();
-          // Keep an array "documents" of {name, url, ts}
-          const entry = { name: selectedDoc.name, url, ts: firebase.firestore.FieldValue.serverTimestamp() };
-
-          await userDocRef.set({
-            documents: firebase.firestore.FieldValue.arrayUnion(entry)
-          }, { merge: true });
-
-          // Refresh UI
-          const updated = await userDocRef.get();
-          const docs = updated.data()?.documents || [];
-          renderDocList(docs);
-          docCount.textContent = docs.length;
-
-          docUploadStatus.textContent = 'Upload complete!';
-          uploadDocBtn.disabled = false;
-          documentInput.value = '';
-          selectedDoc = null;
-        }
-      );
-    });
-
-    function renderDocList(docs) {
-      docList.innerHTML = '';
-      if (!docs || docs.length === 0) {
-        docList.innerHTML = '<li class="text-slate-500">No documents yet.</li>';
-        return;
-      }
-      docs
-        .slice()
-        .sort((a,b) => (b.ts?.seconds || 0) - (a.ts?.seconds || 0))
-        .forEach(d => {
-          const li = document.createElement('li');
-          li.className = "flex items-center justify-between gap-3 p-2 border border-slate-100 rounded-lg";
-          li.innerHTML = `
-            <div class="truncate">
-              <div class="font-medium truncate">${d.name || 'Document'}</div>
-              <div class="text-slate-500 text-xs">${d.ts?.toDate ? new Date(d.ts.toDate()).toLocaleString() : ''}</div>
-            </div>
-            <a target="_blank" href="${d.url}" class="px-3 py-1 rounded-lg bg-slate-800 text-white text-xs hover:bg-slate-900">View</a>
-          `;
-          docList.appendChild(li);
-        });
-    }
-
-    /* ------------------ Nearby Services ------------------ */
-    const servicesData = [
-      // name, type, location, contact, lat, lng
-      { name: "CityCare Pharmacy",    type: "pharmacy",    location: "Yenagoa",    contact: "08012345678", lat: 4.9267, lng: 6.2676 },
-      { name: "General Hospital",     type: "hospital",    location: "Otuoke",     contact: "08023456789", lat: 4.7807, lng: 6.3149 },
-      { name: "Divine Clinic",        type: "clinic",      location: "Kpansia",    contact: "08034567890", lat: 4.9309, lng: 6.2772 },
-      { name: "MegaLab Diagnostics",  type: "laboratory",  location: "Amarata",    contact: "08045678901", lat: 4.9227, lng: 6.2633 },
-      { name: "Blessed Pharmacy",     type: "pharmacy",    location: "Opolo",      contact: "08056789012", lat: 4.9346, lng: 6.2958 },
-      { name: "Faith Hospital",       type: "hospital",    location: "Okutukutu",  contact: "08067890123", lat: 4.9106, lng: 6.2965 },
-      // Added professional helpers:
-      { name: "Rapid Response Ambulance", type: "ambulance", location: "Yenagoa", contact: "08070000001", lat: 4.9267, lng: 6.2676 },
-      { name: "TeleHealth 24/7",      type: "telemedicine", location: "Online",    contact: "08070000002", lat: 4.9267, lng: 6.2676 },
-      { name: "Immunization Centre AMC", type: "vaccination", location: "Yenagoa", contact: "08070000003", lat: 4.9250, lng: 6.2700 },
-    ];
-
-    let userPos = null;
-
-    function haversineKm(lat1, lon1, lat2, lon2) {
-      const toRad = (v) => v * Math.PI / 180;
-      const R = 6371;
-      const dLat = toRad(lat2 - lat1);
-      const dLon = toRad(lon2 - lon1);
-      const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
-                Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) *
-                Math.sin(dLon/2) * Math.sin(dLon/2);
-      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-      return R * c;
-    }
-
-    function renderServices(filter = 'all', search = '') {
-      const grid = document.getElementById('servicesGrid');
-      grid.innerHTML = '';
-
-      const filtered = servicesData
-        .filter(s =>
-          (filter === 'all' || s.type === filter) &&
-          (s.name.toLowerCase().includes(search.toLowerCase()) ||
-           s.location.toLowerCase().includes(search.toLowerCase())))
-        .map(s => {
-          let distanceText = '—';
-          if (userPos && s.lat && s.lng) {
-            const km = haversineKm(userPos.lat, userPos.lng, s.lat, s.lng);
-            distanceText = `${km.toFixed(1)} km`;
-          }
-          return { ...s, distanceText };
-        });
-
-      if (filtered.length === 0) {
-        grid.innerHTML = '<div class="text-slate-500">No services found.</div>';
-        return;
-      }
-
-      filtered.forEach(s => {
-        const card = document.createElement('div');
-        card.className = "rounded-2xl border border-slate-100 p-4 hover:shadow transition";
-        const mapsLink = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(s.name + ' ' + s.location)}`;
-        card.innerHTML = `
-          <div class="flex items-start justify-between gap-3">
-            <div>
-              <h4 class="font-semibold">${s.name}</h4>
-              <div class="text-slate-600 text-sm">Type: ${capitalize(s.type)}</div>
-              <div class="text-slate-600 text-sm">Location: ${s.location}</div>
-              <div class="text-slate-600 text-sm">Contact: ${s.contact}</div>
-              <div class="text-slate-600 text-sm">Distance: ${s.distanceText}</div>
-            </div>
-            <div class="flex flex-col gap-2">
-              <button class="px-3 py-1 rounded-lg bg-primary text-white text-sm hover:bg-blue-700"
-                      onclick="alert('Contacting ${s.name} at ${s.contact}...')">
-                Contact
-              </button>
-              <a target="_blank" href="${mapsLink}"
-                 class="px-3 py-1 rounded-lg border border-slate-200 text-sm hover:bg-slate-50 text-center">
-                Directions
-              </a>
-            </div>
-          </div>
-        `;
-        grid.appendChild(card);
-      });
-    }
-
-    function capitalize(s) { return s.charAt(0).toUpperCase() + s.slice(1); }
-
-    // Filters
-    $('filterCategory').addEventListener('change', (e) => {
-      renderServices(e.target.value, $('searchBox').value);
-    });
-    $('searchBox').addEventListener('input', (e) => {
-      renderServices($('filterCategory').value, e.target.value);
-    });
-
-    // Geolocation
-    $('locateBtn').addEventListener('click', () => {
-      if (!navigator.geolocation) {
-        alert('Geolocation not supported on this device.');
-        return;
-      }
-      navigator.geolocation.getCurrentPosition((pos) => {
-        userPos = { lat: pos.coords.latitude, lng: pos.coords.longitude };
-        renderServices($('filterCategory').value, $('searchBox').value);
-      }, (err) => {
-        console.warn(err);
-        alert('Could not get your location.');
-      }, { enableHighAccuracy: true, timeout: 10000 });
-    });
-
-    // Initial render
-    renderServices();
-
-    /* ------------------ Logout ------------------ */
-    function logout(){
-      auth.signOut().then(() => {
-        window.location.href = "AreaHealth Login.html";
-      });
-    }
-    window.logout = logout; // expose to global for sidebar button
-  </script>
+  /* ------------------ Logout ------------------ */
+  window.logout = async () => { await signOut(auth); window.location.href = "AreaHealth Login.html"; }
+</script>
 </body>
 </html>
