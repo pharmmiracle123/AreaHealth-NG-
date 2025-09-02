@@ -86,14 +86,13 @@
     </form>
   </div>
 
-  <!-- ✅ Firebase SDKs (v9 modular) -->
+  <!-- ✅ Firebase SDKs -->
   <script type="module">
-    // Import Firebase SDKs
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
-    import { getAuth, signInWithEmailAndPassword, onAuthStateChanged } 
+    import { getAuth, signInWithEmailAndPassword } 
       from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
 
-    // ✅ Firebase config
+    // ✅ Firebase Config
     const firebaseConfig = {
       apiKey: "AIzaSyC79cSDPpC4bbhlRBpu7WhON3j8AMxMLyE",
       authDomain: "areahealth-ng.firebaseapp.com",
@@ -107,14 +106,7 @@
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
 
-    // ✅ Redirect if already logged in
-    onAuthStateChanged(auth, (user) => {
-      if (user) {
-        window.location.href = "AreaHealth Dashboard.html";
-      }
-    });
-
-    // ✅ Toggle password
+    // ✅ Toggle password visibility
     window.togglePassword = function(fieldId, icon) {
       const input = document.getElementById(fieldId);
       if (input.type === "password") {
@@ -126,7 +118,7 @@
       }
     }
 
-    // ✅ Login with Firebase
+    // ✅ Login logic
     document.getElementById("loginForm").addEventListener("submit", async (e) => {
       e.preventDefault();
 
@@ -135,10 +127,13 @@
       const errorBox = document.getElementById("error-message");
 
       try {
+        // Check credentials in Firebase
         await signInWithEmailAndPassword(auth, email, password);
-        window.location.href = "AreaHealth Dashboard.html";
+
+        // ✅ Redirect only if correct
+        window.location.href = "AreaHealth Dashboard.html"; 
+
       } catch (error) {
-        // Show friendly error messages
         let message = "❌ Something went wrong!";
         if (error.code === "auth/user-not-found") {
           message = "❌ No user found with this email.";
