@@ -1,291 +1,562 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Dashboard - AreaHealth NG</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Dashboard - AreaHealth NG</title>
 
-<!-- Firebase -->
-<script src="https://www.gstatic.com/firebasejs/9.1.3/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.1.3/firebase-auth.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.1.3/firebase-firestore.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.1.3/firebase-storage.js"></script>
+  <!-- Tailwind CSS (embedded via CDN) -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: { sans: ['Inter', 'ui-sans-serif', 'system-ui'] },
+          colors: {
+            primary: { DEFAULT: '#2563eb' }, // Tailwind blue-600
+            brand: '#06b6d4', // cyan-500
+          }
+        }
+      }
+    }
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
-<style>
-/* General Reset */
-* { margin: 0; padding: 0; box-sizing: border-box; }
-body { font-family: Arial, sans-serif; margin: 0; background: #f5f7fa; color: #333; }
+  <!-- Firebase (compat builds for global firebase.* usage) -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-storage-compat.js"></script>
 
-/* Header */
-header { 
-  background: linear-gradient(270deg,#06b6d4,#3b82f6,#8b5cf6,#ec4899); 
-  background-size: 800% 800%; 
-  animation: gradientShift 10s ease infinite; 
-  color: #fff; padding: 15px 20px; 
-  display: flex; align-items: center; justify-content: space-between; 
-}
-@keyframes gradientShift {
-  0%{background-position:0% 50%}
-  50%{background-position:100% 50%}
-  100%{background-position:0% 50%}
-}
-.header-left { display: flex; align-items: center; gap: 12px; }
-header h1 { margin: 0; font-size: 1.3rem; }
-.user-greeting { display: flex; align-items: center; gap: 10px; }
-.user-greeting img { width: 40px; height: 40px; border-radius: 50%; border: 2px solid #fff; cursor:pointer; }
-header button { background: none; border: none; color: #fff; font-size: 24px; cursor: pointer; margin-left: 15px; }
-
-/* Sidebar */
-.sidebar { 
-  position: fixed; left: -220px; top: 0; height: 100%; width: 220px; 
-  background: #023e8a; padding-top: 60px; 
-  transition: 0.3s; z-index: 1000; 
-}
-.sidebar.active { left: 0; }
-.sidebar a { color: #fff; padding: 12px 20px; text-decoration: none; display: block; transition: 0.2s; }
-.sidebar a:hover { background: #0077b6; }
-
-/* Boxes & Sections */
-.paragraph-header, .profile-box, .form-box, .hero, .features, .nearby { 
-  margin: 20px; padding: 20px; border-radius: 10px; 
-  background: #fff; box-shadow: 0 2px 8px rgba(0,0,0,0.1); 
-}
-.paragraph-header { text-align: center; }
-.profile-box { text-align: center; }
-.profile-box img { border-radius: 50%; width: 100px; height: 100px; margin-bottom: 10px; cursor:pointer; }
-
-/* Form */
-.form-box input, .form-box button { 
-  display: block; margin: 10px 0; padding: 10px; width: 100%; 
-  border-radius: 5px; border: 1px solid #ccc; 
-}
-.form-box button { background: #0077cc; color: #fff; cursor: pointer; transition: background 0.2s; }
-.form-box button:hover { background: #005fa3; }
-.success { color: green; font-weight: bold; }
-
-/* Hero */
-.hero { background: linear-gradient(to right, #0077cc, #00aaff); color: #fff; text-align: center; }
-.hero .btn { 
-  background: #fff; color: #0077cc; padding: 10px 20px; 
-  border-radius: 5px; text-decoration: none; font-weight: bold; 
-}
-
-/* Features */
-.features { text-align: center; }
-.features ul { list-style: none; padding: 0; }
-.features li { margin: 10px 0; font-size: 1.1rem; }
-.font { font-size: 20px; }
-
-/* Footer */
-footer { text-align: center; padding: 15px; background: #0077cc; color: #fff; margin-top: 30px; }
-
-/* Nearby Services */
-.nearby-header { display:flex; justify-content:space-between; flex-wrap:wrap; margin-bottom:15px; gap: 10px; }
-.nearby-header input, .nearby-header select { 
-  padding:10px; border:1px solid #ddd; border-radius:8px; 
-}
-.services-grid { display:grid; grid-template-columns: repeat(auto-fit, minmax(250px,1fr)); gap:20px; }
-.card { 
-  background:white; padding:15px; border-radius:12px; 
-  box-shadow:0 2px 6px rgba(0,0,0,0.1); 
-  transition: transform 0.2s; 
-}
-.card:hover { transform: translateY(-5px); }
-.card h3 {margin-bottom:8px;}
-.card p {font-size:14px; color:#555; margin-bottom:6px;}
-.card button { background:#3b82f6; color:white; border:none; padding:8px 12px; border-radius:6px; cursor:pointer; transition: background 0.2s; }
-.card button:hover { background:#2563eb; }
-</style>
+  <style>
+    /* Animated gradient header */
+    .gradient-header {
+      background: linear-gradient(270deg,#06b6d4,#3b82f6,#8b5cf6,#ec4899);
+      background-size: 800% 800%;
+      animation: gradientShift 12s ease infinite;
+    }
+    @keyframes gradientShift {
+      0%{background-position:0% 50%}
+      50%{background-position:100% 50%}
+      100%{background-position:0% 50%}
+    }
+    /* Hide default file inputs; we trigger via label buttons */
+    input[type="file"] { display: none; }
+  </style>
 </head>
 
-<body>
-<header>
-  <div class="user-greeting" id="userGreeting">
-    <img id="headerPic" onclick="document.getElementById('profilePicInput').click()">
-    <span id="headerName"></span>
+<body class="bg-slate-50 text-slate-800">
+  <!-- Header -->
+  <header class="gradient-header text-white">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <button id="sidebarToggle" class="md:hidden p-2 rounded-lg hover:bg-white/10 focus:outline-none" aria-label="Open menu">
+          ☰
+        </button>
+        <h1 class="text-lg font-semibold tracking-tight">AreaHealth NG</h1>
+      </div>
+
+      <div class="flex items-center gap-3">
+        <div class="text-sm md:text-base" id="headerGreeting">Hello 👋</div>
+        <img id="headerPic" class="w-10 h-10 rounded-full ring-2 ring-white object-cover cursor-pointer"
+             alt="Profile"
+             title="Click to update profile picture"
+             onclick="document.getElementById('profilePicInput').click()">
+      </div>
+    </div>
+  </header>
+
+  <!-- Shell -->
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex">
+    <!-- Sidebar -->
+    <aside id="sidebar"
+           class="fixed md:static inset-y-0 left-0 w-64 transform -translate-x-full md:translate-x-0 transition-transform duration-200 ease-in-out z-40
+                  bg-white shadow md:shadow-none md:bg-transparent md:w-60">
+      <nav class="h-full md:h-auto p-4 space-y-1 bg-white md:bg-transparent">
+        <a href="index.html" class="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-slate-100">📒 Overview</a>
+        <a href="AreaHealth Dashboard.html" class="flex items-center gap-2 px-3 py-2 rounded-lg bg-slate-100">🏠 Home</a>
+        <a href="Pharmacies..html" class="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-slate-100">💊 Find Pharmacies</a>
+        <a href="Medication.html" class="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-slate-100">📦 Medications</a>
+        <a href="Nearby Services.html" class="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-slate-100">📍 Nearby Services</a>
+        <a href="#" class="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-slate-100">⚙ Settings</a>
+        <button onclick="logout()"
+                class="w-full text-left flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-rose-50 hover:text-rose-600">
+          🚪 Logout
+        </button>
+      </nav>
+    </aside>
+
+    <!-- Overlay for mobile -->
+    <div id="overlay" class="fixed inset-0 bg-black/30 hidden z-30 md:hidden"></div>
+
+    <!-- Main -->
+    <main class="flex-1 md:ml-6">
+      <!-- Welcome -->
+      <section class="bg-white shadow-sm rounded-2xl p-5 mb-6">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div>
+            <h2 class="text-xl sm:text-2xl font-semibold">
+              Hello, <span id="userName">User</span> 👋
+              <span id="verifiedBadge" class="hidden align-middle ml-2 text-xs px-2 py-1 rounded-full bg-green-100 text-green-700">Verified</span>
+            </h2>
+            <p class="text-slate-600">Welcome to your AreaHealth dashboard.</p>
+          </div>
+          <div class="flex items-center gap-3">
+            <button id="resendVerifyBtn"
+                    class="hidden text-xs sm:text-sm px-3 py-2 rounded-lg border border-amber-300 text-amber-700 hover:bg-amber-50">
+              Resend verification email
+            </button>
+            <label for="profilePicInput"
+                   class="cursor-pointer text-xs sm:text-sm px-3 py-2 rounded-lg bg-primary text-white hover:bg-blue-700">
+              Update Profile Picture
+            </label>
+            <input type="file" id="profilePicInput" accept="image/*">
+          </div>
+        </div>
+      </section>
+
+      <!-- Quick Stats -->
+      <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+        <div class="bg-white rounded-2xl shadow-sm p-4">
+          <div class="text-slate-500 text-sm">Email Status</div>
+          <div id="emailStatus" class="mt-1 font-semibold">Checking…</div>
+        </div>
+        <div class="bg-white rounded-2xl shadow-sm p-4">
+          <div class="text-slate-500 text-sm">Last Login</div>
+          <div id="lastLogin" class="mt-1 font-semibold">—</div>
+        </div>
+        <div class="bg-white rounded-2xl shadow-sm p-4">
+          <div class="text-slate-500 text-sm">Documents Uploaded</div>
+          <div id="docCount" class="mt-1 font-semibold">0</div>
+        </div>
+        <div class="bg-white rounded-2xl shadow-sm p-4">
+          <div class="text-slate-500 text-sm">Member Since</div>
+          <div id="memberSince" class="mt-1 font-semibold">—</div>
+        </div>
+      </section>
+
+      <!-- Profile + Uploads -->
+      <section class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+        <!-- Profile Card -->
+        <div class="bg-white rounded-2xl shadow-sm p-5">
+          <div class="flex items-center gap-4">
+            <img id="userPic" class="w-20 h-20 rounded-full object-cover ring-2 ring-primary/20" alt="Profile">
+            <div>
+              <div class="text-lg font-semibold" id="profileName">—</div>
+              <div class="text-slate-600 text-sm" id="userEmail">—</div>
+            </div>
+          </div>
+          <div class="mt-4">
+            <div id="profileUploadStatus" class="text-sm text-slate-500">No upload in progress.</div>
+            <div class="w-full bg-slate-100 rounded-full h-2 mt-2">
+              <div id="profileProgress" class="bg-primary h-2 rounded-full" style="width:0%"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Document Upload -->
+        <div class="bg-white rounded-2xl shadow-sm p-5">
+          <h3 class="font-semibold text-lg">Upload Document</h3>
+          <p class="text-slate-600 text-sm mb-3">E.g. prescriptions, lab reports, receipts.</p>
+          <label for="documentInput"
+                 class="inline-flex items-center gap-2 px-4 py-2 bg-slate-800 text-white rounded-lg hover:bg-slate-900 cursor-pointer">
+            📤 Choose File
+          </label>
+          <input type="file" id="documentInput">
+          <button id="uploadDocBtn"
+                  class="ml-2 mt-3 inline-flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                  disabled>
+            Upload
+          </button>
+          <div class="mt-4">
+            <div id="docUploadStatus" class="text-sm text-slate-500">No upload in progress.</div>
+            <div class="w-full bg-slate-100 rounded-full h-2 mt-2">
+              <div id="docProgress" class="bg-primary h-2 rounded-full" style="width:0%"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Recent Documents -->
+        <div class="bg-white rounded-2xl shadow-sm p-5">
+          <h3 class="font-semibold text-lg mb-2">Recent Documents</h3>
+          <ul id="docList" class="space-y-2 text-sm">
+            <li class="text-slate-500">No documents yet.</li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- Nearby Services -->
+      <section class="bg-white rounded-2xl shadow-sm p-5">
+        <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+          <div>
+            <h3 class="font-semibold text-lg">Nearby Health Services</h3>
+            <p class="text-slate-600 text-sm">Search, filter, and get directions. Enable location to see distance.</p>
+          </div>
+          <div class="flex flex-wrap gap-2">
+            <input id="searchBox" placeholder="Search services…"
+                   class="px-3 py-2 rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-primary/40">
+            <select id="filterCategory"
+                    class="px-3 py-2 rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-primary/40">
+              <option value="all">All</option>
+              <option value="pharmacy">Pharmacy</option>
+              <option value="hospital">Hospital</option>
+              <option value="clinic">Clinic</option>
+              <option value="laboratory">Laboratory</option>
+              <option value="ambulance">Ambulance</option>
+              <option value="telemedicine">Telemedicine</option>
+              <option value="vaccination">Immunization</option>
+            </select>
+            <button id="locateBtn"
+                    class="px-3 py-2 rounded-lg border border-slate-200 hover:bg-slate-50">
+              📍 Use my location
+            </button>
+          </div>
+        </div>
+
+        <div id="servicesGrid" class="mt-5 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+      </section>
+
+      <!-- Footer -->
+      <footer class="text-center text-sm text-slate-500 py-6">
+        © 2025 AreaHealth NG. All rights reserved.
+      </footer>
+    </main>
   </div>
-  <div class="header-left"><h1>AreaHealth NG</h1></div>
-  <button onclick="toggleSidebar()">☰</button>
-</header>
 
-<div class="sidebar" id="sidebar">
- <a href="index.html">📒Overview</a>
-  <a href="AreaHealth Dashboard.html">🏠 Home</a>
-  <a href="Pharmacies..html">💊 Find Pharmacies</a>
-  <a href="Medication.html">📦 Medications</a>
-  <a href="Nearby Services.html">📍 Nearby Services</a>
-  <a href="#">⚙ Settings</a>
-  <a href="#" onclick="logout()">🚪 Logout</a>
-</div>
+  <script>
+    /* -------------------- Firebase Init -------------------- */
+    const firebaseConfig = {
+      apiKey: "AIzaSyC79cSDPpC4bbhlRBpu7WhON3j8AMxMLyE",
+      authDomain: "areahealth-ng.firebaseapp.com",
+      projectId: "areahealth-ng",
+      storageBucket: "areahealth-ng.appspot.com",
+      messagingSenderId: "986651954303",
+      appId: "1:986651954303:web:3f38dc24e246b7047d834a"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.firestore();
+    const storage = firebase.storage();
 
-<div class="paragraph-header" id="welcomeBox">
-  <h2>Hello, <span id="userName"></span> 👋</h2>
-  <p>Welcome to your dashboard. Here’s where you can access all your features and services.</p>
-</div>
+    /* ---------------- Sidebar Toggle (mobile) --------------- */
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.getElementById('overlay');
+    const sidebarToggle = document.getElementById('sidebarToggle');
+    function openSidebar() {
+      sidebar.classList.remove('-translate-x-full');
+      overlay.classList.remove('hidden');
+    }
+    function closeSidebar() {
+      sidebar.classList.add('-translate-x-full');
+      overlay.classList.add('hidden');
+    }
+    sidebarToggle?.addEventListener('click', openSidebar);
+    overlay?.addEventListener('click', closeSidebar);
+    // Auto close on nav link click (mobile)
+    sidebar.querySelectorAll('a,button').forEach(el => {
+      el.addEventListener('click', () => { if (window.innerWidth < 768) closeSidebar(); });
+    });
 
-<div class="profile-box" id="profileBox">
-  <input type="file" id="profilePicInput" accept="image/*" onchange="updateProfilePic()" style="display:none;">
-  <img id="userPic">
-  <p><strong>Email:</strong> <span id="userEmail"></span></p>
-</div>
+    /* ------------------ DOM helpers ------------------ */
+    const $ = (id) => document.getElementById(id);
+    const headerGreeting = $('headerGreeting');
+    const headerPic = $('headerPic');
+    const userNameSpan = $('userName');
+    const profileName = $('profileName');
+    const userEmailSpan = $('userEmail');
+    const userPic = $('userPic');
+    const verifiedBadge = $('verifiedBadge');
+    const emailStatus = $('emailStatus');
+    const lastLogin = $('lastLogin');
+    const docCount = $('docCount');
+    const memberSince = $('memberSince');
+    const resendVerifyBtn = $('resendVerifyBtn');
 
-<div class="form-box" id="formBox">
-  <p class="success" id="msgBox"></p>
-  <label>Upload Document:</label>
-  <input type="file" id="document">
-  <button onclick="uploadDocument()">Save Info</button>
-</div>
+    const profilePicInput = $('profilePicInput');
+    const profileProgress = $('profileProgress');
+    const profileUploadStatus = $('profileUploadStatus');
 
-<section class="hero">
-  <h2>Your Trusted Pharmaceutical Service Provider</h2>
-  <a href="#" class="btn">View Packages</a>
-</section>
+    const documentInput = $('documentInput');
+    const uploadDocBtn = $('uploadDocBtn');
+    const docProgress = $('docProgress');
+    const docUploadStatus = $('docUploadStatus');
+    const docList = $('docList');
 
-<section class="features">
-  <p class="font">
-    This platform helps you quickly locate nearby pharmacies and find where medications are available closest to you. With <b>AreaHealth NG</b>, you don’t have to stress—just search and connect instantly.
-  </p>
-</section>
+    /* ------------------ Auth State & User Load ------------------ */
+    let currentUser = null;
+    let userDocRef = null; // Firestore doc ref (users/{uid})
+    let userData = null;
 
-<section class="nearby" id="nearby">
-  <h2>Nearby Health Services</h2>
-  <div class="nearby-header">
-    <input type="text" id="searchBox" placeholder="Search services...">
-    <select id="filterCategory">
-      <option value="all">All</option>
-      <option value="pharmacy">Pharmacy</option>
-      <option value="hospital">Hospital</option>
-      <option value="clinic">Clinic</option>
-      <option value="laboratory">Laboratory</option>
-    </select>
-  </div>
-  <div class="services-grid" id="servicesGrid"></div>
-</section>
+    auth.onAuthStateChanged(async (u) => {
+      if (!u) {
+        // Not logged in → go to login
+        window.location.href = "AreaHealth Login.html";
+        return;
+      }
+      currentUser = u;
+      userDocRef = db.collection('users').doc(u.uid);
 
-<footer>
-  <p>&copy; 2025 Pharmaceutical Supplies. All rights reserved.</p>
-</footer>
+      // Fetch Firestore data
+      const snap = await userDocRef.get();
+      userData = snap.exists ? snap.data() : null;
 
-<script>
-const firebaseConfig = {
-  apiKey: "AIzaSyC79cSDPpC4bbhlRBpu7WhON3j8AMxMLyE",
-  authDomain: "areahealth-ng.firebaseapp.com",
-  projectId: "areahealth-ng",
-  storageBucket: "areahealth-ng.appspot.com",
-  messagingSenderId: "986651954303",
-  appId: "1:986651954303:web:3f38dc24e246b7047d834a"
-};
-firebase.initializeApp(firebaseConfig);
-const db = firebase.firestore();
-const storage = firebase.storage();
+      // Populate UI
+      const name = (userData && (userData.name || userData.username)) || (u.displayName) || 'User';
+      const email = u.email || (userData?.email) || '—';
+      const pic = (userData && userData.profilePic) || 'https://via.placeholder.com/120?text=Profile';
 
-// Sidebar toggle
-function toggleSidebar() { document.getElementById("sidebar").classList.toggle("active"); }
+      userNameSpan.textContent = name;
+      profileName.textContent = name;
+      headerGreeting.textContent = `Hello, ${name} 👋`;
+      userEmailSpan.textContent = email;
+      userPic.src = pic;
+      headerPic.src = pic;
 
-// Load user data from Firebase
-async function loadUser(username) {
-  const doc = await db.collection("users").doc(username).get();
-  if(doc.exists){
-    const user = doc.data();
-    showUser(user.name, user.email, user.profilePic);
-  }
-}
+      // Stats
+      emailStatus.textContent = u.emailVerified ? 'Verified' : 'Not verified';
+      verifiedBadge.classList.toggle('hidden', !u.emailVerified);
+      resendVerifyBtn.classList.toggle('hidden', !!u.emailVerified);
 
-function showUser(name, email, profilePic) {
-  document.getElementById("userGreeting").style.display = "flex";
-  document.getElementById("headerName").textContent = `Hi, ${name} 👋`;
-  document.getElementById("userName").textContent = name;
-  document.getElementById("userEmail").textContent = email;
-  document.getElementById("userPic").src = profilePic || "https://via.placeholder.com/100";
-}
+      lastLogin.textContent = (u.metadata && u.metadata.lastSignInTime) ? new Date(u.metadata.lastSignInTime).toLocaleString() : '—';
+      memberSince.textContent = (userData && userData.registeredAt?.toDate) ? userData.registeredAt.toDate().toLocaleDateString() : '—';
 
-// Update profile picture
-function updateProfilePic(){
-  const file = document.getElementById("profilePicInput").files[0];
-  const username = JSON.parse(localStorage.getItem("userData")).username;
-  if(file){
-    const ref = storage.ref(`profiles/${username}_${file.name}`);
-    ref.put(file).then(() => ref.getDownloadURL().then(url => {
-      db.collection("users").doc(username).update({profilePic: url});
-      document.getElementById("userPic").src = url;
-      alert("Profile picture updated!");
-    }));
-  }
-}
+      // Documents
+      const docs = Array.isArray(userData?.documents) ? userData.documents : (userData?.document ? [userData.document] : []);
+      renderDocList(docs);
+      docCount.textContent = docs.length;
+    });
 
-// Upload document
-function uploadDocument(){
-  const file = document.getElementById("document").files[0];
-  const username = JSON.parse(localStorage.getItem("userData")).username;
-  if(file){
-    const ref = storage.ref(`documents/${username}_${file.name}`);
-    ref.put(file).then(() => ref.getDownloadURL().then(url => {
-      db.collection("users").doc(username).update({document: url});
-      alert("Document uploaded successfully!");
-    }));
-  }
-}
+    resendVerifyBtn.addEventListener('click', async () => {
+      if (!currentUser) return;
+      try {
+        await currentUser.sendEmailVerification({ url: "https://areahealth-ng.firebaseapp.com" });
+        alert("Verification email sent. Please check your inbox.");
+      } catch (e) {
+        console.error(e);
+        alert("Couldn't send verification email. Please try again later.");
+      }
+    });
 
-// Logout
-function logout(){
-  localStorage.removeItem("userData");
-  alert("Logged out!");
-  location.href = "AreaHealth Login.html";
-}
+    /* ------------------ Profile Picture Upload ------------------ */
+    profilePicInput.addEventListener('change', async (e) => {
+      const file = e.target.files[0];
+      if (!file || !currentUser) return;
 
-// Nearby Services
-const services = [
-  { name: "CityCare Pharmacy", type: "pharmacy", location: "Yenagoa", contact: "08012345678" },
-  { name: "General Hospital", type: "hospital", location: "Otuoke", contact: "08023456789" },
-  { name: "Divine Clinic", type: "clinic", location: "Kpansia", contact: "08034567890" },
-  { name: "MegaLab Diagnostics", type: "laboratory", location: "Amarata", contact: "08045678901" },
-  { name: "Blessed Pharmacy", type: "pharmacy", location: "Opolo", contact: "08056789012" },
-  { name: "Faith Hospital", type: "hospital", location: "Okutukutu", contact: "08067890123" }
-];
+      const ref = storage.ref(`profiles/${currentUser.uid}_${Date.now()}_${file.name}`);
+      const task = ref.put(file);
 
-function renderServices(filter = "all", search = "") {
-  const grid = document.getElementById("servicesGrid");
-  grid.innerHTML = "";
-  const filtered = services.filter(s =>
-    (filter === "all" || s.type === filter) &&
-    (s.name.toLowerCase().includes(search.toLowerCase()) ||
-      s.location.toLowerCase().includes(search.toLowerCase()))
-  );
-  if (filtered.length === 0) {
-    grid.innerHTML = "<p>No services found.</p>";
-    return;
-  }
-  filtered.forEach(s => {
-    const card = document.createElement("div");
-    card.className = "card";
-    card.innerHTML = `
-      <h3>${s.name}</h3>
-      <p>Type: ${s.type}</p>
-      <p>Location: ${s.location}</p>
-      <p>Contact: ${s.contact}</p>
-      <button onclick="alert('Contacting ${s.name} at ${s.contact}...')">Contact</button>
-    `;
-    grid.appendChild(card);
-  });
-}
+      profileUploadStatus.textContent = 'Uploading…';
+      profileProgress.style.width = '0%';
 
-// Event listeners for filter/search
-document.getElementById("filterCategory").addEventListener("change", e => {
-  renderServices(e.target.value, document.getElementById("searchBox").value);
-});
-document.getElementById("searchBox").addEventListener("input", e => {
-  renderServices(document.getElementById("filterCategory").value, e.target.value);
-});
+      task.on('state_changed',
+        (snap) => {
+          const pct = Math.round((snap.bytesTransferred / snap.totalBytes) * 100);
+          profileProgress.style.width = pct + '%';
+        },
+        (err) => {
+          console.error(err);
+          profileUploadStatus.textContent = 'Upload failed.';
+        },
+        async () => {
+          const url = await ref.getDownloadURL();
+          await userDocRef.update({ profilePic: url });
+          userPic.src = url;
+          headerPic.src = url;
+          profileUploadStatus.textContent = 'Profile picture updated!';
+        }
+      );
+    });
 
-// Initialize dashboard
-window.onload = async function() {
-  const storedUser = localStorage.getItem("userData");
-  if(storedUser){
-    const user = JSON.parse(storedUser);
-    await loadUser(user.username || user.email);
-  }
-  renderServices();
-};
-</script>
+    /* ------------------ Document Upload ------------------ */
+    let selectedDoc = null;
+    documentInput.addEventListener('change', (e) => {
+      selectedDoc = e.target.files[0] || null;
+      uploadDocBtn.disabled = !selectedDoc;
+    });
+
+    uploadDocBtn.addEventListener('click', async () => {
+      if (!selectedDoc || !currentUser) return;
+
+      const ref = storage.ref(`documents/${currentUser.uid}_${Date.now()}_${selectedDoc.name}`);
+      const task = ref.put(selectedDoc);
+
+      docUploadStatus.textContent = 'Uploading…';
+      docProgress.style.width = '0%';
+      uploadDocBtn.disabled = true;
+
+      task.on('state_changed',
+        (snap) => {
+          const pct = Math.round((snap.bytesTransferred / snap.totalBytes) * 100);
+          docProgress.style.width = pct + '%';
+        },
+        (err) => {
+          console.error(err);
+          docUploadStatus.textContent = 'Upload failed.';
+          uploadDocBtn.disabled = false;
+        },
+        async () => {
+          const url = await ref.getDownloadURL();
+          // Keep an array "documents" of {name, url, ts}
+          const entry = { name: selectedDoc.name, url, ts: firebase.firestore.FieldValue.serverTimestamp() };
+
+          await userDocRef.set({
+            documents: firebase.firestore.FieldValue.arrayUnion(entry)
+          }, { merge: true });
+
+          // Refresh UI
+          const updated = await userDocRef.get();
+          const docs = updated.data()?.documents || [];
+          renderDocList(docs);
+          docCount.textContent = docs.length;
+
+          docUploadStatus.textContent = 'Upload complete!';
+          uploadDocBtn.disabled = false;
+          documentInput.value = '';
+          selectedDoc = null;
+        }
+      );
+    });
+
+    function renderDocList(docs) {
+      docList.innerHTML = '';
+      if (!docs || docs.length === 0) {
+        docList.innerHTML = '<li class="text-slate-500">No documents yet.</li>';
+        return;
+      }
+      docs
+        .slice()
+        .sort((a,b) => (b.ts?.seconds || 0) - (a.ts?.seconds || 0))
+        .forEach(d => {
+          const li = document.createElement('li');
+          li.className = "flex items-center justify-between gap-3 p-2 border border-slate-100 rounded-lg";
+          li.innerHTML = `
+            <div class="truncate">
+              <div class="font-medium truncate">${d.name || 'Document'}</div>
+              <div class="text-slate-500 text-xs">${d.ts?.toDate ? new Date(d.ts.toDate()).toLocaleString() : ''}</div>
+            </div>
+            <a target="_blank" href="${d.url}" class="px-3 py-1 rounded-lg bg-slate-800 text-white text-xs hover:bg-slate-900">View</a>
+          `;
+          docList.appendChild(li);
+        });
+    }
+
+    /* ------------------ Nearby Services ------------------ */
+    const servicesData = [
+      // name, type, location, contact, lat, lng
+      { name: "CityCare Pharmacy",    type: "pharmacy",    location: "Yenagoa",    contact: "08012345678", lat: 4.9267, lng: 6.2676 },
+      { name: "General Hospital",     type: "hospital",    location: "Otuoke",     contact: "08023456789", lat: 4.7807, lng: 6.3149 },
+      { name: "Divine Clinic",        type: "clinic",      location: "Kpansia",    contact: "08034567890", lat: 4.9309, lng: 6.2772 },
+      { name: "MegaLab Diagnostics",  type: "laboratory",  location: "Amarata",    contact: "08045678901", lat: 4.9227, lng: 6.2633 },
+      { name: "Blessed Pharmacy",     type: "pharmacy",    location: "Opolo",      contact: "08056789012", lat: 4.9346, lng: 6.2958 },
+      { name: "Faith Hospital",       type: "hospital",    location: "Okutukutu",  contact: "08067890123", lat: 4.9106, lng: 6.2965 },
+      // Added professional helpers:
+      { name: "Rapid Response Ambulance", type: "ambulance", location: "Yenagoa", contact: "08070000001", lat: 4.9267, lng: 6.2676 },
+      { name: "TeleHealth 24/7",      type: "telemedicine", location: "Online",    contact: "08070000002", lat: 4.9267, lng: 6.2676 },
+      { name: "Immunization Centre AMC", type: "vaccination", location: "Yenagoa", contact: "08070000003", lat: 4.9250, lng: 6.2700 },
+    ];
+
+    let userPos = null;
+
+    function haversineKm(lat1, lon1, lat2, lon2) {
+      const toRad = (v) => v * Math.PI / 180;
+      const R = 6371;
+      const dLat = toRad(lat2 - lat1);
+      const dLon = toRad(lon2 - lon1);
+      const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+                Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) *
+                Math.sin(dLon/2) * Math.sin(dLon/2);
+      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+      return R * c;
+    }
+
+    function renderServices(filter = 'all', search = '') {
+      const grid = document.getElementById('servicesGrid');
+      grid.innerHTML = '';
+
+      const filtered = servicesData
+        .filter(s =>
+          (filter === 'all' || s.type === filter) &&
+          (s.name.toLowerCase().includes(search.toLowerCase()) ||
+           s.location.toLowerCase().includes(search.toLowerCase())))
+        .map(s => {
+          let distanceText = '—';
+          if (userPos && s.lat && s.lng) {
+            const km = haversineKm(userPos.lat, userPos.lng, s.lat, s.lng);
+            distanceText = `${km.toFixed(1)} km`;
+          }
+          return { ...s, distanceText };
+        });
+
+      if (filtered.length === 0) {
+        grid.innerHTML = '<div class="text-slate-500">No services found.</div>';
+        return;
+      }
+
+      filtered.forEach(s => {
+        const card = document.createElement('div');
+        card.className = "rounded-2xl border border-slate-100 p-4 hover:shadow transition";
+        const mapsLink = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(s.name + ' ' + s.location)}`;
+        card.innerHTML = `
+          <div class="flex items-start justify-between gap-3">
+            <div>
+              <h4 class="font-semibold">${s.name}</h4>
+              <div class="text-slate-600 text-sm">Type: ${capitalize(s.type)}</div>
+              <div class="text-slate-600 text-sm">Location: ${s.location}</div>
+              <div class="text-slate-600 text-sm">Contact: ${s.contact}</div>
+              <div class="text-slate-600 text-sm">Distance: ${s.distanceText}</div>
+            </div>
+            <div class="flex flex-col gap-2">
+              <button class="px-3 py-1 rounded-lg bg-primary text-white text-sm hover:bg-blue-700"
+                      onclick="alert('Contacting ${s.name} at ${s.contact}...')">
+                Contact
+              </button>
+              <a target="_blank" href="${mapsLink}"
+                 class="px-3 py-1 rounded-lg border border-slate-200 text-sm hover:bg-slate-50 text-center">
+                Directions
+              </a>
+            </div>
+          </div>
+        `;
+        grid.appendChild(card);
+      });
+    }
+
+    function capitalize(s) { return s.charAt(0).toUpperCase() + s.slice(1); }
+
+    // Filters
+    $('filterCategory').addEventListener('change', (e) => {
+      renderServices(e.target.value, $('searchBox').value);
+    });
+    $('searchBox').addEventListener('input', (e) => {
+      renderServices($('filterCategory').value, e.target.value);
+    });
+
+    // Geolocation
+    $('locateBtn').addEventListener('click', () => {
+      if (!navigator.geolocation) {
+        alert('Geolocation not supported on this device.');
+        return;
+      }
+      navigator.geolocation.getCurrentPosition((pos) => {
+        userPos = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+        renderServices($('filterCategory').value, $('searchBox').value);
+      }, (err) => {
+        console.warn(err);
+        alert('Could not get your location.');
+      }, { enableHighAccuracy: true, timeout: 10000 });
+    });
+
+    // Initial render
+    renderServices();
+
+    /* ------------------ Logout ------------------ */
+    function logout(){
+      auth.signOut().then(() => {
+        window.location.href = "AreaHealth Login.html";
+      });
+    }
+    window.logout = logout; // expose to global for sidebar button
+  </script>
 </body>
 </html>
