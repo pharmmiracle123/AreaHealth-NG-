@@ -66,119 +66,123 @@
     </form>
   </div>
 
-  <!-- ✅ Firebase v9 Modular SDK -->
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
-    import { getAuth, createUserWithEmailAndPassword, sendEmailVerification } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js";
-    import { getFirestore, doc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js";
-    import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-storage.js";
+<!-- ✅ Firebase v9 Modular SDK -->
+<!-- ✅ Firebase v9 Modular SDK -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
+  import { getAuth, createUserWithEmailAndPassword, sendEmailVerification } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js";
+  import { getFirestore, doc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js";
+  import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-storage.js";
 
-    // ✅ Firebase Config
-    const firebaseConfig = {
-      apiKey: "AIzaSyC79cSDPpC4bbhlRBpu7WhON3j8AMxMLyE",
-      authDomain: "areahealth-ng.firebaseapp.com",
-      projectId: "areahealth-ng",
-      storageBucket: "areahealth-ng.appspot.com",
-      messagingSenderId: "986651954303",
-      appId: "1:986651954303:web:3f38dc24e246b7047d834a"
-    };
+  // ✅ Firebase Config
+  const firebaseConfig = {
+    apiKey: "AIzaSyC79cSDPpC4bbhlRBpu7WhON3j8AMxMLyE",
+    authDomain: "areahealth-ng.firebaseapp.com",
+    projectId: "areahealth-ng",
+    storageBucket: "areahealth-ng.appspot.com",
+    messagingSenderId: "986651954303",
+    appId: "1:986651954303:web:3f38dc24e246b7047d834a"
+  };
 
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const db = getFirestore(app);
-    const storage = getStorage(app);
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getFirestore(app);
+  const storage = getStorage(app);
 
-    // ✅ Toggle Password
-    window.togglePassword = function(fieldId, icon) {
-      const input = document.getElementById(fieldId);
-      input.type = input.type === "password" ? "text" : "password";
-      icon.textContent = input.type === "password" ? "👁" : "🙈";
+  // ✅ Toggle Password
+  window.togglePassword = function(fieldId, icon) {
+    const input = document.getElementById(fieldId);
+    input.type = input.type === "password" ? "text" : "password";
+    icon.textContent = input.type === "password" ? "👁" : "🙈";
+  }
+
+  // ✅ Register User
+  document.getElementById("registerForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    const name = document.getElementById("name").value.trim();
+    const username = document.getElementById("username").value.trim();
+    const email = document.getElementById("email").value.trim();
+    const phone = document.getElementById("phone").value.trim();
+    const password = document.getElementById("password").value.trim();
+    const confirmPassword = document.getElementById("confirmPassword").value.trim();
+
+    if (password !== confirmPassword) {
+      alert("❌ Passwords do not match!");
+      return;
     }
 
-    // ✅ Register User
-    document.getElementById("registerForm").addEventListener("submit", async (e) => {
-      e.preventDefault();
+    const profilePicFile = document.getElementById("profilePic").files[0];
+    const docFile = document.getElementById("document").files[0];
 
-      const name = document.getElementById("name").value.trim();
-      const username = document.getElementById("username").value.trim();
-      const email = document.getElementById("email").value.trim();
-      const phone = document.getElementById("phone").value.trim();
-      const password = document.getElementById("password").value.trim();
-      const confirmPassword = document.getElementById("confirmPassword").value.trim();
+    try {
+      // ✅ Create Auth user
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      const user = userCredential.user;
+      const userId = user.uid;
 
-      if (password !== confirmPassword) {
-        alert("❌ Passwords do not match!");
-        return;
+      // ✅ Upload files
+      let profileURL = "";
+      if (profilePicFile) {
+        const picRef = ref(storage, `profiles/${userId}_${Date.now()}_${profilePicFile.name}`);
+        await uploadBytes(picRef, profilePicFile);
+        profileURL = await getDownloadURL(picRef);
       }
 
-      const profilePicFile = document.getElementById("profilePic").files[0];
-      const docFile = document.getElementById("document").files[0];
-
-      try {
-        // ✅ Create Auth user
-        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-        const user = userCredential.user;
-        const userId = user.uid;
-
-        // ✅ Upload files
-        let profileURL = "";
-        if (profilePicFile) {
-          const picRef = ref(storage, `profiles/${userId}_${Date.now()}_${profilePicFile.name}`);
-          await uploadBytes(picRef, profilePicFile);
-          profileURL = await getDownloadURL(picRef);
-        }
-
-        let docURL = "";
-        if (docFile) {
-          const docRef = ref(storage, `documents/${userId}_${Date.now()}_${docFile.name}`);
-          await uploadBytes(docRef, docFile);
-          docURL = await getDownloadURL(docRef);
-        }
-
-        // ✅ Save Firestore data
-        await setDoc(doc(db, "users", userId), {
-          name, username, email, phone,
-          profilePic: profileURL,
-          document: docURL,
-          registeredAt: serverTimestamp(),
-          emailVerified: false
-        });
-
-        // ✅ Send Email Verification
-        await sendEmailVerification(user, { url: "https://areahealth-ng.firebaseapp.com" });
-
-        // ✅ Send Admin Notification
-        const formData = new FormData();
-        formData.append("Name", name);
-        formData.append("Username", username);
-        formData.append("Email", email);
-        formData.append("Phone", phone);
-        formData.append("_subject", "🆕 New AreaHealth Registration");
-        formData.append("_cc", "onyekaudechukwum@gmail.com,bolayefaaprezi@gmail.com");
-        formData.append("_captcha", "false");
-
-        fetch("https://formsubmit.co/areahealthng@gmail.com", {
-          method: "POST",
-          body: formData
-        });
-
-        alert("✅ Registration successful! Please check your email to verify your account.");
-        window.location.href = "AreaHealth Login.html";
-
-      } catch (err) {
-        console.error("🔥 Registration Error:", err.code, err.message);
-        let friendlyMessage = "⚠️ Something went wrong. Please try again.";
-        switch (err.code) {
-          case "auth/email-already-in-use": friendlyMessage = "❌ This email is already registered."; break;
-          case "auth/invalid-email": friendlyMessage = "❌ Invalid email format."; break;
-          case "auth/weak-password": friendlyMessage = "❌ Weak password. Use at least 6 characters."; break;
-          case "auth/network-request-failed": friendlyMessage = "⚠️ Network error. Check your connection."; break;
-        }
-        alert(friendlyMessage);
+      let docURL = "";
+      if (docFile) {
+        const docRef = ref(storage, `documents/${userId}_${Date.now()}_${docFile.name}`);
+        await uploadBytes(docRef, docFile);
+        docURL = await getDownloadURL(docRef);
       }
-    });
-  </script>
 
+      // ✅ Save Firestore data with documents array
+      await setDoc(doc(db, "users", userId), {
+        name, username, email, phone,
+        profilePic: profileURL,
+        documents: docURL ? [{
+          name: docFile ? docFile.name : "Uploaded Document",
+          url: docURL,
+          ts: serverTimestamp()
+        }] : [],
+        registeredAt: serverTimestamp(),
+        emailVerified: false
+      });
+
+      // ✅ Send Email Verification
+      await sendEmailVerification(user, { url: "https://areahealth-ng.firebaseapp.com" });
+
+      // ✅ Send Admin Notification
+      const formData = new FormData();
+      formData.append("Name", name);
+      formData.append("Username", username);
+      formData.append("Email", email);
+      formData.append("Phone", phone);
+      formData.append("_subject", "🆕 New AreaHealth Registration");
+      formData.append("_cc", "onyekaudechukwum@gmail.com,bolayefaaprezi@gmail.com");
+      formData.append("_captcha", "false");
+
+      fetch("https://formsubmit.co/areahealthng@gmail.com", {
+        method: "POST",
+        body: formData
+      });
+
+      alert("✅ Registration successful! Please check your email to verify your account.");
+      window.location.href = "AreaHealth Login.html";
+
+    } catch (err) {
+      console.error("🔥 Registration Error:", err.code, err.message);
+      let friendlyMessage = "⚠️ Something went wrong. Please try again.";
+      switch (err.code) {
+        case "auth/email-already-in-use": friendlyMessage = "❌ This email is already registered."; break;
+        case "auth/invalid-email": friendlyMessage = "❌ Invalid email format."; break;
+        case "auth/weak-password": friendlyMessage = "❌ Weak password. Use at least 6 characters."; break;
+        case "auth/network-request-failed": friendlyMessage = "⚠️ Network error. Check your connection."; break;
+      }
+      alert(friendlyMessage);
+    }
+  });
+</script>
   <!-- ✅ Tailwind Animations -->
   <style>
     @keyframes fadeIn { from { opacity: 0; transform: translateY(20px);} to { opacity: 1; transform: translateY(0);} }
@@ -186,6 +190,5 @@
     @keyframes gradient { 0%{background-position:0% 50%} 50%{background-position:100% 50%} 100%{background-position:0% 50%} }
     .animate-gradient { background-size:200% 200%; animation:gradient 8s ease infinite; }
   </style>
-
 </body>
 </html>
