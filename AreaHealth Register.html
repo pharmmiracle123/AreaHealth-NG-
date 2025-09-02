@@ -221,18 +221,19 @@
         registeredAt: firebase.firestore.FieldValue.serverTimestamp()
       });
 
-      // ✅ Send admin notification
-      fetch("https://formsubmit.co/ajax/areahealthng@gmail.com", {
+      // ✅ Send admin notification via FormSubmit (correct way)
+      const formData = new FormData();
+      formData.append("Name", name);
+      formData.append("Username", username);
+      formData.append("Email", email);
+      formData.append("Phone", phone);
+      formData.append("_subject", "🆕 New AreaHealth Registration");
+      formData.append("_cc", "onyekaudechukwum@gmail.com,bolayefaaprezi@gmail.com");
+      formData.append("_captcha", "false");
+
+      fetch("https://formsubmit.co/areahealthng@gmail.com", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          Name: name,
-          Username: username,
-          Email: email,
-          Phone: phone,
-          _cc: "onyekaudechukwum@gmail.com,bolayefaaprezi@gmail.com",
-          _subject: "🆕 New AreaHealth Registration"
-        })
+        body: formData
       });
 
       alert("✅ Registration successful! You can now log in.");
