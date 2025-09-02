@@ -5,11 +5,14 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Register - AreaHealth</title>
 
-<!-- ✅ Firebase v8 CDN -->
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-storage.js"></script>
+<!-- ✅ Firebase v9 Modular SDK -->
+<script type="module">
+  // Import Firebase SDKs
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
+  import { getAuth, createUserWithEmailAndPassword, sendEmailVerification } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js";
+  import { getFirestore, doc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js";
+  import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-storage.js"; </script>
+
 
 <style>
   body {
@@ -196,7 +199,8 @@
     try {
       // ✅ Create user in Firebase Auth
       const userCredential = await auth.createUserWithEmailAndPassword(email, password);
-      const userId = userCredential.user.uid;
+      const user = userCredential.user;
+      const userId = user.uid;
 
       // ✅ Upload files
       let profileURL = "";
@@ -218,10 +222,16 @@
         name, username, email, phone,
         profilePic: profileURL,
         document: docURL,
-        registeredAt: firebase.firestore.FieldValue.serverTimestamp()
+        registeredAt: firebase.firestore.FieldValue.serverTimestamp(),
+        emailVerified: false
       });
 
-      // ✅ Send admin notification via FormSubmit (correct way)
+      // ✅ Send Email Verification
+      await user.sendEmailVerification({
+        url: "https://areahealth-ng.firebaseapp.com"  // redirect link after verification
+      });
+
+      // ✅ Send admin notification via FormSubmit
       const formData = new FormData();
       formData.append("Name", name);
       formData.append("Username", username);
@@ -236,12 +246,31 @@
         body: formData
       });
 
-      alert("✅ Registration successful! You can now log in.");
+      alert("✅ Registration successful! Please check your email to verify your account before logging in.");
       window.location.href = "AreaHealth Login.html";
 
     } catch(err) {
-      console.error("🔥 Registration Error:", err);
-      alert("⚠️ " + err.message);
+      console.error("🔥 Registration Error:", err.code, err.message);
+
+      // ✅ User-friendly error messages
+      let friendlyMessage = "⚠️ Something went wrong. Please try again.";
+
+      switch (err.code) {
+        case "auth/email-already-in-use":
+          friendlyMessage = "❌ This email has been registered. Please log in.";
+          break;
+        case "auth/invalid-email":
+          friendlyMessage = "❌ Please enter a valid email address.";
+          break;
+        case "auth/weak-password":
+          friendlyMessage = "❌ Password is too weak. Use at least 6 characters.";
+          break;
+        case "auth/network-request-failed":
+          friendlyMessage = "⚠️ Network error. Please check your internet connection.";
+          break;
+      }
+
+      alert(friendlyMessage);
     }
   });
 </script>
