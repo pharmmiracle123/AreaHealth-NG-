@@ -228,7 +228,7 @@
   import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
   import { getAuth, onAuthStateChanged, sendEmailVerification, signOut } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js";
   import { getFirestore, doc, getDoc, setDoc, updateDoc, arrayUnion, serverTimestamp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js";
-  import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-storage.js";
+  import { getStorage, ref, uploadBytesResumable, getDownloadURL } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-storage.js";
 
   /* -------------------- Firebase Init -------------------- */
   const firebaseConfig = {
@@ -252,7 +252,7 @@
   function closeSidebar() { sidebar.classList.add('-translate-x-full'); overlay.classList.add('hidden'); }
   sidebarToggle?.addEventListener('click', openSidebar);
   overlay?.addEventListener('click', closeSidebar);
-  sidebar.querySelectorAll('a,button').forEach(el => el.addEventListener('click', () => { if (window.innerWidth < 768) closeSidebar(); }));
+  sidebar?.querySelectorAll('a,button').forEach(el => el.addEventListener('click', () => { if (window.innerWidth < 768) closeSidebar(); }));
 
   /* ------------------ DOM helpers ------------------ */
   const $ = (id) => document.getElementById(id);
@@ -290,7 +290,7 @@
     const snap = await getDoc(userDocRef);
     userData = snap.exists() ? snap.data() : null;
 
-    // ------------------ Migration: old 'document' → 'documents[]' ------------------
+    // Migration for old schema
     if (userData?.document && !userData?.documents) {
       await setDoc(userDocRef, {
         documents: [{
@@ -302,7 +302,7 @@
       userData.documents = [{
         name: "Uploaded Document",
         url: userData.document,
-        ts: { toDate: () => new Date() } // fallback
+        ts: { toDate: () => new Date() }
       }];
     }
 
@@ -311,26 +311,27 @@
     const email = u.email || userData?.email || '—';
     const pic = (userData && userData.profilePic) || 'https://via.placeholder.com/120?text=Profile';
 
-    userNameSpan.textContent = name;
-    profileName.textContent = name;
-    headerGreeting.textContent = `Hello, ${name} 👋`;
-    userEmailSpan.textContent = email;
-    userPic.src = pic;
-    headerPic.src = pic;
+    if (userNameSpan) userNameSpan.textContent = name;
+    if (profileName) profileName.textContent = name;
+    if (headerGreeting) headerGreeting.textContent = `Hello, ${name} 👋`;
+    if (userEmailSpan) userEmailSpan.textContent = email;
+    if (userPic) userPic.src = pic;
+    if (headerPic) headerPic.src = pic;
 
-    emailStatus.textContent = u.emailVerified ? 'Verified' : 'Not verified';
-    verifiedBadge.classList.toggle('hidden', !u.emailVerified);
-    resendVerifyBtn.classList.toggle('hidden', !!u.emailVerified);
+    if (emailStatus) emailStatus.textContent = u.emailVerified ? 'Verified' : 'Not verified';
+    if (verifiedBadge) verifiedBadge.classList.toggle('hidden', !u.emailVerified);
+    if (resendVerifyBtn) resendVerifyBtn.classList.toggle('hidden', !!u.emailVerified);
 
-    lastLogin.textContent = (u.metadata && u.metadata.lastSignInTime) ? new Date(u.metadata.lastSignInTime).toLocaleString() : '—';
-    memberSince.textContent = (userData && userData.registeredAt?.toDate) ? userData.registeredAt.toDate().toLocaleDateString() : '—';
+    if (lastLogin) lastLogin.textContent = (u.metadata?.lastSignInTime) ? new Date(u.metadata.lastSignInTime).toLocaleString() : '—';
+    if (memberSince) memberSince.textContent = (userData?.registeredAt?.toDate) ? userData.registeredAt.toDate().toLocaleDateString() : '—';
 
     const docs = Array.isArray(userData?.documents) ? userData.documents : [];
     renderDocList(docs);
-    docCount.textContent = docs.length;
+    if (docCount) docCount.textContent = docs.length;
   });
 
-  resendVerifyBtn.addEventListener('click', async () => {
+  /* ------------------ Email Verify ------------------ */
+  resendVerifyBtn?.addEventListener('click', async () => {
     if (!currentUser) return;
     try {
       await sendEmailVerification(currentUser, { url: "https://areahealth-ng.firebaseapp.com" });
@@ -339,49 +340,84 @@
   });
 
   /* ------------------ Profile Picture Upload ------------------ */
-  profilePicInput.addEventListener('change', async (e) => {
+  profilePicInput?.addEventListener('change', async (e) => {
     const file = e.target.files[0];
     if (!file || !currentUser) return;
     const storageRef = ref(storage, `profiles/${currentUser.uid}_${Date.now()}_${file.name}`);
     profileUploadStatus.textContent = 'Uploading…'; profileProgress.style.width = '0%';
+
     try {
-      const snapshot = await uploadBytes(storageRef, file, {
-        onProgress: (snap) => profileProgress.style.width = Math.round((snap.bytesTransferred / snap.totalBytes) * 100) + '%'
+      const uploadTask = uploadBytesResumable(storageRef, file);
+      uploadTask.on('state_changed', (snap) => {
+        const prog = Math.round((snap.bytesTransferred / snap.totalBytes) * 100);
+        profileProgress.style.width = prog + '%';
+      }, (err) => {
+        console.error(err);
+        profileUploadStatus.textContent = 'Upload failed.';
+      }, async () => {
+        const url = await getDownloadURL(uploadTask.snapshot.ref);
+        await updateDoc(userDocRef, { profilePic: url });
+        if (userPic) userPic.src = url;
+        if (headerPic) headerPic.src = url;
+        profileUploadStatus.textContent = 'Profile picture updated!';
       });
-      const url = await getDownloadURL(storageRef);
-      await updateDoc(userDocRef, { profilePic: url });
-      userPic.src = url; headerPic.src = url;
-      profileUploadStatus.textContent = 'Profile picture updated!';
-    } catch (err) { console.error(err); profileUploadStatus.textContent = 'Upload failed.'; }
+    } catch (err) {
+      console.error(err);
+      profileUploadStatus.textContent = 'Upload failed.';
+    }
   });
 
   /* ------------------ Document Upload ------------------ */
   let selectedDoc = null;
-  documentInput.addEventListener('change', (e) => { selectedDoc = e.target.files[0] || null; uploadDocBtn.disabled = !selectedDoc; });
+  documentInput?.addEventListener('change', (e) => {
+    selectedDoc = e.target.files[0] || null;
+    if (uploadDocBtn) uploadDocBtn.disabled = !selectedDoc;
+  });
 
-  uploadDocBtn.addEventListener('click', async () => {
+  uploadDocBtn?.addEventListener('click', async () => {
     if (!selectedDoc || !currentUser) return;
     const storageRef = ref(storage, `documents/${currentUser.uid}_${Date.now()}_${selectedDoc.name}`);
     docUploadStatus.textContent = 'Uploading…'; docProgress.style.width = '0%'; uploadDocBtn.disabled = true;
+
     try {
-      await uploadBytes(storageRef, selectedDoc);
-      const url = await getDownloadURL(storageRef);
-      const entry = { name: selectedDoc.name, url, ts: serverTimestamp() };
-      await setDoc(userDocRef, { documents: arrayUnion(entry) }, { merge: true });
+      const uploadTask = uploadBytesResumable(storageRef, selectedDoc);
+      uploadTask.on('state_changed', (snap) => {
+        const prog = Math.round((snap.bytesTransferred / snap.totalBytes) * 100);
+        docProgress.style.width = prog + '%';
+      }, (err) => {
+        console.error(err);
+        docUploadStatus.textContent = 'Upload failed.';
+        uploadDocBtn.disabled = false;
+      }, async () => {
+        const url = await getDownloadURL(uploadTask.snapshot.ref);
+        const entry = { name: selectedDoc.name, url, ts: serverTimestamp() };
+        await setDoc(userDocRef, { documents: arrayUnion(entry) }, { merge: true });
 
-      const updatedSnap = await getDoc(userDocRef);
-      const docs = updatedSnap.data()?.documents || [];
-      renderDocList(docs);
-      docCount.textContent = docs.length;
+        const updatedSnap = await getDoc(userDocRef);
+        const docs = updatedSnap.data()?.documents || [];
+        renderDocList(docs);
+        if (docCount) docCount.textContent = docs.length;
 
-      docUploadStatus.textContent = 'Upload complete!'; uploadDocBtn.disabled = false;
-      documentInput.value = ''; selectedDoc = null;
-    } catch (err) { console.error(err); docUploadStatus.textContent = 'Upload failed.'; uploadDocBtn.disabled = false; }
+        docUploadStatus.textContent = 'Upload complete!';
+        uploadDocBtn.disabled = false;
+        documentInput.value = '';
+        selectedDoc = null;
+      });
+    } catch (err) {
+      console.error(err);
+      docUploadStatus.textContent = 'Upload failed.';
+      uploadDocBtn.disabled = false;
+    }
   });
 
+  /* ------------------ Render Docs ------------------ */
   function renderDocList(docs) {
+    if (!docList) return;
     docList.innerHTML = '';
-    if (!docs || docs.length === 0) { docList.innerHTML = '<li class="text-slate-500">No documents yet.</li>'; return; }
+    if (!docs || docs.length === 0) {
+      docList.innerHTML = '<li class="text-slate-500">No documents yet.</li>';
+      return;
+    }
     docs.slice().sort((a,b) => (b.ts?.seconds || 0) - (a.ts?.seconds || 0)).forEach(d => {
       const li = document.createElement('li');
       li.className = "flex items-center justify-between gap-3 p-2 border border-slate-100 rounded-lg";
