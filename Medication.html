@@ -105,7 +105,7 @@
     <div class="drug-card">
       <h3>Paracetamol</h3>
       <p><b>Indication:</b> Pain relief, fever reduction</p>
-      <p><b>How to use:</b> 500mg every 6-8 hours as needed (max 4g daily)</p>
+      <p><b>How to use:</b> 1g every 6-8 hours as needed (max 4g daily)</p>
       <p><b>Side effects:</b> Nausea, rash, liver damage (if overdosed)</p>
       <div class="pharmacy-availability">
         📍 Available at:  
@@ -140,28 +140,1050 @@
 
     // Example drug data (you can expand this to 100 drugs)
     const drugs = [
-      {
-        name: "Paracetamol",
-        indication: "Pain relief, fever reduction",
-        usage: "500mg every 6-8 hours as needed (max 4g daily)",
-        sideEffects: "Nausea, rash, liver damage (if overdosed)",
-        pharmacies: [
-          { name: "HealthPlus Pharmacy", location: "Yenagoa Main Market Road", contact: "08012345678" },
-          { name: "City Health Pharmacy", location: "Ekeki Park, Yenagoa", contact: "08198765432" }
-        ]
-      },
-      {
-        name: "Amoxicillin",
-        indication: "Bacterial infections",
-        usage: "500mg every 8 hours for 5–7 days",
-        sideEffects: "Diarrhea, rash, nausea, allergic reaction",
-        pharmacies: [
-          { name: "MediCare Pharmacy", location: "Oxbow Lake Road, Yenagoa", contact: "07055555555" },
-          { name: "WellCare Drugs", location: "Swali Market, Yenagoa", contact: "08123456789" }
-        ]
-      }
-      // 👉 Add up to 100 drugs here
-    ];
+  {
+    name: "Paracetamol",
+    indication: "Pain relief, fever reduction",
+    usage: "1g every 6-8 hours as needed (max 4g daily)",
+    sideEffects: "Nausea, rash, liver damage (if overdosed)",
+    pharmacies: [
+      { name: "HealthPlus Pharmacy", location: "Yenagoa Main Market Road", contact: "08012345678" },
+      { name: "City Health Pharmacy", location: "Ekeki Park, Yenagoa", contact: "08198765432" }
+    ]
+  },
+  {
+    name: "Amoxicillin",
+    indication: "Bacterial infections",
+    usage: "500mg every 8 hours for 5–7 days",
+    sideEffects: "Diarrhea, rash, nausea, allergic reaction",
+    pharmacies: [
+      { name: "MediCare Pharmacy", location: "Oxbow Lake Road, Yenagoa", contact: "07055555555" },
+      { name: "WellCare Drugs", location: "Swali Market, Yenagoa", contact: "08123456789" }
+    ]
+  },
+  {
+    name: "Ibuprofen",
+    indication: "Pain, inflammation, fever",
+    usage: "400mg every 6–8 hours as needed (max 3200mg daily)",
+    sideEffects: "Stomach upset, ulcers, kidney issues",
+    pharmacies: [
+      { name: "Wellness Pharmacy", location: "Yenizue-Gene, Yenagoa", contact: "08177778888" }
+    ]
+  },
+  {
+    name: "Metformin",
+    indication: "Type 2 Diabetes",
+    usage: "500–1000mg twice daily with meals",
+    sideEffects: "Nausea, diarrhea, vitamin B12 deficiency",
+    pharmacies: [
+      { name: "Glucocare Pharmacy", location: "Opolo, Yenagoa", contact: "08099990000" }
+    ]
+  },
+  {
+    name: "Insulin",
+    indication: "Diabetes mellitus (Type 1 and advanced Type 2)",
+    usage: "Dosage individualized based on blood glucose levels",
+    sideEffects: "Hypoglycemia, weight gain, injection site reactions",
+    pharmacies: [
+      { name: "Diabetes Care Pharmacy", location: "Tombia Road, Yenagoa", contact: "07011112222" },
+      { name: "Lifeline Pharmacy", location: "Kpansia, Yenagoa", contact: "08133334444" }
+    ]
+  },
+  {
+    name: "Lisinopril",
+    indication: "Hypertension, heart failure",
+    usage: "10–40mg once daily",
+    sideEffects: "Cough, dizziness, high potassium",
+    pharmacies: [
+      { name: "Heart Health Pharmacy", location: "Okaka, Yenagoa", contact: "08022223333" }
+    ]
+  },
+  {
+    name: "Amlodipine",
+    indication: "High blood pressure, angina",
+    usage: "5–10mg once daily",
+    sideEffects: "Swelling of feet, dizziness, flushing",
+    pharmacies: [
+      { name: "Prime Pharmacy", location: "Etegwe, Yenagoa", contact: "08155556666" }
+    ]
+  },
+  {
+    name: "Azithromycin",
+    indication: "Bacterial infections (respiratory, skin, STDs)",
+    usage: "500mg once daily for 3–5 days",
+    sideEffects: "Diarrhea, nausea, QT prolongation",
+    pharmacies: [
+      { name: "QuickMed Pharmacy", location: "Okutukutu, Yenagoa", contact: "08188889999" }
+    ]
+  },
+  {
+    name: "Ciprofloxacin",
+    indication: "Urinary tract, respiratory, and GI infections",
+    usage: "500mg every 12 hours for 7–14 days",
+    sideEffects: "Tendon rupture, dizziness, nausea",
+    pharmacies: [
+      { name: "TrustCare Pharmacy", location: "Agudama, Yenagoa", contact: "08044445555" }
+    ]
+  },
+  {
+    name: "Omeprazole",
+    indication: "Acid reflux, ulcers, GERD",
+    usage: "20mg once daily before meals",
+    sideEffects: "Headache, diarrhea, vitamin B12 deficiency",
+    pharmacies: [
+      { name: "Stomach Relief Pharmacy", location: "Okaka, Yenagoa", contact: "08122223344" }
+    ]
+  },
+  {
+    name: "Losartan",
+    indication: "Hypertension, kidney protection in diabetes",
+    usage: "50–100mg once daily",
+    sideEffects: "Dizziness, high potassium",
+    pharmacies: [
+      { name: "Kidney Care Pharmacy", location: "Amarata, Yenagoa", contact: "08066667777" }
+    ]
+  },
+  {
+    name: "Atorvastatin",
+    indication: "High cholesterol, prevention of heart disease",
+    usage: "10–80mg once daily",
+    sideEffects: "Muscle pain, liver enzyme elevation",
+    pharmacies: [
+      { name: "Cardio Pharmacy", location: "Okutukutu, Yenagoa", contact: "08111112222" }
+    ]
+  },
+  {
+    name: "Salbutamol",
+    indication: "Asthma, chronic obstructive pulmonary disease (COPD)",
+    usage: "100–200 mcg inhaled every 4–6 hours as needed",
+    sideEffects: "Tremor, palpitations, headache",
+    pharmacies: [
+      { name: "BreathEasy Pharmacy", location: "Okaka, Yenagoa", contact: "08133330000" }
+    ]
+  },
+  {
+    name: "Prednisolone",
+    indication: "Allergic disorders, asthma, inflammation",
+    usage: "5–60mg daily depending on severity",
+    sideEffects: "Weight gain, mood changes, osteoporosis (long term)",
+    pharmacies: [
+      { name: "Relief Pharmacy", location: "Akenfa, Yenagoa", contact: "08122221111" }
+    ]
+  },
+  {
+    name: "Furosemide",
+    indication: "Hypertension, edema, heart failure",
+    usage: "20–80mg once or twice daily",
+    sideEffects: "Frequent urination, low potassium, dehydration",
+    pharmacies: [
+      { name: "LifeSpring Pharmacy", location: "Biogbolo, Yenagoa", contact: "08055556666" }
+    ]
+  },
+  {
+    name: "Hydrochlorothiazide",
+    indication: "Hypertension, edema",
+    usage: "12.5–50mg once daily",
+    sideEffects: "Low potassium, dizziness, muscle cramps",
+    pharmacies: [
+      { name: "WellCare Pharmacy", location: "Swali Market, Yenagoa", contact: "08112345678" }
+    ]
+  },
+  {
+    name: "Warfarin",
+    indication: "Blood clot prevention (DVT, PE, atrial fibrillation)",
+    usage: "Dosage adjusted by INR monitoring",
+    sideEffects: "Bleeding, bruising, drug interactions",
+    pharmacies: [
+      { name: "SafeHeart Pharmacy", location: "Opolo, Yenagoa", contact: "07099991111" }
+    ]
+  },
+  {
+    name: "Clopidogrel",
+    indication: "Prevention of stroke, heart attack",
+    usage: "75mg once daily",
+    sideEffects: "Bleeding, rash, diarrhea",
+    pharmacies: [
+      { name: "TrustMed Pharmacy", location: "Etegwe, Yenagoa", contact: "08155559999" }
+    ]
+  },
+  {
+    name: "Aspirin (low-dose)",
+    indication: "Prevention of stroke, heart attack",
+    usage: "75–150mg once daily",
+    sideEffects: "Stomach upset, bleeding",
+    pharmacies: [
+      { name: "CarePlus Pharmacy", location: "Kpansia, Yenagoa", contact: "08011113333" }
+    ]
+  },
+  {
+    name: "Levothyroxine",
+    indication: "Hypothyroidism",
+    usage: "25–200mcg once daily before breakfast",
+    sideEffects: "Palpitations, weight loss, anxiety (if overdosed)",
+    pharmacies: [
+      { name: "ThyroCare Pharmacy", location: "Amarata, Yenagoa", contact: "08166667777" }
+    ]
+  },
+  {
+    name: "Diazepam",
+    indication: "Anxiety, muscle spasms, seizures",
+    usage: "2–10mg two to four times daily",
+    sideEffects: "Drowsiness, dependence, confusion",
+    pharmacies: [
+      { name: "CalmLife Pharmacy", location: "Okutukutu, Yenagoa", contact: "08144445555" }
+    ]
+  },
+  {
+    name: "Sertraline",
+    indication: "Depression, anxiety, OCD",
+    usage: "50–200mg once daily",
+    sideEffects: "Nausea, insomnia, sexual dysfunction",
+    pharmacies: [
+      { name: "MindCare Pharmacy", location: "Okaka, Yenagoa", contact: "08188887777" }
+    ]
+  },
+  {
+    name: "Fluoxetine",
+    indication: "Depression, anxiety, bulimia",
+    usage: "20–60mg once daily",
+    sideEffects: "Nausea, insomnia, sexual dysfunction",
+    pharmacies: [
+      { name: "Hope Pharmacy", location: "Tombia Road, Yenagoa", contact: "08122223322" }
+    ]
+  },
+  {
+    name: "Olanzapine",
+    indication: "Schizophrenia, bipolar disorder",
+    usage: "5–20mg once daily",
+    sideEffects: "Weight gain, drowsiness, high cholesterol",
+    pharmacies: [
+      { name: "Peace Pharmacy", location: "Akenfa, Yenagoa", contact: "08166668888" }
+    ]
+  },
+  {
+    name: "Haloperidol",
+    indication: "Psychosis, schizophrenia, acute agitation",
+    usage: "2–10mg daily (oral) or as prescribed",
+    sideEffects: "Drowsiness, tremor, stiffness",
+    pharmacies: [
+      { name: "MentalCare Pharmacy", location: "Biogbolo, Yenagoa", contact: "08133332222" }
+    ]
+  },
+  {
+    name: "Morphine",
+    indication: "Severe pain relief",
+    usage: "Dosage individualized (oral/IV/IM)",
+    sideEffects: "Dependence, constipation, drowsiness",
+    pharmacies: [
+      { name: "Pain Relief Pharmacy", location: "Etegwe, Yenagoa", contact: "07022221111" }
+    ]
+  },
+  {
+    name: "Tramadol",
+    indication: "Moderate to severe pain",
+    usage: "50–100mg every 6–8 hours (max 400mg daily)",
+    sideEffects: "Nausea, dizziness, dependence",
+    pharmacies: [
+      { name: "QuickRelief Pharmacy", location: "Swali Market, Yenagoa", contact: "08111119999" }
+    ]
+  },
+  {
+    name: "Cetirizine",
+    indication: "Allergic rhinitis, urticaria",
+    usage: "10mg once daily",
+    sideEffects: "Drowsiness, dry mouth",
+    pharmacies: [
+      { name: "AllergyCare Pharmacy", location: "Okaka, Yenagoa", contact: "08199990000" }
+    ]
+  },
+  {
+    name: "Loratadine",
+    indication: "Allergic rhinitis, skin allergies",
+    usage: "10mg once daily",
+    sideEffects: "Headache, fatigue",
+    pharmacies: [
+      { name: "FreshAir Pharmacy", location: "Opolo, Yenagoa", contact: "08155554444" }
+    ]
+  },
+  {
+    name: "Chloroquine",
+    indication: "Malaria treatment",
+    usage: "600mg initially, then 300mg after 6 hours, then daily for 2 days",
+    sideEffects: "Nausea, blurred vision, itching",
+    pharmacies: [
+      { name: "MalariaCare Pharmacy", location: "Amarata, Yenagoa", contact: "08077778888" }
+    ]
+  },
+  {
+    name: "Artemether-Lumefantrine",
+    indication: "First-line malaria treatment",
+    usage: "20/120mg, 4 tablets twice daily for 3 days",
+    sideEffects: "Headache, dizziness, loss of appetite",
+    pharmacies: [
+      { name: "Hope Alive Pharmacy", location: "Kpansia, Yenagoa", contact: "08111118888" }
+    ]
+  },
+  {
+    name: "Albendazole",
+    indication: "Worm infestations (roundworm, hookworm, tapeworm)",
+    usage: "400mg single dose (repeat after 2 weeks if needed)",
+    sideEffects: "Abdominal pain, nausea, dizziness",
+    pharmacies: [
+      { name: "Deworm Pharmacy", location: "Tombia, Yenagoa", contact: "08133334455" }
+    ]
+  },
+  // 👉 Continue adding until you reach 100
+  // ... your previous drugs above
+
+  {
+    name: "Mebendazole",
+    indication: "Worm infestations (roundworm, whipworm, pinworm, hookworm)",
+    usage: "100mg twice daily for 3 days or as prescribed",
+    sideEffects: "Abdominal pain, diarrhea, rash",
+    pharmacies: [
+      { name: "WellCare Pharmacy", location: "Swali Market, Yenagoa", contact: "08112345678" }
+    ]
+  },
+  {
+    name: "Ivermectin",
+    indication: "Onchocerciasis, strongyloidiasis, scabies",
+    usage: "150–200 mcg/kg single dose, repeat after months if required",
+    sideEffects: "Dizziness, itching, swelling",
+    pharmacies: [
+      { name: "Community Pharmacy", location: "Amarata, Yenagoa", contact: "08022220000" }
+    ]
+  },
+  {
+    name: "Quinine",
+    indication: "Severe malaria treatment",
+    usage: "600mg every 8 hours for 7 days (oral) or IV as prescribed",
+    sideEffects: "Tinnitus, nausea, blurred vision",
+    pharmacies: [
+      { name: "MalariaCare Pharmacy", location: "Etegwe, Yenagoa", contact: "08144446666" }
+    ]
+  },
+  {
+    name: "Doxycycline",
+    indication: "Bacterial infections, malaria prophylaxis",
+    usage: "100mg once or twice daily",
+    sideEffects: "Photosensitivity, stomach upset, esophageal irritation",
+    pharmacies: [
+      { name: "TrustCare Pharmacy", location: "Agudama, Yenagoa", contact: "08155556666" }
+    ]
+  },
+  {
+    name: "Tetracycline",
+    indication: "Bacterial infections (respiratory, skin, STDs)",
+    usage: "250–500mg every 6 hours",
+    sideEffects: "Tooth discoloration, nausea, photosensitivity",
+    pharmacies: [
+      { name: "Classic Pharmacy", location: "Kpansia, Yenagoa", contact: "08077779999" }
+    ]
+  },
+  {
+    name: "Ceftriaxone",
+    indication: "Severe bacterial infections (pneumonia, meningitis, sepsis)",
+    usage: "1–2g IV/IM once daily or divided doses",
+    sideEffects: "Injection site pain, diarrhea, rash",
+    pharmacies: [
+      { name: "MediQuick Pharmacy", location: "Opolo, Yenagoa", contact: "08166665555" }
+    ]
+  },
+  {
+    name: "Cefuroxime",
+    indication: "Respiratory and urinary tract infections",
+    usage: "250–500mg twice daily for 7–10 days",
+    sideEffects: "Nausea, diarrhea, rash",
+    pharmacies: [
+      { name: "City Health Pharmacy", location: "Ekeki Park, Yenagoa", contact: "08198765432" }
+    ]
+  },
+  {
+    name: "Gentamicin",
+    indication: "Severe bacterial infections (sepsis, UTIs)",
+    usage: "3–5mg/kg/day IM/IV in divided doses",
+    sideEffects: "Kidney toxicity, hearing loss, dizziness",
+    pharmacies: [
+      { name: "Prime Pharmacy", location: "Etegwe, Yenagoa", contact: "08155556666" }
+    ]
+  },
+  {
+    name: "Erythromycin",
+    indication: "Respiratory tract and skin infections",
+    usage: "250–500mg every 6 hours",
+    sideEffects: "Stomach upset, diarrhea, QT prolongation",
+    pharmacies: [
+      { name: "LifeSpring Pharmacy", location: "Biogbolo, Yenagoa", contact: "08055556666" }
+    ]
+  },
+  {
+    name: "Clarithromycin",
+    indication: "Respiratory infections, H. pylori eradication",
+    usage: "250–500mg twice daily for 7–14 days",
+    sideEffects: "Nausea, diarrhea, metallic taste",
+    pharmacies: [
+      { name: "QuickMed Pharmacy", location: "Okutukutu, Yenagoa", contact: "08188889999" }
+    ]
+  },
+  {
+    name: "Ranitidine",
+    indication: "Peptic ulcer, GERD, acid reflux",
+    usage: "150mg twice daily or 300mg at bedtime",
+    sideEffects: "Headache, constipation, dizziness",
+    pharmacies: [
+      { name: "Stomach Relief Pharmacy", location: "Okaka, Yenagoa", contact: "08122223344" }
+    ]
+  },
+  {
+    name: "Pantoprazole",
+    indication: "GERD, ulcers, Zollinger-Ellison syndrome",
+    usage: "40mg once daily",
+    sideEffects: "Headache, diarrhea, abdominal pain",
+    pharmacies: [
+      { name: "Hope Pharmacy", location: "Tombia Road, Yenagoa", contact: "08122223322" }
+    ]
+  },
+  {
+    name: "Domperidone",
+    indication: "Nausea, vomiting, gastric motility disorders",
+    usage: "10mg three times daily before meals",
+    sideEffects: "Dry mouth, abdominal cramps, QT prolongation",
+    pharmacies: [
+      { name: "FreshAir Pharmacy", location: "Opolo, Yenagoa", contact: "08155554444" }
+    ]
+  },
+  {
+    name: "Ondansetron",
+    indication: "Nausea and vomiting (chemotherapy, surgery)",
+    usage: "4–8mg every 8 hours as needed",
+    sideEffects: "Constipation, headache, dizziness",
+    pharmacies: [
+      { name: "CarePlus Pharmacy", location: "Kpansia, Yenagoa", contact: "08011113333" }
+    ]
+  },
+  {
+    name: "Metoclopramide",
+    indication: "Nausea, vomiting, delayed gastric emptying",
+    usage: "10mg three times daily",
+    sideEffects: "Drowsiness, restlessness, movement disorders",
+    pharmacies: [
+      { name: "TrustMed Pharmacy", location: "Etegwe, Yenagoa", contact: "08155559999" }
+    ]
+  },
+  {
+    name: "Vitamin C",
+    indication: "Vitamin C deficiency, immune support",
+    usage: "500–1000mg once daily",
+    sideEffects: "Stomach upset, kidney stones (high doses)",
+    pharmacies: [
+      { name: "Wellness Pharmacy", location: "Yenizue-Gene, Yenagoa", contact: "08177778888" }
+    ]
+  },
+  {
+    name: "Vitamin D",
+    indication: "Vitamin D deficiency, bone health",
+    usage: "400–2000 IU daily (dose varies)",
+    sideEffects: "Nausea, weakness, hypercalcemia",
+    pharmacies: [
+      { name: "Lifeline Pharmacy", location: "Kpansia, Yenagoa", contact: "08133334444" }
+    ]
+  },
+  {
+    name: "Calcium Carbonate",
+    indication: "Calcium deficiency, osteoporosis",
+    usage: "500–1200mg daily in divided doses",
+    sideEffects: "Constipation, bloating, kidney stones",
+    pharmacies: [
+      { name: "BoneCare Pharmacy", location: "Amarata, Yenagoa", contact: "08111112223" }
+    ]
+  },
+  {
+    name: "Iron (Ferrous Sulfate)",
+    indication: "Iron deficiency anemia",
+    usage: "200mg once or twice daily",
+    sideEffects: "Constipation, black stools, abdominal pain",
+    pharmacies: [
+      { name: "SafeLife Pharmacy", location: "Opolo, Yenagoa", contact: "08099998888" }
+    ]
+  },
+  {
+    name: "Folic Acid",
+    indication: "Folate deficiency, pregnancy supplementation",
+    usage: "5mg once daily",
+    sideEffects: "Nausea, bloating, allergic reaction (rare)",
+    pharmacies: [
+      { name: "MediCare Pharmacy", location: "Oxbow Lake Road, Yenagoa", contact: "07055555555" }
+    ]
+  },
+  // ... your previous 60 drugs above
+  
+  {
+    name: "Vitamin B Complex",
+    indication: "Vitamin B deficiency, energy support, nerve health",
+    usage: "1 tablet daily or as prescribed",
+    sideEffects: "Mild nausea, urine discoloration",
+    pharmacies: [
+      { name: "WellCare Pharmacy", location: "Swali Market, Yenagoa", contact: "08112345678" }
+    ]
+  },
+  {
+    name: "Zinc Sulfate",
+    indication: "Zinc deficiency, immune support",
+    usage: "20–50mg once daily",
+    sideEffects: "Nausea, stomach upset",
+    pharmacies: [
+      { name: "CarePlus Pharmacy", location: "Kpansia, Yenagoa", contact: "08011113333" }
+    ]
+  },
+  {
+    name: "Magnesium Sulfate",
+    indication: "Eclampsia, severe asthma, hypomagnesemia",
+    usage: "IV/IM as prescribed",
+    sideEffects: "Flushing, low blood pressure, drowsiness",
+    pharmacies: [
+      { name: "Lifeline Pharmacy", location: "Kpansia, Yenagoa", contact: "08133334444" }
+    ]
+  },
+  {
+    name: "Potassium Chloride",
+    indication: "Low potassium (hypokalemia)",
+    usage: "20–40 mEq daily (oral/IV as prescribed)",
+    sideEffects: "Nausea, stomach irritation, high potassium",
+    pharmacies: [
+      { name: "Prime Pharmacy", location: "Etegwe, Yenagoa", contact: "08155556666" }
+    ]
+  },
+  {
+    name: "Sodium Bicarbonate",
+    indication: "Acidosis, indigestion, urinary alkalinization",
+    usage: "325–2000mg orally as prescribed",
+    sideEffects: "Gas, alkalosis, swelling",
+    pharmacies: [
+      { name: "TrustMed Pharmacy", location: "Etegwe, Yenagoa", contact: "08155559999" }
+    ]
+  },
+  {
+    name: "Oral Rehydration Salts (ORS)",
+    indication: "Dehydration from diarrhea",
+    usage: "Dissolve 1 sachet in 1L water and drink as needed",
+    sideEffects: "Bloating (rare)",
+    pharmacies: [
+      { name: "Hope Alive Pharmacy", location: "Kpansia, Yenagoa", contact: "08111118888" }
+    ]
+  },
+  {
+    name: "Glucose IV (Dextrose)",
+    indication: "Hypoglycemia, dehydration, energy source",
+    usage: "IV infusion as prescribed",
+    sideEffects: "Vein irritation, hyperglycemia",
+    pharmacies: [
+      { name: "City Health Pharmacy", location: "Ekeki Park, Yenagoa", contact: "08198765432" }
+    ]
+  },
+  {
+    name: "Insulin Glargine",
+    indication: "Diabetes mellitus (long-acting insulin)",
+    usage: "Once daily subcutaneous injection",
+    sideEffects: "Hypoglycemia, weight gain",
+    pharmacies: [
+      { name: "Diabetes Care Pharmacy", location: "Tombia Road, Yenagoa", contact: "07011112222" }
+    ]
+  },
+  {
+    name: "Insulin Lispro",
+    indication: "Diabetes mellitus (rapid-acting insulin)",
+    usage: "Before meals as prescribed",
+    sideEffects: "Hypoglycemia, injection site reaction",
+    pharmacies: [
+      { name: "Lifeline Pharmacy", location: "Kpansia, Yenagoa", contact: "08133334444" }
+    ]
+  },
+  {
+    name: "Glibenclamide",
+    indication: "Type 2 Diabetes",
+    usage: "2.5–10mg once or twice daily with meals",
+    sideEffects: "Hypoglycemia, weight gain",
+    pharmacies: [
+      { name: "Glucocare Pharmacy", location: "Opolo, Yenagoa", contact: "08099990000" }
+    ]
+  },
+  {
+    name: "Gliclazide",
+    indication: "Type 2 Diabetes",
+    usage: "40–320mg daily in divided doses",
+    sideEffects: "Low blood sugar, weight gain",
+    pharmacies: [
+      { name: "HealthPlus Pharmacy", location: "Yenagoa Main Market Road", contact: "08012345678" }
+    ]
+  },
+  {
+    name: "Pioglitazone",
+    indication: "Type 2 Diabetes",
+    usage: "15–45mg once daily",
+    sideEffects: "Weight gain, fluid retention, heart failure risk",
+    pharmacies: [
+      { name: "MediCare Pharmacy", location: "Oxbow Lake Road, Yenagoa", contact: "07055555555" }
+    ]
+  },
+  {
+    name: "Sitagliptin",
+    indication: "Type 2 Diabetes",
+    usage: "100mg once daily",
+    sideEffects: "Headache, nasopharyngitis, hypoglycemia (with sulfonylureas)",
+    pharmacies: [
+      { name: "WellCare Drugs", location: "Swali Market, Yenagoa", contact: "08123456789" }
+    ]
+  },
+  {
+    name: "Vildagliptin",
+    indication: "Type 2 Diabetes",
+    usage: "50mg twice daily",
+    sideEffects: "Headache, dizziness, liver enzyme changes",
+    pharmacies: [
+      { name: "Glucocare Pharmacy", location: "Opolo, Yenagoa", contact: "08099990000" }
+    ]
+  },
+  {
+    name: "Canagliflozin",
+    indication: "Type 2 Diabetes (SGLT2 inhibitor)",
+    usage: "100–300mg once daily",
+    sideEffects: "Urinary tract infection, dehydration",
+    pharmacies: [
+      { name: "Heart Health Pharmacy", location: "Okaka, Yenagoa", contact: "08022223333" }
+    ]
+  },
+  {
+    name: "Dapagliflozin",
+    indication: "Type 2 Diabetes, heart failure",
+    usage: "5–10mg once daily",
+    sideEffects: "Genital infection, dehydration",
+    pharmacies: [
+      { name: "Prime Pharmacy", location: "Etegwe, Yenagoa", contact: "08155556666" }
+    ]
+  },
+  {
+    name: "Empagliflozin",
+    indication: "Type 2 Diabetes, cardiovascular risk reduction",
+    usage: "10–25mg once daily",
+    sideEffects: "UTIs, dehydration, weight loss",
+    pharmacies: [
+      { name: "CarePlus Pharmacy", location: "Kpansia, Yenagoa", contact: "08011113333" }
+    ]
+  },
+  {
+    name: "Hydrocortisone",
+    indication: "Inflammation, adrenal insufficiency, allergies",
+    usage: "10–30mg oral daily or IV/IM as prescribed",
+    sideEffects: "Weight gain, mood changes, high blood sugar",
+    pharmacies: [
+      { name: "Relief Pharmacy", location: "Akenfa, Yenagoa", contact: "08122221111" }
+    ]
+  },
+  {
+    name: "Betamethasone",
+    indication: "Severe inflammation, skin disorders, allergies",
+    usage: "Topical/IM/IV as prescribed",
+    sideEffects: "Skin thinning, mood changes, infection risk",
+    pharmacies: [
+      { name: "Hope Pharmacy", location: "Tombia Road, Yenagoa", contact: "08122223322" }
+    ]
+  },
+  {
+    name: "Dexamethasone",
+    indication: "Severe inflammation, asthma, COVID-19, cancer therapy",
+    usage: "4–20mg daily (oral/IV/IM) as prescribed",
+    sideEffects: "High blood sugar, weight gain, mood swings",
+    pharmacies: [
+      { name: "LifeSpring Pharmacy", location: "Biogbolo, Yenagoa", contact: "08055556666" }
+    ]
+  },
+  // ... your previous 80 drugs above
+
+  {
+    name: "Erythromycin",
+    indication: "Respiratory and skin infections",
+    usage: "250–500mg every 6 hours",
+    sideEffects: "Nausea, diarrhea, abdominal pain",
+    pharmacies: [
+      { name: "QuickMed Pharmacy", location: "Okutukutu, Yenagoa", contact: "08188889999" }
+    ]
+  },
+  {
+    name: "Clarithromycin",
+    indication: "Respiratory infections, H. pylori infection",
+    usage: "250–500mg twice daily",
+    sideEffects: "Diarrhea, altered taste, headache",
+    pharmacies: [
+      { name: "TrustCare Pharmacy", location: "Agudama, Yenagoa", contact: "08044445555" }
+    ]
+  },
+  {
+    name: "Doxycycline",
+    indication: "Malaria prevention, acne, respiratory infections",
+    usage: "100mg once or twice daily",
+    sideEffects: "Photosensitivity, stomach upset",
+    pharmacies: [
+      { name: "MalariaCare Pharmacy", location: "Amarata, Yenagoa", contact: "08077778888" }
+    ]
+  },
+  {
+    name: "Tetracycline",
+    indication: "Acne, respiratory and urinary infections",
+    usage: "250–500mg every 6 hours",
+    sideEffects: "Tooth discoloration, nausea, photosensitivity",
+    pharmacies: [
+      { name: "Hope Alive Pharmacy", location: "Kpansia, Yenagoa", contact: "08111118888" }
+    ]
+  },
+  {
+    name: "Gentamicin",
+    indication: "Severe bacterial infections (IV/IM use)",
+    usage: "3–5mg/kg/day divided every 8 hours",
+    sideEffects: "Kidney damage, hearing loss",
+    pharmacies: [
+      { name: "City Health Pharmacy", location: "Ekeki Park, Yenagoa", contact: "08198765432" }
+    ]
+  },
+  {
+    name: "Amikacin",
+    indication: "Serious bacterial infections",
+    usage: "15mg/kg/day IM/IV divided every 12 hours",
+    sideEffects: "Nephrotoxicity, ototoxicity",
+    pharmacies: [
+      { name: "MediCare Pharmacy", location: "Oxbow Lake Road, Yenagoa", contact: "07055555555" }
+    ]
+  },
+  {
+    name: "Vancomycin",
+    indication: "Severe Gram-positive infections (e.g., MRSA)",
+    usage: "IV infusion, dose adjusted by levels",
+    sideEffects: "Kidney injury, Red man syndrome",
+    pharmacies: [
+      { name: "WellCare Drugs", location: "Swali Market, Yenagoa", contact: "08123456789" }
+    ]
+  },
+  {
+    name: "Linezolid",
+    indication: "Drug-resistant Gram-positive infections",
+    usage: "600mg every 12 hours",
+    sideEffects: "Bone marrow suppression, headache",
+    pharmacies: [
+      { name: "TrustMed Pharmacy", location: "Etegwe, Yenagoa", contact: "08155559999" }
+    ]
+  },
+  {
+    name: "Rifampicin",
+    indication: "Tuberculosis, meningitis prophylaxis",
+    usage: "10mg/kg daily (usually 600mg)",
+    sideEffects: "Red/orange urine, liver damage",
+    pharmacies: [
+      { name: "TB Care Pharmacy", location: "Swali, Yenagoa", contact: "08170000000" }
+    ]
+  },
+  {
+    name: "Isoniazid",
+    indication: "Tuberculosis treatment and prevention",
+    usage: "5mg/kg daily (usually 300mg)",
+    sideEffects: "Liver toxicity, neuropathy",
+    pharmacies: [
+      { name: "HealthPlus Pharmacy", location: "Yenagoa Main Market Road", contact: "08012345678" }
+    ]
+  },
+  {
+    name: "Pyrazinamide",
+    indication: "Tuberculosis treatment",
+    usage: "15–30mg/kg once daily",
+    sideEffects: "Liver damage, joint pain",
+    pharmacies: [
+      { name: "TB Care Pharmacy", location: "Swali, Yenagoa", contact: "08170000000" }
+    ]
+  },
+  {
+    name: "Ethambutol",
+    indication: "Tuberculosis treatment",
+    usage: "15–25mg/kg once daily",
+    sideEffects: "Visual problems, optic neuritis",
+    pharmacies: [
+      { name: "Hope Alive Pharmacy", location: "Kpansia, Yenagoa", contact: "08111118888" }
+    ]
+  },
+  {
+    name: "Cotrimoxazole (Septrin)",
+    indication: "Respiratory, urinary, and GI infections; HIV prophylaxis",
+    usage: "960mg every 12 hours",
+    sideEffects: "Rash, nausea, bone marrow suppression",
+    pharmacies: [
+      { name: "LifeSpring Pharmacy", location: "Biogbolo, Yenagoa", contact: "08055556666" }
+    ]
+  },
+  {
+    name: "Nitrofurantoin",
+    indication: "Urinary tract infections",
+    usage: "50–100mg every 6 hours",
+    sideEffects: "Nausea, lung reactions (long term)",
+    pharmacies: [
+      { name: "TrustCare Pharmacy", location: "Agudama, Yenagoa", contact: "08044445555" }
+    ]
+  },
+  {
+    name: "Metronidazole",
+    indication: "Anaerobic infections, protozoal infections",
+    usage: "400–500mg every 8 hours",
+    sideEffects: "Metallic taste, nausea, dizziness",
+    pharmacies: [
+      { name: "QuickRelief Pharmacy", location: "Swali Market, Yenagoa", contact: "08111119999" }
+    ]
+  },
+  {
+    name: "Tinidazole",
+    indication: "Protozoal infections, bacterial vaginosis",
+    usage: "2g single dose or as prescribed",
+    sideEffects: "Metallic taste, nausea",
+    pharmacies: [
+      { name: "Deworm Pharmacy", location: "Tombia, Yenagoa", contact: "08133334455" }
+    ]
+  },
+  {
+    name: "Mebendazole",
+    indication: "Worm infestations",
+    usage: "100mg twice daily for 3 days",
+    sideEffects: "Abdominal pain, diarrhea",
+    pharmacies: [
+      { name: "Deworm Pharmacy", location: "Tombia, Yenagoa", contact: "08133334455" }
+    ]
+  },
+  {
+    name: "Praziquantel",
+    indication: "Schistosomiasis, tapeworm infections",
+    usage: "20mg/kg twice daily for 1 day",
+    sideEffects: "Dizziness, abdominal pain",
+    pharmacies: [
+      { name: "MalariaCare Pharmacy", location: "Amarata, Yenagoa", contact: "08077778888" }
+    ]
+  },
+  {
+    name: "Oseltamivir",
+    indication: "Influenza A and B treatment",
+    usage: "75mg twice daily for 5 days",
+    sideEffects: "Nausea, vomiting, headache",
+    pharmacies: [
+      { name: "Respira Pharmacy", location: "Kpansia, Yenagoa", contact: "08199990000" }
+    ]
+  },
+  {
+    name: "Acyclovir",
+    indication: "Herpes infections (HSV, VZV)",
+    usage: "400mg three times daily",
+    sideEffects: "Nausea, headache, kidney effects",
+    pharmacies: [
+      { name: "Hope Pharmacy", location: "Tombia Road, Yenagoa", contact: "08122223322" }
+    ]
+  },
+  // ... your previous 100 drugs above
+
+  {
+    name: "Insulin (NPH)",
+    indication: "Diabetes mellitus (type 1 and type 2)",
+    usage: "Subcutaneous injection, dose individualized",
+    sideEffects: "Hypoglycemia, weight gain, injection site reactions",
+    pharmacies: [
+      { name: "Diabetes Care Pharmacy", location: "Ekeki, Yenagoa", contact: "08122221111" },
+      { name: "MediCare Pharmacy", location: "Oxbow Lake Road, Yenagoa", contact: "07055555555" }
+    ]
+  },
+  {
+    name: "Regular Insulin",
+    indication: "Diabetes mellitus, diabetic ketoacidosis",
+    usage: "Subcutaneous or IV injection, dose individualized",
+    sideEffects: "Hypoglycemia, weight gain, low potassium",
+    pharmacies: [
+      { name: "HealthPlus Pharmacy", location: "Yenagoa Main Market Road", contact: "08012345678" },
+      { name: "City Health Pharmacy", location: "Ekeki Park, Yenagoa", contact: "08198765432" }
+    ]
+  },
+  {
+    name: "Glargine Insulin",
+    indication: "Type 1 and 2 diabetes (long-acting control)",
+    usage: "Once daily subcutaneous injection",
+    sideEffects: "Hypoglycemia, weight gain",
+    pharmacies: [
+      { name: "Diabetes Care Pharmacy", location: "Ekeki, Yenagoa", contact: "08122221111" }
+    ]
+  },
+  {
+    name: "Metformin",
+    indication: "Type 2 diabetes",
+    usage: "500–1000mg twice daily with meals",
+    sideEffects: "Nausea, diarrhea, lactic acidosis (rare)",
+    pharmacies: [
+      { name: "WellCare Drugs", location: "Swali Market, Yenagoa", contact: "08123456789" }
+    ]
+  },
+  {
+    name: "Glibenclamide",
+    indication: "Type 2 diabetes",
+    usage: "2.5–10mg once daily",
+    sideEffects: "Hypoglycemia, weight gain",
+    pharmacies: [
+      { name: "Hope Alive Pharmacy", location: "Kpansia, Yenagoa", contact: "08111118888" }
+    ]
+  },
+  {
+    name: "Sitagliptin",
+    indication: "Type 2 diabetes",
+    usage: "100mg once daily",
+    sideEffects: "Headache, nasopharyngitis, rare pancreatitis",
+    pharmacies: [
+      { name: "TrustCare Pharmacy", location: "Agudama, Yenagoa", contact: "08044445555" }
+    ]
+  },
+  {
+    name: "Pioglitazone",
+    indication: "Type 2 diabetes",
+    usage: "15–30mg once daily",
+    sideEffects: "Weight gain, edema, heart failure risk",
+    pharmacies: [
+      { name: "MediCare Pharmacy", location: "Oxbow Lake Road, Yenagoa", contact: "07055555555" }
+    ]
+  },
+  {
+    name: "Empagliflozin",
+    indication: "Type 2 diabetes, heart failure",
+    usage: "10–25mg once daily",
+    sideEffects: "Genital infections, dehydration",
+    pharmacies: [
+      { name: "Diabetes Care Pharmacy", location: "Ekeki, Yenagoa", contact: "08122221111" }
+    ]
+  },
+  {
+    name: "Dapagliflozin",
+    indication: "Type 2 diabetes, kidney disease",
+    usage: "5–10mg once daily",
+    sideEffects: "Urinary tract infections, thirst",
+    pharmacies: [
+      { name: "QuickMed Pharmacy", location: "Okutukutu, Yenagoa", contact: "08188889999" }
+    ]
+  },
+  {
+    name: "Exenatide",
+    indication: "Type 2 diabetes (GLP-1 agonist)",
+    usage: "5–10mcg subcutaneously twice daily",
+    sideEffects: "Nausea, weight loss, pancreatitis (rare)",
+    pharmacies: [
+      { name: "Diabetes Care Pharmacy", location: "Ekeki, Yenagoa", contact: "08122221111" }
+    ]
+  },
+  {
+    name: "Liraglutide",
+    indication: "Type 2 diabetes, obesity",
+    usage: "0.6–1.8mg subcutaneously daily",
+    sideEffects: "Nausea, vomiting, pancreatitis (rare)",
+    pharmacies: [
+      { name: "WellCare Drugs", location: "Swali Market, Yenagoa", contact: "08123456789" }
+    ]
+  },
+  {
+    name: "Repaglinide",
+    indication: "Type 2 diabetes (meal-time glucose control)",
+    usage: "0.5–4mg before meals",
+    sideEffects: "Hypoglycemia, weight gain",
+    pharmacies: [
+      { name: "City Health Pharmacy", location: "Ekeki Park, Yenagoa", contact: "08198765432" }
+    ]
+  },
+  {
+    name: "Acarbose",
+    indication: "Type 2 diabetes (post-meal glucose control)",
+    usage: "50–100mg with meals",
+    sideEffects: "Gas, diarrhea, abdominal pain",
+    pharmacies: [
+      { name: "TrustCare Pharmacy", location: "Agudama, Yenagoa", contact: "08044445555" }
+    ]
+  },
+  {
+    name: "Canagliflozin",
+    indication: "Type 2 diabetes",
+    usage: "100–300mg once daily",
+    sideEffects: "Urinary infections, dehydration, ketoacidosis (rare)",
+    pharmacies: [
+      { name: "MediCare Pharmacy", location: "Oxbow Lake Road, Yenagoa", contact: "07055555555" }
+    ]
+  },
+  {
+    name: "Glipizide",
+    indication: "Type 2 diabetes",
+    usage: "5–20mg once daily",
+    sideEffects: "Hypoglycemia, weight gain",
+    pharmacies: [
+      { name: "HealthPlus Pharmacy", location: "Yenagoa Main Market Road", contact: "08012345678" }
+    ]
+  },
+  {
+    name: "Tolbutamide",
+    indication: "Type 2 diabetes (rarely used now)",
+    usage: "250–500mg two to three times daily",
+    sideEffects: "Hypoglycemia, weight gain",
+    pharmacies: [
+      { name: "OldCare Pharmacy", location: "Amarata, Yenagoa", contact: "08144446666" }
+    ]
+  },
+  {
+    name: "Nateglinide",
+    indication: "Type 2 diabetes (short-acting secretagogue)",
+    usage: "60–120mg before meals",
+    sideEffects: "Hypoglycemia, weight gain",
+    pharmacies: [
+      { name: "LifeSpring Pharmacy", location: "Biogbolo, Yenagoa", contact: "08055556666" }
+    ]
+  },
+  {
+    name: "Semaglutide",
+    indication: "Type 2 diabetes, weight management",
+    usage: "0.25–1mg weekly subcutaneous injection",
+    sideEffects: "Nausea, vomiting, pancreatitis (rare)",
+    pharmacies: [
+      { name: "Diabetes Care Pharmacy", location: "Ekeki, Yenagoa", contact: "08122221111" }
+    ]
+  },
+  {
+    name: "Glimepiride",
+    indication: "Type 2 diabetes",
+    usage: "1–4mg once daily",
+    sideEffects: "Hypoglycemia, weight gain",
+    pharmacies: [
+      { name: "Hope Alive Pharmacy", location: "Kpansia, Yenagoa", contact: "08111118888" }
+    ]
+  },
+  {
+    name: "Linagliptin",
+    indication: "Type 2 diabetes (DPP-4 inhibitor)",
+    usage: "5mg once daily",
+    sideEffects: "Nasopharyngitis, headache",
+    pharmacies: [
+      { name: "TrustCare Pharmacy", location: "Agudama, Yenagoa", contact: "08044445555" }
+    ]
+  },
+  {
+    name: "Regular Insulin",
+    category: "Antidiabetic (Insulin)",
+    indication: "Diabetes mellitus, diabetic ketoacidosis",
+    usage: "Subcutaneous or IV injection, dose individualized",
+    sideEffects: "Hypoglycemia, weight gain, low potassium",
+    pharmacies: [
+      { name: "HealthPlus Pharmacy", location: "Yenagoa Main Market Road", contact: "08012345678" },
+      { name: "City Health Pharmacy", location: "Ekeki Park, Yenagoa", contact: "08198765432" }
+    ]
+  },
+  {
+    name: "Metformin",
+    category: "Antidiabetic (Biguanide)",
+    indication: "Type 2 diabetes",
+    usage: "500–1000mg twice daily with meals",
+    sideEffects: "Nausea, diarrhea, lactic acidosis (rare)",
+    pharmacies: [
+      { name: "WellCare Drugs", location: "Swali Market, Yenagoa", contact: "08123456789" }
+    ]
+  }
+];
 
     // Populate drug list
     function renderDrugs(list) {
