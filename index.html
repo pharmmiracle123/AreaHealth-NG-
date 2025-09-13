@@ -124,13 +124,13 @@
   <!-- Sidebar -->
   <div class="sidebar" id="sidebar">
     <span class="close-btn" onclick="closeSidebar()">×</span>
-     <a href="index.html">📒Overview</a>
+    <a href="index.html">📒Overview</a>
     <a href="AreaHealth Dashboard.html">🏠 Home</a>
-    <a href="Pharmacies..html">💊 Find Pharmacies</a>
+    <a href="Pharmacies.html">💊 Find Pharmacies</a>
     <a href="Medication.html">📦 Medications</a>
     <a href="Nearby Services.html">📍 Nearby Services</a>
     <a href="#">⚙ Settings</a>
-    <a href="AreaHealth Login.html" onclick="logout()">🚪 Login/Logout</a>
+    <a href="AreaHealth Login.html" onclick="logout()">🚪 Logout</a>
   </div>
 
   <!-- Hero Section -->
@@ -142,7 +142,7 @@
       ensuring you find the medications you need, when you need them.  
       With us, your health is always just a step away.
     </p>
-    <button class="cta-btn">Find Nearby Pharmacies</button>
+    <button onclick="window.location.href='Nearby Services.html'"  class="cta-btn">Find Nearby Pharmacies</button>
   </section>
 
   <!-- Why Choose Us -->
@@ -193,7 +193,10 @@
   <section>
     <h2>Ready to Experience Better Healthcare?</h2>
     <p>Start today and see how easy it is to find the care you deserve with AreaHealth.</p>
-    <button class="cta-btn">Get Started Now</button>
+    <button onclick="window.location.href='AreaHealth Login.html'" 
+        class="cta-btn">
+  Get Started Now
+</button>
   </section>
 
   <script>
