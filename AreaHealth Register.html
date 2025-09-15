@@ -177,7 +177,7 @@
       console.error("🔥 Registration Error:", err.code, err.message);
       let friendlyMessage = "⚠️ Something went wrong. Please try again.";
       switch (err.code) {
-        case "auth/email-already-in-use": friendlyMessage = "❌ This email is already registered."; break;
+        case "auth/email-already-in-use": friendlyMessage = "❌ This email has been registered, click the Login button below."; break;
         case "auth/invalid-email": friendlyMessage = "❌ Invalid email format."; break;
         case "auth/weak-password": friendlyMessage = "❌ Weak password. Use at least 6 characters."; break;
         case "auth/network-request-failed": friendlyMessage = "⚠️ Network error. Check your connection."; break;
