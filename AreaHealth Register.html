@@ -67,7 +67,6 @@
   </div>
 
 <!-- ✅ Firebase v9 Modular SDK -->
-<!-- ✅ Firebase v9 Modular SDK -->
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
   import { getAuth, createUserWithEmailAndPassword, sendEmailVerification } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js";
@@ -121,7 +120,7 @@
       const user = userCredential.user;
       const userId = user.uid;
 
-      // ✅ Upload files
+      // ✅ Upload profile picture
       let profileURL = "";
       if (profilePicFile) {
         const picRef = ref(storage, `profiles/${userId}_${Date.now()}_${profilePicFile.name}`);
@@ -129,6 +128,7 @@
         profileURL = await getDownloadURL(picRef);
       }
 
+      // ✅ Upload document
       let docURL = "";
       if (docFile) {
         const docRef = ref(storage, `documents/${userId}_${Date.now()}_${docFile.name}`);
@@ -136,10 +136,13 @@
         docURL = await getDownloadURL(docRef);
       }
 
-      // ✅ Save Firestore data with documents array
+      // ✅ Save Firestore data (Dashboard will read this!)
       await setDoc(doc(db, "users", userId), {
-        name, username, email, phone,
-        profilePic: profileURL,
+        name,
+        username,
+        email,
+        phone,
+        profilePic: profileURL || "https://via.placeholder.com/120?text=Profile",
         documents: docURL ? [{
           name: docFile ? docFile.name : "Uploaded Document",
           url: docURL,
@@ -152,7 +155,7 @@
       // ✅ Send Email Verification
       await sendEmailVerification(user, { url: "https://areahealth-ng.firebaseapp.com" });
 
-      // ✅ Send Admin Notification
+      // ✅ Notify Admin via FormSubmit
       const formData = new FormData();
       formData.append("Name", name);
       formData.append("Username", username);
@@ -183,6 +186,7 @@
     }
   });
 </script>
+
   <!-- ✅ Tailwind Animations -->
   <style>
     @keyframes fadeIn { from { opacity: 0; transform: translateY(20px);} to { opacity: 1; transform: translateY(0);} }
