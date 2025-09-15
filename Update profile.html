@@ -44,7 +44,10 @@
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
     import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js";
-    import { getFirestore, doc, setDoc, getDoc, updateDoc, arrayUnion, serverTimestamp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js";
+    import { 
+      initializeFirestore, 
+      doc, setDoc, getDoc, updateDoc, arrayUnion, serverTimestamp 
+    } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js";
     import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-storage.js";
 
     // ✅ Firebase Config
@@ -57,14 +60,20 @@
       appId: "1:986651954303:web:3f38dc24e246b7047d834a"
     };
 
+    // ✅ Init Firebase
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
-    const db = getFirestore(app);
-    const storage = getStorage(app);
 
+    // ✅ Fix: force Firestore to use long-polling to stop "offline" errors
+    const db = initializeFirestore(app, {
+      experimentalForceLongPolling: true,
+      useFetchStreams: false
+    });
+
+    const storage = getStorage(app);
     let currentUser = null;
 
-    // ✅ Load user profile if exists
+    // ✅ Load user profile if logged in
     onAuthStateChanged(auth, async (user) => {
       if (user) {
         currentUser = user;
@@ -78,24 +87,22 @@
             document.getElementById("username").value = data.username || "";
             document.getElementById("phone").value = data.phone || "";
           } else {
-            // Auto-create empty profile if not found
+            // Auto-create profile doc if missing
             await setDoc(docRef, { email: user.email, createdAt: serverTimestamp() });
-            console.log("⚠️ New user profile created.");
           }
         } catch (err) {
           console.error("🔥 Firestore error:", err);
-          alert("⚠️ Could not load profile. Please check your connection.");
+          alert("⚠️ Could not load profile. Check your internet connection.");
         }
       } else {
-        alert("⚠️ You must log in first.");
+        // Redirect if not logged in
         window.location.href = "AreaHealth Login.html";
       }
     });
 
-    // ✅ Update Profile
+    // ✅ Save/Update Profile
     document.getElementById("profileForm").addEventListener("submit", async (e) => {
       e.preventDefault();
-
       if (!currentUser) return;
 
       const name = document.getElementById("name").value.trim();
@@ -109,7 +116,7 @@
         const snap = await getDoc(docRef);
         let oldData = snap.exists() ? snap.data() : {};
 
-        // ✅ Profile picture upload
+        // ✅ Upload profile picture if new
         let profileURL = oldData.profilePic || "";
         if (profilePicFile) {
           const picRef = ref(storage, `profiles/${currentUser.uid}_${Date.now()}_${profilePicFile.name}`);
@@ -117,39 +124,32 @@
           profileURL = await getDownloadURL(picRef);
         }
 
-        // ✅ Document upload
+        // ✅ Upload document if new
         let docEntry = null;
         if (docFile) {
           const docStorageRef = ref(storage, `documents/${currentUser.uid}_${Date.now()}_${docFile.name}`);
           await uploadBytes(docStorageRef, docFile);
           const docURL = await getDownloadURL(docStorageRef);
-          docEntry = {
-            name: docFile.name,
-            url: docURL,
-            ts: serverTimestamp()
-          };
+          docEntry = { name: docFile.name, url: docURL, ts: serverTimestamp() };
         }
 
-        // ✅ Save or update profile
+        // ✅ Save merged profile
         await setDoc(docRef, {
           name, username, phone,
           email: currentUser.email,
           profilePic: profileURL,
           updatedAt: serverTimestamp(),
           emailVerified: currentUser.emailVerified,
-          documents: oldData.documents || [] // ensure array exists
+          documents: oldData.documents || []
         }, { merge: true });
 
-        // ✅ Append new document if uploaded
+        // ✅ Append new document entry
         if (docEntry) {
-          await updateDoc(docRef, {
-            documents: arrayUnion(docEntry)
-          });
+          await updateDoc(docRef, { documents: arrayUnion(docEntry) });
         }
 
         alert("✅ Profile updated successfully!");
-        window.location.href = "AreaHealth Dashboard.html"; // correct redirect
-
+        window.location.href = "AreaHealth Dashboard.html";
       } catch (err) {
         console.error("🔥 Profile Update Error:", err);
         alert("⚠️ Error: " + err.message);
