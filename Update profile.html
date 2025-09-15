@@ -99,6 +99,7 @@
         const snap = await getDoc(docRef);
         let oldData = snap.exists() ? snap.data() : {};
 
+        // ✅ Profile picture upload
         let profileURL = oldData.profilePic || "";
         if (profilePicFile) {
           const picRef = ref(storage, `profiles/${currentUser.uid}_${Date.now()}_${profilePicFile.name}`);
@@ -106,6 +107,7 @@
           profileURL = await getDownloadURL(picRef);
         }
 
+        // ✅ Document upload
         let docEntry = null;
         if (docFile) {
           const docStorageRef = ref(storage, `documents/${currentUser.uid}_${Date.now()}_${docFile.name}`);
@@ -118,16 +120,17 @@
           };
         }
 
-        // Save or update profile
+        // ✅ Save or update profile
         await setDoc(docRef, {
           name, username, phone,
           email: currentUser.email,
           profilePic: profileURL,
           updatedAt: serverTimestamp(),
-          emailVerified: currentUser.emailVerified
+          emailVerified: currentUser.emailVerified,
+          documents: oldData.documents || [] // ensure array exists
         }, { merge: true });
 
-        // Append new document if uploaded
+        // ✅ Append new document if uploaded
         if (docEntry) {
           await updateDoc(docRef, {
             documents: arrayUnion(docEntry)
@@ -135,11 +138,11 @@
         }
 
         alert("✅ Profile updated successfully!");
-        window.location.href = "dashboard.html";
+        window.location.href = "AreaHealth Dashboard.html"; // correct redirect
 
       } catch (err) {
         console.error("🔥 Profile Update Error:", err);
-        alert("⚠️ Error updating profile. Try again.");
+        alert("⚠️ Error: " + err.message);
       }
     });
   </script>
