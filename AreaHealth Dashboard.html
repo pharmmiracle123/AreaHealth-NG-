@@ -1,3 +1,4 @@
+<!-- 🔥 AreaHealth NG Dashboard (Updated & Polished) -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -5,7 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Dashboard - AreaHealth NG</title>
 
-  <!-- Tailwind CSS (embedded via CDN) -->
+  <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
@@ -13,24 +14,22 @@
         extend: {
           fontFamily: { sans: ['Inter', 'ui-sans-serif', 'system-ui'] },
           colors: {
-            primary: { DEFAULT: '#2563eb' }, // Tailwind blue-600
-            brand: '#06b6d4', // cyan-500
+            primary: { DEFAULT: '#2563eb' },
+            brand: '#06b6d4',
           }
         }
       }
     }
   </script>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
-  <!-- Firebase (compat builds for global firebase.* usage) -->
+  <!-- Firebase -->
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-storage-compat.js"></script>
 
   <style>
-    /* Animated gradient header */
     .gradient-header {
       background: linear-gradient(270deg,#06b6d4,#3b82f6,#8b5cf6,#ec4899);
       background-size: 800% 800%;
@@ -41,196 +40,97 @@
       50%{background-position:100% 50%}
       100%{background-position:0% 50%}
     }
-    /* Hide default file inputs; we trigger via label buttons */
     input[type="file"] { display: none; }
   </style>
 </head>
-
 <body class="bg-slate-50 text-slate-800">
   <!-- Header -->
   <header class="gradient-header text-white">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex items-center justify-between">
+    <div class="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
       <div class="flex items-center gap-3">
-        <button id="sidebarToggle" class="md:hidden p-2 rounded-lg hover:bg-white/10 focus:outline-none" aria-label="Open menu">
-          ☰
-        </button>
+        <button id="sidebarToggle" class="md:hidden p-2 rounded-lg hover:bg-white/10">☰</button>
         <h1 class="text-lg font-semibold tracking-tight">AreaHealth NG</h1>
       </div>
-
       <div class="flex items-center gap-3">
         <div class="text-sm md:text-base" id="headerGreeting">Hello 👋</div>
         <img id="headerPic" class="w-10 h-10 rounded-full ring-2 ring-white object-cover cursor-pointer"
-             alt="Profile"
              title="Click to update profile picture"
              onclick="document.getElementById('profilePicInput').click()">
       </div>
     </div>
   </header>
 
-  <!-- Shell -->
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex">
+  <!-- Content Layout -->
+  <div class="max-w-7xl mx-auto px-4 py-6 flex">
     <!-- Sidebar -->
     <aside id="sidebar"
-           class="fixed md:static inset-y-0 left-0 w-64 transform -translate-x-full md:translate-x-0 transition-transform duration-200 ease-in-out z-40
-                  bg-white shadow md:shadow-none md:bg-transparent md:w-60">
-      <nav class="h-full md:h-auto p-4 space-y-1 bg-white md:bg-transparent">
-        <a href="index.html" class="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-slate-100">📒 Overview</a>
-        <a href="AreaHealth Dashboard.html" class="flex items-center gap-2 px-3 py-2 rounded-lg bg-slate-100">🏠 Home</a>
-        <a href="Pharmacies..html" class="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-slate-100">💊 Find Pharmacies</a>
+      class="fixed md:static inset-y-0 left-0 w-64 transform -translate-x-full md:translate-x-0 transition-transform z-40
+             bg-white shadow md:shadow-none">
+      <nav class="h-full p-4 space-y-1">
+        <a href="Update profile.html" class="flex items-center gap-2 px-3 py-2 rounded-lg bg-slate-100">🤵Update profile info</a>
+        <a href="Pharmacies..html" class="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-slate-100">💊 Pharmacies</a>
         <a href="Medication.html" class="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-slate-100">📦 Medications</a>
         <a href="Nearby Services.html" class="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-slate-100">📍 Nearby Services</a>
         <a href="#" class="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-slate-100">⚙ Settings</a>
-        <button onclick="logout()"
-                class="w-full text-left flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-rose-50 hover:text-rose-600">
+        <button onclick="logout()" class="w-full flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-rose-50 hover:text-rose-600">
           🚪 Logout
         </button>
       </nav>
     </aside>
 
-    <!-- Overlay for mobile -->
+    <!-- Overlay -->
     <div id="overlay" class="fixed inset-0 bg-black/30 hidden z-30 md:hidden"></div>
 
     <!-- Main -->
     <main class="flex-1 md:ml-6">
       <!-- Welcome -->
       <section class="bg-white shadow-sm rounded-2xl p-5 mb-6">
-        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-          <div>
-            <h2 class="text-xl sm:text-2xl font-semibold">
-              Hello, <span id="userName">User</span> 👋
-              <span id="verifiedBadge" class="hidden align-middle ml-2 text-xs px-2 py-1 rounded-full bg-green-100 text-green-700">Verified</span>
-            </h2>
-            <p class="text-slate-600">Welcome to your AreaHealth dashboard.</p>
-          </div>
-          <div class="flex items-center gap-3">
-            <button id="resendVerifyBtn"
-                    class="hidden text-xs sm:text-sm px-3 py-2 rounded-lg border border-amber-300 text-amber-700 hover:bg-amber-50">
-              Resend verification email
-            </button>
-            <label for="profilePicInput"
-                   class="cursor-pointer text-xs sm:text-sm px-3 py-2 rounded-lg bg-primary text-white hover:bg-blue-700">
-              Update Profile Picture
-            </label>
-            <input type="file" id="profilePicInput" accept="image/*">
-          </div>
+        <h2 class="text-xl sm:text-2xl font-semibold">
+          Hello, <span id="userName">User</span> 👋
+          <span id="verifiedBadge" class="hidden ml-2 text-xs px-2 py-1 rounded-full bg-green-100 text-green-700">Verified</span>
+        </h2>
+        <p class="text-slate-600">Welcome to your AreaHealth dashboard.</p>
+        <div class="mt-3 flex gap-2">
+          <button id="resendVerifyBtn" class="hidden text-xs px-3 py-2 rounded-lg border border-amber-300 text-amber-700 hover:bg-amber-50">
+            Resend verification
+          </button>
+          <label for="profilePicInput" class="cursor-pointer text-xs px-3 py-2 rounded-lg bg-primary text-white hover:bg-blue-700">
+            Update Profile Picture
+          </label>
+          <input type="file" id="profilePicInput" accept="image/*">
         </div>
       </section>
 
       <!-- Quick Stats -->
       <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-        <div class="bg-white rounded-2xl shadow-sm p-4">
-          <div class="text-slate-500 text-sm">Email Status</div>
-          <div id="emailStatus" class="mt-1 font-semibold">Checking…</div>
-        </div>
-        <div class="bg-white rounded-2xl shadow-sm p-4">
-          <div class="text-slate-500 text-sm">Last Login</div>
-          <div id="lastLogin" class="mt-1 font-semibold">—</div>
-        </div>
-        <div class="bg-white rounded-2xl shadow-sm p-4">
-          <div class="text-slate-500 text-sm">Documents Uploaded</div>
-          <div id="docCount" class="mt-1 font-semibold">0</div>
-        </div>
-        <div class="bg-white rounded-2xl shadow-sm p-4">
-          <div class="text-slate-500 text-sm">Member Since</div>
-          <div id="memberSince" class="mt-1 font-semibold">—</div>
-        </div>
+        <div class="bg-white rounded-2xl shadow-sm p-4"><div>Email Status</div><div id="emailStatus" class="font-semibold">Checking…</div></div>
+        <div class="bg-white rounded-2xl shadow-sm p-4"><div>Last Login</div><div id="lastLogin" class="font-semibold">—</div></div>
+        <div class="bg-white rounded-2xl shadow-sm p-4"><div>Documents</div><div id="docCount" class="font-semibold">0</div></div>
+        <div class="bg-white rounded-2xl shadow-sm p-4"><div>Member Since</div><div id="memberSince" class="font-semibold">—</div></div>
       </section>
 
-      <!-- Profile + Uploads -->
-      <section class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-        <!-- Profile Card -->
-        <div class="bg-white rounded-2xl shadow-sm p-5">
-          <div class="flex items-center gap-4">
-            <img id="userPic" class="w-20 h-20 rounded-full object-cover ring-2 ring-primary/20" alt="Profile">
-            <div>
-              <div class="text-lg font-semibold" id="profileName">—</div>
-              <div class="text-slate-600 text-sm" id="userEmail">—</div>
-            </div>
-          </div>
-          <div class="mt-4">
-            <div id="profileUploadStatus" class="text-sm text-slate-500">No upload in progress.</div>
-            <div class="w-full bg-slate-100 rounded-full h-2 mt-2">
-              <div id="profileProgress" class="bg-primary h-2 rounded-full" style="width:0%"></div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Document Upload -->
-        <div class="bg-white rounded-2xl shadow-sm p-5">
-          <h3 class="font-semibold text-lg">Upload Document</h3>
-          <p class="text-slate-600 text-sm mb-3">E.g. prescriptions, lab reports, receipts.</p>
-          <label for="documentInput"
-                 class="inline-flex items-center gap-2 px-4 py-2 bg-slate-800 text-white rounded-lg hover:bg-slate-900 cursor-pointer">
-            📤 Choose File
-          </label>
-          <input type="file" id="documentInput">
-          <button id="uploadDocBtn"
-                  class="ml-2 mt-3 inline-flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
-                  disabled>
-            Upload
-          </button>
-          <div class="mt-4">
-            <div id="docUploadStatus" class="text-sm text-slate-500">No upload in progress.</div>
-            <div class="w-full bg-slate-100 rounded-full h-2 mt-2">
-              <div id="docProgress" class="bg-primary h-2 rounded-full" style="width:0%"></div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Recent Documents -->
-        <div class="bg-white rounded-2xl shadow-sm p-5">
-          <h3 class="font-semibold text-lg mb-2">Recent Documents</h3>
-          <ul id="docList" class="space-y-2 text-sm">
-            <li class="text-slate-500">No documents yet.</li>
-          </ul>
-        </div>
-      </section>
-
-      <!-- Nearby Services -->
-      <section class="bg-white rounded-2xl shadow-sm p-5">
-        <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+      <!-- Profile Card -->
+      <section class="bg-white rounded-2xl shadow-sm p-5 mb-6">
+        <div class="flex items-center gap-4">
+          <img id="userPic" class="w-20 h-20 rounded-full object-cover ring-2 ring-primary/20" alt="Profile">
           <div>
-            <h3 class="font-semibold text-lg">Nearby Health Services</h3>
-            <p class="text-slate-600 text-sm">Search, filter, and get directions. Enable location to see distance.</p>
-          </div>
-          <div class="flex flex-wrap gap-2">
-            <input id="searchBox" placeholder="Search services…"
-                   class="px-3 py-2 rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-primary/40">
-            <select id="filterCategory"
-                    class="px-3 py-2 rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-primary/40">
-              <option value="all">All</option>
-              <option value="pharmacy">Pharmacy</option>
-              <option value="hospital">Hospital</option>
-              <option value="clinic">Clinic</option>
-              <option value="laboratory">Laboratory</option>
-              <option value="ambulance">Ambulance</option>
-              <option value="telemedicine">Telemedicine</option>
-              <option value="vaccination">Immunization</option>
-            </select>
-            <button id="locateBtn"
-                    class="px-3 py-2 rounded-lg border border-slate-200 hover:bg-slate-50">
-              📍 Use my location
-            </button>
+            <div class="text-lg font-semibold" id="profileName">—</div>
+            <div class="text-slate-600 text-sm" id="userEmail">—</div>
           </div>
         </div>
-
-        <div id="servicesGrid" class="mt-5 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"></div>
       </section>
 
       <!-- Footer -->
-      <footer class="text-center text-sm text-slate-500 py-6">
-        © 2025 AreaHealth NG. All rights reserved.
-      </footer>
+      <footer class="text-center text-sm text-slate-500 py-6">© 2025 AreaHealth NG</footer>
     </main>
   </div>
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
   import { getAuth, onAuthStateChanged, sendEmailVerification, signOut } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js";
-  import { getFirestore, doc, getDoc, setDoc, updateDoc, arrayUnion, serverTimestamp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js";
-  import { getStorage, ref, uploadBytesResumable, getDownloadURL } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-storage.js";
+  import { getFirestore, doc, getDoc, setDoc, updateDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js";
 
-  /* -------------------- Firebase Init -------------------- */
+  /* Firebase Init */
   const firebaseConfig = {
     apiKey: "AIzaSyC79cSDPpC4bbhlRBpu7WhON3j8AMxMLyE",
     authDomain: "areahealth-ng.firebaseapp.com",
@@ -242,198 +142,52 @@
   const app = initializeApp(firebaseConfig);
   const auth = getAuth(app);
   const db = getFirestore(app);
-  const storage = getStorage(app);
 
-  /* ---------------- Sidebar Toggle (mobile) --------------- */
-  const sidebar = document.getElementById('sidebar');
-  const overlay = document.getElementById('overlay');
-  const sidebarToggle = document.getElementById('sidebarToggle');
-  function openSidebar() { sidebar.classList.remove('-translate-x-full'); overlay.classList.remove('hidden'); }
-  function closeSidebar() { sidebar.classList.add('-translate-x-full'); overlay.classList.add('hidden'); }
-  sidebarToggle?.addEventListener('click', openSidebar);
-  overlay?.addEventListener('click', closeSidebar);
-  sidebar?.querySelectorAll('a,button').forEach(el => el.addEventListener('click', () => { if (window.innerWidth < 768) closeSidebar(); }));
-
-  /* ------------------ DOM helpers ------------------ */
-  const $ = (id) => document.getElementById(id);
-  const headerGreeting = $('headerGreeting');
-  const headerPic = $('headerPic');
-  const userNameSpan = $('userName');
-  const profileName = $('profileName');
-  const userEmailSpan = $('userEmail');
-  const userPic = $('userPic');
-  const verifiedBadge = $('verifiedBadge');
-  const emailStatus = $('emailStatus');
-  const lastLogin = $('lastLogin');
-  const docCount = $('docCount');
-  const memberSince = $('memberSince');
-  const resendVerifyBtn = $('resendVerifyBtn');
-  const profilePicInput = $('profilePicInput');
-  const profileProgress = $('profileProgress');
-  const profileUploadStatus = $('profileUploadStatus');
-  const documentInput = $('documentInput');
-  const uploadDocBtn = $('uploadDocBtn');
-  const docProgress = $('docProgress');
-  const docUploadStatus = $('docUploadStatus');
-  const docList = $('docList');
-
-  /* ------------------ Auth State & User Load ------------------ */
-  let currentUser = null;
-  let userDocRef = null;
-  let userData = null;
-
+  /* Auth State */
   onAuthStateChanged(auth, async (u) => {
     if (!u) { window.location.href = "AreaHealth Login.html"; return; }
-    currentUser = u;
-    userDocRef = doc(db, 'users', u.uid);
+    const userDocRef = doc(db, 'users', u.uid);
+    let snap = await getDoc(userDocRef);
+    let userData = snap.exists() ? snap.data() : {};
 
-    const snap = await getDoc(userDocRef);
-    userData = snap.exists() ? snap.data() : null;
-
-    // Migration for old schema
-    if (userData?.document && !userData?.documents) {
-      await setDoc(userDocRef, {
-        documents: [{
-          name: "Uploaded Document",
-          url: userData.document,
-          ts: serverTimestamp()
-        }]
-      }, { merge: true });
-      userData.documents = [{
-        name: "Uploaded Document",
-        url: userData.document,
-        ts: { toDate: () => new Date() }
-      }];
+    /* 🔄 Migration Patch */
+    const updates = {};
+    if (!userData.registeredAt) updates.registeredAt = serverTimestamp();
+    if (!userData.name && !userData.username) updates.name = u.email.split('@')[0];
+    if (!userData.profilePic) updates.profilePic = 'https://via.placeholder.com/120?text=Profile';
+    if (!userData.documents) updates.documents = [];
+    if (Object.keys(updates).length > 0) {
+      await setDoc(userDocRef, updates, { merge: true });
+      snap = await getDoc(userDocRef);
+      userData = snap.data();
     }
 
-    // Populate UI
-    const name = (userData && (userData.name || userData.username)) || u.displayName || 'User';
-    const email = u.email || userData?.email || '—';
-    const pic = (userData && userData.profilePic) || 'https://via.placeholder.com/120?text=Profile';
+    /* UI Populate */
+    const name = userData.name || userData.username || u.displayName || 'User';
+    document.getElementById("userName").textContent = name;
+    document.getElementById("profileName").textContent = name;
+    document.getElementById("headerGreeting").textContent = `Hello, ${name} 👋`;
+    document.getElementById("userEmail").textContent = u.email;
+    document.getElementById("userPic").src = userData.profilePic;
+    document.getElementById("headerPic").src = userData.profilePic;
 
-    if (userNameSpan) userNameSpan.textContent = name;
-    if (profileName) profileName.textContent = name;
-    if (headerGreeting) headerGreeting.textContent = `Hello, ${name} 👋`;
-    if (userEmailSpan) userEmailSpan.textContent = email;
-    if (userPic) userPic.src = pic;
-    if (headerPic) headerPic.src = pic;
-
-    if (emailStatus) emailStatus.textContent = u.emailVerified ? 'Verified' : 'Not verified';
-    if (verifiedBadge) verifiedBadge.classList.toggle('hidden', !u.emailVerified);
-    if (resendVerifyBtn) resendVerifyBtn.classList.toggle('hidden', !!u.emailVerified);
-
-    if (lastLogin) lastLogin.textContent = (u.metadata?.lastSignInTime) ? new Date(u.metadata.lastSignInTime).toLocaleString() : '—';
-    if (memberSince) memberSince.textContent = (userData?.registeredAt?.toDate) ? userData.registeredAt.toDate().toLocaleDateString() : '—';
-
-    const docs = Array.isArray(userData?.documents) ? userData.documents : [];
-    renderDocList(docs);
-    if (docCount) docCount.textContent = docs.length;
+    document.getElementById("emailStatus").textContent = u.emailVerified ? 'Verified' : 'Not verified';
+    document.getElementById("verifiedBadge").classList.toggle('hidden', !u.emailVerified);
+    document.getElementById("resendVerifyBtn").classList.toggle('hidden', u.emailVerified);
+    document.getElementById("lastLogin").textContent = new Date(u.metadata.lastSignInTime).toLocaleString();
+    document.getElementById("memberSince").textContent = userData.registeredAt?.toDate?.() ? userData.registeredAt.toDate().toLocaleDateString() : '—';
   });
 
-  /* ------------------ Email Verify ------------------ */
-  resendVerifyBtn?.addEventListener('click', async () => {
-    if (!currentUser) return;
-    try {
-      await sendEmailVerification(currentUser, { url: "https://areahealth-ng.firebaseapp.com" });
-      alert("Verification email sent. Please check your inbox.");
-    } catch (e) { console.error(e); alert("Couldn't send verification email. Try later."); }
-  });
-
-  /* ------------------ Profile Picture Upload ------------------ */
-  profilePicInput?.addEventListener('change', async (e) => {
-    const file = e.target.files[0];
-    if (!file || !currentUser) return;
-    const storageRef = ref(storage, `profiles/${currentUser.uid}_${Date.now()}_${file.name}`);
-    profileUploadStatus.textContent = 'Uploading…'; profileProgress.style.width = '0%';
-
-    try {
-      const uploadTask = uploadBytesResumable(storageRef, file);
-      uploadTask.on('state_changed', (snap) => {
-        const prog = Math.round((snap.bytesTransferred / snap.totalBytes) * 100);
-        profileProgress.style.width = prog + '%';
-      }, (err) => {
-        console.error(err);
-        profileUploadStatus.textContent = 'Upload failed.';
-      }, async () => {
-        const url = await getDownloadURL(uploadTask.snapshot.ref);
-        await updateDoc(userDocRef, { profilePic: url });
-        if (userPic) userPic.src = url;
-        if (headerPic) headerPic.src = url;
-        profileUploadStatus.textContent = 'Profile picture updated!';
-      });
-    } catch (err) {
-      console.error(err);
-      profileUploadStatus.textContent = 'Upload failed.';
+  /* Resend Email Verification */
+  document.getElementById("resendVerifyBtn")?.addEventListener("click", async () => {
+    if (auth.currentUser) {
+      await sendEmailVerification(auth.currentUser);
+      alert("Verification email sent!");
     }
   });
 
-  /* ------------------ Document Upload ------------------ */
-  let selectedDoc = null;
-  documentInput?.addEventListener('change', (e) => {
-    selectedDoc = e.target.files[0] || null;
-    if (uploadDocBtn) uploadDocBtn.disabled = !selectedDoc;
-  });
-
-  uploadDocBtn?.addEventListener('click', async () => {
-    if (!selectedDoc || !currentUser) return;
-    const storageRef = ref(storage, `documents/${currentUser.uid}_${Date.now()}_${selectedDoc.name}`);
-    docUploadStatus.textContent = 'Uploading…'; docProgress.style.width = '0%'; uploadDocBtn.disabled = true;
-
-    try {
-      const uploadTask = uploadBytesResumable(storageRef, selectedDoc);
-      uploadTask.on('state_changed', (snap) => {
-        const prog = Math.round((snap.bytesTransferred / snap.totalBytes) * 100);
-        docProgress.style.width = prog + '%';
-      }, (err) => {
-        console.error(err);
-        docUploadStatus.textContent = 'Upload failed.';
-        uploadDocBtn.disabled = false;
-      }, async () => {
-        const url = await getDownloadURL(uploadTask.snapshot.ref);
-        const entry = { name: selectedDoc.name, url, ts: serverTimestamp() };
-        await setDoc(userDocRef, { documents: arrayUnion(entry) }, { merge: true });
-
-        const updatedSnap = await getDoc(userDocRef);
-        const docs = updatedSnap.data()?.documents || [];
-        renderDocList(docs);
-        if (docCount) docCount.textContent = docs.length;
-
-        docUploadStatus.textContent = 'Upload complete!';
-        uploadDocBtn.disabled = false;
-        documentInput.value = '';
-        selectedDoc = null;
-      });
-    } catch (err) {
-      console.error(err);
-      docUploadStatus.textContent = 'Upload failed.';
-      uploadDocBtn.disabled = false;
-    }
-  });
-
-  /* ------------------ Render Docs ------------------ */
-  function renderDocList(docs) {
-    if (!docList) return;
-    docList.innerHTML = '';
-    if (!docs || docs.length === 0) {
-      docList.innerHTML = '<li class="text-slate-500">No documents yet.</li>';
-      return;
-    }
-    docs.slice().sort((a,b) => (b.ts?.seconds || 0) - (a.ts?.seconds || 0)).forEach(d => {
-      const li = document.createElement('li');
-      li.className = "flex items-center justify-between gap-3 p-2 border border-slate-100 rounded-lg";
-      li.innerHTML = `
-        <div class="truncate">
-          <div class="font-medium truncate">${d.name || 'Document'}</div>
-          <div class="text-slate-500 text-xs">${d.ts?.toDate ? new Date(d.ts.toDate()).toLocaleString() : ''}</div>
-        </div>
-        <a target="_blank" href="${d.url}" class="px-3 py-1 rounded-lg bg-slate-800 text-white text-xs hover:bg-slate-900">View</a>
-      `;
-      docList.appendChild(li);
-    });
-  }
-
-  /* ------------------ Logout ------------------ */
+  /* Logout */
   window.logout = async () => { await signOut(auth); window.location.href = "AreaHealth Login.html"; }
 </script>
 </body>
-</html>
+                                              </html>
