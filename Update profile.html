@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Update Profile - AreaHealth</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="min-h-screen flex items-center justify-center bg-gradient-to-r from-blue-600 via-pink-500 to-purple-700 animate-gradient">
+
+  <div class="bg-white p-8 rounded-2xl shadow-2xl w-full max-w-lg animate-fadeIn">
+    <h2 class="text-2xl font-bold text-center text-blue-600 mb-6">Update Your Profile</h2>
+
+    <form id="profileForm" class="space-y-4">
+      <input type="text" id="name" placeholder="Full Name"
+        class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500" required />
+
+      <input type="text" id="username" placeholder="Username"
+        class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500" required />
+
+      <input type="tel" id="phone" placeholder="Phone Number"
+        class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500" required />
+
+      <div>
+        <label class="block font-semibold">Profile Picture:</label>
+        <input type="file" id="profilePic" accept="image/*"
+          class="mt-1 w-full border rounded-lg p-2" />
+      </div>
+
+      <div>
+        <label class="block font-semibold">Upload Document:</label>
+        <input type="file" id="document"
+          class="mt-1 w-full border rounded-lg p-2" />
+      </div>
+
+      <button type="submit"
+        class="w-full bg-blue-600 text-white p-3 rounded-lg font-bold hover:bg-blue-700 transition">
+        Save Profile
+      </button>
+    </form>
+  </div>
+
+  <!-- Firebase SDK -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js";
+    import { getFirestore, doc, setDoc, getDoc, updateDoc, arrayUnion, serverTimestamp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js";
+    import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-storage.js";
+
+    // ✅ Firebase Config
+    const firebaseConfig = {
+      apiKey: "AIzaSyC79cSDPpC4bbhlRBpu7WhON3j8AMxMLyE",
+      authDomain: "areahealth-ng.firebaseapp.com",
+      projectId: "areahealth-ng",
+      storageBucket: "areahealth-ng.appspot.com",
+      messagingSenderId: "986651954303",
+      appId: "1:986651954303:web:3f38dc24e246b7047d834a"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+    const storage = getStorage(app);
+
+    let currentUser = null;
+
+    // ✅ Load user profile if exists
+    onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        currentUser = user;
+        const docRef = doc(db, "users", user.uid);
+        const snap = await getDoc(docRef);
+        if (snap.exists()) {
+          const data = snap.data();
+          document.getElementById("name").value = data.name || "";
+          document.getElementById("username").value = data.username || "";
+          document.getElementById("phone").value = data.phone || "";
+        }
+      } else {
+        alert("⚠️ You must log in first.");
+        window.location.href = "AreaHealth Login.html";
+      }
+    });
+
+    // ✅ Update Profile
+    document.getElementById("profileForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      if (!currentUser) return;
+
+      const name = document.getElementById("name").value.trim();
+      const username = document.getElementById("username").value.trim();
+      const phone = document.getElementById("phone").value.trim();
+      const profilePicFile = document.getElementById("profilePic").files[0];
+      const docFile = document.getElementById("document").files[0];
+
+      try {
+        const docRef = doc(db, "users", currentUser.uid);
+        const snap = await getDoc(docRef);
+        let oldData = snap.exists() ? snap.data() : {};
+
+        let profileURL = oldData.profilePic || "";
+        if (profilePicFile) {
+          const picRef = ref(storage, `profiles/${currentUser.uid}_${Date.now()}_${profilePicFile.name}`);
+          await uploadBytes(picRef, profilePicFile);
+          profileURL = await getDownloadURL(picRef);
+        }
+
+        let docEntry = null;
+        if (docFile) {
+          const docStorageRef = ref(storage, `documents/${currentUser.uid}_${Date.now()}_${docFile.name}`);
+          await uploadBytes(docStorageRef, docFile);
+          const docURL = await getDownloadURL(docStorageRef);
+          docEntry = {
+            name: docFile.name,
+            url: docURL,
+            ts: serverTimestamp()
+          };
+        }
+
+        // Save or update profile
+        await setDoc(docRef, {
+          name, username, phone,
+          email: currentUser.email,
+          profilePic: profileURL,
+          updatedAt: serverTimestamp(),
+          emailVerified: currentUser.emailVerified
+        }, { merge: true });
+
+        // Append new document if uploaded
+        if (docEntry) {
+          await updateDoc(docRef, {
+            documents: arrayUnion(docEntry)
+          });
+        }
+
+        alert("✅ Profile updated successfully!");
+        window.location.href = "dashboard.html";
+
+      } catch (err) {
+        console.error("🔥 Profile Update Error:", err);
+        alert("⚠️ Error updating profile. Try again.");
+      }
+    });
+  </script>
+
+  <!-- Animations -->
+  <style>
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(20px);} to { opacity: 1; transform: translateY(0);} }
+    .animate-fadeIn { animation: fadeIn 1s ease-in-out; }
+    @keyframes gradient { 0%{background-position:0% 50%} 50%{background-position:100% 50%} 100%{background-position:0% 50%} }
+    .animate-gradient { background-size:200% 200%; animation:gradient 8s ease infinite; }
+  </style>
+</body>
+</html>
