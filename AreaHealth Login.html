@@ -132,24 +132,25 @@
   </div>
 
   <!-- ✅ Firebase SDK -->
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
-    import { 
-      getAuth, 
-      signInWithEmailAndPassword, 
-      GoogleAuthProvider, 
-      signInWithPopup 
-    } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
-    import { 
-      getFirestore, 
-      doc, 
-      getDoc, 
-      setDoc, 
-      serverTimestamp 
-    } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
-
-    // ✅ Firebase Config (Replace with YOUR firebase project settings)
-     const firebaseConfig = {
+<!-- ✅ Firebase SDK -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
+  import {
+    getAuth,
+    signInWithEmailAndPassword,
+    GoogleAuthProvider,
+    signInWithPopup,
+    onAuthStateChanged
+  } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
+  import {
+    getFirestore,
+    doc,
+    setDoc,
+    serverTimestamp
+  } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
+  
+  // ✅ Firebase Config (replace with your own project settings)
+  const firebaseConfig = {
     apiKey: "AIzaSyC79cSDPpC4bbhlRBpu7WhON3j8AMxMLyE",
     authDomain: "areahealth-ng.firebaseapp.com",
     projectId: "areahealth-ng",
@@ -157,79 +158,88 @@
     messagingSenderId: "986651954303",
     appId: "1:986651954303:web:3f38dc24e246b7047d834a"
   };
-
-    // Initialize Firebase
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const db = getFirestore(app);
-
-    // ✅ Toggle password visibility
-    window.togglePassword = function(fieldId, icon) {
-      const input = document.getElementById(fieldId);
-      if (input.type === "password") {
-        input.type = "text";
-        icon.textContent = "🙈";
-      } else {
-        input.type = "password";
-        icon.textContent = "👁";
-      }
+  
+  // Initialize Firebase
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getFirestore(app);
+  
+  // ✅ Toggle password visibility
+  window.togglePassword = function(fieldId, icon) {
+    const input = document.getElementById(fieldId);
+    if (input.type === "password") {
+      input.type = "text";
+      icon.textContent = "🙈";
+    } else {
+      input.type = "password";
+      icon.textContent = "👁";
     }
-
-    // ✅ Login with Email & Password
-    document.getElementById("loginForm").addEventListener("submit", async (e) => {
-      e.preventDefault();
-
-      const email = document.getElementById("email").value;
-      const password = document.getElementById("password").value;
-      const errorBox = document.getElementById("error-message");
-
-      try {
-        const userCredential = await signInWithEmailAndPassword(auth, email, password);
-        const user = userCredential.user;
-
-        // Save/update user profile in Firestore
-        const userRef = doc(db, "users", user.uid);
-        await setDoc(userRef, {
-          email: user.email,
-          name: user.displayName || email.split("@")[0],
-          lastLogin: serverTimestamp()
-        }, { merge: true });
-
-        window.location.href = "AreaHealth Dashboard.html"; 
-      } catch (error) {
-        let message = "❌ Something went wrong!";
-        if (error.code === "auth/user-not-found") {
-          message = "❌ No user found with this email.";
-        } else if (error.code === "auth/wrong-password") {
-          message = "❌ Incorrect password.";
-        } else if (error.code === "auth/invalid-email") {
-          message = "❌ Invalid email format.";
-        }
-        errorBox.textContent = message;
+  }
+  
+  // ✅ Redirect helper
+  function redirectToDashboard() {
+    window.location.replace("AreaHealth Dashboard.html");
+  }
+  
+  // ✅ Watch for login state changes
+  onAuthStateChanged(auth, (user) => {
+    if (user) {
+      redirectToDashboard();
+    }
+  });
+  
+  // ✅ Login with Email & Password
+  document.getElementById("loginForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const email = document.getElementById("email").value;
+    const password = document.getElementById("password").value;
+    const errorBox = document.getElementById("error-message");
+    
+    try {
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      const user = userCredential.user;
+      
+      // Save/update user profile in Firestore
+      const userRef = doc(db, "users", user.uid);
+      await setDoc(userRef, {
+        email: user.email,
+        name: user.displayName || email.split("@")[0],
+        lastLogin: serverTimestamp()
+      }, { merge: true });
+      
+    } catch (error) {
+      let message = "❌ Something went wrong!";
+      if (error.code === "auth/user-not-found") {
+        message = "❌ No user found with this email.";
+      } else if (error.code === "auth/wrong-password") {
+        message = "❌ Incorrect password.";
+      } else if (error.code === "auth/invalid-email") {
+        message = "❌ Invalid email format.";
       }
-    });
-
-    // ✅ Google Sign-in with Firestore Profile
-    document.getElementById("googleLogin").addEventListener("click", async () => {
-      const provider = new GoogleAuthProvider();
-      try {
-        const result = await signInWithPopup(auth, provider);
-        const user = result.user;
-
-        const userRef = doc(db, "users", user.uid);
-        await setDoc(userRef, {
-          email: user.email,
-          name: user.displayName || user.email.split("@")[0],
-          profilePic: user.photoURL || "",
-          lastLogin: serverTimestamp()
-        }, { merge: true });
-
-        window.location.href = "AreaHealth Dashboard.html"; 
-      } catch (error) {
-        document.getElementById("error-message").textContent = "❌ Google Sign-in failed.";
-        console.error("Google Sign-in Error:", error);
-      }
-    });
-  </script>
+      errorBox.textContent = message;
+    }
+  });
+  
+  // ✅ Google Sign-in with Firestore Profile
+  document.getElementById("googleLogin").addEventListener("click", async () => {
+    const provider = new GoogleAuthProvider();
+    try {
+      const result = await signInWithPopup(auth, provider);
+      const user = result.user;
+      
+      const userRef = doc(db, "users", user.uid);
+      await setDoc(userRef, {
+        email: user.email,
+        name: user.displayName || user.email.split("@")[0],
+        profilePic: user.photoURL || "",
+        lastLogin: serverTimestamp()
+      }, { merge: true });
+      
+    } catch (error) {
+      document.getElementById("error-message").textContent = "❌ Google Sign-in failed.";
+      console.error("Google Sign-in Error:", error);
+    }
+  });
+</script>
 </body>
 </html>
