@@ -68,13 +68,23 @@
     onAuthStateChanged(auth, async (user) => {
       if (user) {
         currentUser = user;
-        const docRef = doc(db, "users", user.uid);
-        const snap = await getDoc(docRef);
-        if (snap.exists()) {
-          const data = snap.data();
-          document.getElementById("name").value = data.name || "";
-          document.getElementById("username").value = data.username || "";
-          document.getElementById("phone").value = data.phone || "";
+        try {
+          const docRef = doc(db, "users", user.uid);
+          const snap = await getDoc(docRef);
+
+          if (snap.exists()) {
+            const data = snap.data();
+            document.getElementById("name").value = data.name || "";
+            document.getElementById("username").value = data.username || "";
+            document.getElementById("phone").value = data.phone || "";
+          } else {
+            // Auto-create empty profile if not found
+            await setDoc(docRef, { email: user.email, createdAt: serverTimestamp() });
+            console.log("⚠️ New user profile created.");
+          }
+        } catch (err) {
+          console.error("🔥 Firestore error:", err);
+          alert("⚠️ Could not load profile. Please check your connection.");
         }
       } else {
         alert("⚠️ You must log in first.");
