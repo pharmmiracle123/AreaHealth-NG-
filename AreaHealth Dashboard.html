@@ -1,4 +1,4 @@
-<!-- 🔥 AreaHealth NG Dashboard (Final Polished) -->
+<!-- 🔥 AreaHealth NG Dashboard (Updated with Fixes) -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -110,9 +110,11 @@
       </section>
 
       <!-- Profile Card -->
-      <section class="bg-white rounded-2xl shadow-sm p-5 mb-6">
-        <div class="flex items-center gap-4">
-          <img id="userPic" class="w-20 h-20 rounded-full object-cover ring-2 ring-primary/20" alt="Profile">
+      <section class="bg-white rounded-2xl shadow-sm p-5 mb-6 text-center">
+        <div class="flex flex-col items-center gap-4">
+          <img id="userPic" src="AreaHealth%20NG%20Folder/IMG-20250904-WA0010.jpg"
+               class="mx-auto w-20 h-20 rounded-full object-cover ring-2 ring-primary/20"
+               alt="Profile">
           <div>
             <div class="text-lg font-semibold" id="profileName">—</div>
             <div class="text-slate-600 text-sm" id="userEmail">—</div>
@@ -146,7 +148,6 @@
   /* Auth State */
   onAuthStateChanged(auth, async (u) => {
     if (!u) {
-      // 🚀 Redirect to login if not logged in
       window.location.href = "AreaHealth Login.html"; 
       return;
     }
@@ -158,7 +159,7 @@
     const updates = {};
     if (!userData.registeredAt) updates.registeredAt = serverTimestamp();
     if (!userData.name && !userData.username) updates.name = u.email.split('@')[0];
-    if (!userData.profilePic) updates.profilePic = 'https://via.placeholder.com/120?text=Profile';
+    if (!userData.profilePic) updates.profilePic = "AreaHealth%20NG%20Folder/IMG-20250904-WA0010.jpg"; // Default pic
     if (!userData.documents) updates.documents = [];
     if (Object.keys(updates).length > 0) {
       await setDoc(userDocRef, updates, { merge: true });
