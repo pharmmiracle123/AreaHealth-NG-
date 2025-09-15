@@ -1,4 +1,4 @@
-<!-- 🔥 AreaHealth NG Dashboard (Updated & Polished) -->
+<!-- 🔥 AreaHealth NG Dashboard (Final Polished) -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -64,10 +64,10 @@
   <div class="max-w-7xl mx-auto px-4 py-6 flex">
     <!-- Sidebar -->
     <aside id="sidebar"
-      class="fixed md:static inset-y-0 left-0 w-64 transform -translate-x-full md:translate-x-0 transition-transform z-40
+      class="fixed md:static inset-y-0 left-0 w-64 transform -translate-x-full md:translate-x-0 transition-transform duration-300 z-40
              bg-white shadow md:shadow-none">
       <nav class="h-full p-4 space-y-1">
-        <a href="Update profile.html" class="flex items-center gap-2 px-3 py-2 rounded-lg bg-slate-100">🤵Update profile info</a>
+        <a href="Update profile.html" class="flex items-center gap-2 px-3 py-2 rounded-lg bg-slate-100">🤵 Update profile info</a>
         <a href="Pharmacies..html" class="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-slate-100">💊 Pharmacies</a>
         <a href="Medication.html" class="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-slate-100">📦 Medications</a>
         <a href="Nearby Services.html" class="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-slate-100">📍 Nearby Services</a>
@@ -128,7 +128,7 @@
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
   import { getAuth, onAuthStateChanged, sendEmailVerification, signOut } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js";
-  import { getFirestore, doc, getDoc, setDoc, updateDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js";
+  import { getFirestore, doc, getDoc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js";
 
   /* Firebase Init */
   const firebaseConfig = {
@@ -145,7 +145,11 @@
 
   /* Auth State */
   onAuthStateChanged(auth, async (u) => {
-    if (!u) { window.location.href = "AreaHealth Login.html"; return; }
+    if (!u) {
+      // 🚀 Redirect to login if not logged in
+      window.location.href = "AreaHealth Login.html"; 
+      return;
+    }
     const userDocRef = doc(db, 'users', u.uid);
     let snap = await getDoc(userDocRef);
     let userData = snap.exists() ? snap.data() : {};
@@ -187,7 +191,25 @@
   });
 
   /* Logout */
-  window.logout = async () => { await signOut(auth); window.location.href = "AreaHealth Login.html"; }
+  window.logout = async () => { 
+    await signOut(auth); 
+    window.location.href = "AreaHealth Login.html"; 
+  }
+
+  /* Sidebar Toggle */
+  const sidebarToggle = document.getElementById("sidebarToggle");
+  const sidebar = document.getElementById("sidebar");
+  const overlay = document.getElementById("overlay");
+
+  sidebarToggle.addEventListener("click", () => {
+    sidebar.classList.toggle("-translate-x-full");
+    overlay.classList.toggle("hidden");
+  });
+
+  overlay.addEventListener("click", () => {
+    sidebar.classList.add("-translate-x-full");
+    overlay.classList.add("hidden");
+  });
 </script>
 </body>
-                                              </html>
+</html>
