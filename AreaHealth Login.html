@@ -7,22 +7,29 @@
   <style>
     body {
       font-family: Arial, sans-serif;
-      background: #f4f4f4;
+
+      /* 🔽 Background image */
+      background: url("/AreaHealth NG Folder/IMG-20250904-WA0010.jpg") no-repeat center center fixed;
+      background-size: cover;
+
       display: flex;
       justify-content: center;
       align-items: center;
       height: 100vh;
+      margin: 0;
     }
     .form-box {
-      background: white;
+      background: rgba(255, 255, 255, 0.95);
       padding: 30px;
       border-radius: 12px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.2);
+      box-shadow: 0 4px 20px rgba(0,0,0,0.3);
       width: 350px;
+      backdrop-filter: blur(6px);
     }
     .form-box h2 {
       text-align: center;
       margin-bottom: 20px;
+      color: #0077cc;
     }
     .input-group {
       position: relative;
@@ -53,13 +60,46 @@
       border: none;
       border-radius: 6px;
       cursor: pointer;
+      transition: 0.3s;
     }
     button:hover {
       background: #005fa3;
     }
+    .google-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: white;
+      border: 1px solid #ddd;
+      color: #444;
+      font-weight: bold;
+      padding: 10px;
+      margin-top: 15px;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+    .google-btn:hover {
+      background: #f9f9f9;
+    }
+    .google-btn img {
+      width: 20px;
+      height: 20px;
+      margin-right: 10px;
+    }
     p {
       text-align: center;
       margin-top: 12px;
+    }
+    a {
+      text-decoration: none;
+      color: #0077cc;
+      font-weight: bold;
+      transition: color 0.3s ease;
+    }
+    a:hover {
+      color: #005fa3;
+      text-decoration: underline;
     }
     #error-message {
       color: red;
@@ -80,31 +120,48 @@
       </div>
       
       <button type="submit">Login</button>
+      <div id="googleLogin" class="google-btn">
+        <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google Logo">
+        Sign in with Google
+      </div>
+
       <p>Don't have an account? <a href="AreaHealth Register.html">Register</a></p>
       <p><a href="Forgot Password.html">Forgot Password?</a></p>
       <p id="error-message"></p>
     </form>
   </div>
 
-  <!-- ✅ Firebase SDKs -->
+  <!-- ✅ Firebase SDK -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
-    import { getAuth, signInWithEmailAndPassword } 
-      from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
+    import { 
+      getAuth, 
+      signInWithEmailAndPassword, 
+      GoogleAuthProvider, 
+      signInWithPopup 
+    } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
+    import { 
+      getFirestore, 
+      doc, 
+      getDoc, 
+      setDoc, 
+      serverTimestamp 
+    } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
 
-    // ✅ Firebase Config
+    // ✅ Firebase Config (Replace with YOUR firebase project settings)
     const firebaseConfig = {
-      apiKey: "AIzaSyC79cSDPpC4bbhlRBpu7WhON3j8AMxMLyE",
-      authDomain: "areahealth-ng.firebaseapp.com",
-      projectId: "areahealth-ng",
-      storageBucket: "areahealth-ng.appspot.com",
-      messagingSenderId: "986651954303",
-      appId: "1:986651954303:web:3f38dc24e246b7047d834a"
+      apiKey: "YOUR_API_KEY",
+      authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+      projectId: "YOUR_PROJECT_ID",
+      storageBucket: "YOUR_PROJECT_ID.appspot.com",
+      messagingSenderId: "YOUR_SENDER_ID",
+      appId: "YOUR_APP_ID"
     };
 
     // Initialize Firebase
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
+    const db = getFirestore(app);
 
     // ✅ Toggle password visibility
     window.togglePassword = function(fieldId, icon) {
@@ -118,7 +175,7 @@
       }
     }
 
-    // ✅ Login logic
+    // ✅ Login with Email & Password
     document.getElementById("loginForm").addEventListener("submit", async (e) => {
       e.preventDefault();
 
@@ -127,12 +184,18 @@
       const errorBox = document.getElementById("error-message");
 
       try {
-        // Check credentials in Firebase
-        await signInWithEmailAndPassword(auth, email, password);
+        const userCredential = await signInWithEmailAndPassword(auth, email, password);
+        const user = userCredential.user;
 
-        // ✅ Redirect only if correct
+        // Save/update user profile in Firestore
+        const userRef = doc(db, "users", user.uid);
+        await setDoc(userRef, {
+          email: user.email,
+          name: user.displayName || email.split("@")[0],
+          lastLogin: serverTimestamp()
+        }, { merge: true });
+
         window.location.href = "AreaHealth Dashboard.html"; 
-
       } catch (error) {
         let message = "❌ Something went wrong!";
         if (error.code === "auth/user-not-found") {
@@ -143,6 +206,28 @@
           message = "❌ Invalid email format.";
         }
         errorBox.textContent = message;
+      }
+    });
+
+    // ✅ Google Sign-in with Firestore Profile
+    document.getElementById("googleLogin").addEventListener("click", async () => {
+      const provider = new GoogleAuthProvider();
+      try {
+        const result = await signInWithPopup(auth, provider);
+        const user = result.user;
+
+        const userRef = doc(db, "users", user.uid);
+        await setDoc(userRef, {
+          email: user.email,
+          name: user.displayName || user.email.split("@")[0],
+          profilePic: user.photoURL || "",
+          lastLogin: serverTimestamp()
+        }, { merge: true });
+
+        window.location.href = "AreaHealth Dashboard.html"; 
+      } catch (error) {
+        document.getElementById("error-message").textContent = "❌ Google Sign-in failed.";
+        console.error("Google Sign-in Error:", error);
       }
     });
   </script>
