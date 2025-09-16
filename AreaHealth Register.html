@@ -149,8 +149,8 @@
           ts: serverTimestamp()
         }] : [],
         registeredAt: serverTimestamp(),
-        emailVerified: false
-      });
+        emailVerified: user.emailVerified
+      }, { merge: true });
 
       // ✅ Send Email Verification
       await sendEmailVerification(user, { url: "https://areahealth-ng.firebaseapp.com" });
@@ -177,10 +177,11 @@
       console.error("🔥 Registration Error:", err.code, err.message);
       let friendlyMessage = "⚠️ Something went wrong. Please try again.";
       switch (err.code) {
-        case "auth/email-already-in-use": friendlyMessage = "❌ This email has been registered, click the Login button below."; break;
+        case "auth/email-already-in-use": friendlyMessage = "❌ This email is already registered."; break;
         case "auth/invalid-email": friendlyMessage = "❌ Invalid email format."; break;
         case "auth/weak-password": friendlyMessage = "❌ Weak password. Use at least 6 characters."; break;
         case "auth/network-request-failed": friendlyMessage = "⚠️ Network error. Check your connection."; break;
+        default: friendlyMessage = "⚠️ Unexpected error. Try again later."; break;
       }
       alert(friendlyMessage);
     }
@@ -189,9 +190,16 @@
 
   <!-- ✅ Tailwind Animations -->
   <style>
-    @keyframes fadeIn { from { opacity: 0; transform: transla;teY(20px);} to { opacity: 1; transform: translateY(0);} }
+    @keyframes fadeIn { 
+      from { opacity: 0; transform: translateY(20px);} 
+      to { opacity: 1; transform: translateY(0);} 
+    }
     .animate-fadeIn { animation: fadeIn 1s ease-in-out; }
-    @keyframes gradient { 0%{background-position:0% 50%} 50%{background-position:100% 50%} 100%{background-position:0% 50%} }
+    @keyframes gradient { 
+      0%{background-position:0% 50%} 
+      50%{background-position:100% 50%} 
+      100%{background-position:0% 50%} 
+    }
     .animate-gradient { background-size:200% 200%; animation:gradient 8s ease infinite; }
   </style>
 </body>
