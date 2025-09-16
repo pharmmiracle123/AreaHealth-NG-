@@ -6,15 +6,20 @@
   <title>Login - AreaHealth</title>
   <style>
     body {
-      font-family: Arial, sans-serif;
-      background: url("/AreaHealth NG Folder/IMG-20250904-WA0010.jpg") no-repeat center center fixed;
-      background-size: cover;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-      margin: 0;
-    }
+   font-family: Arial, sans-serif;
+   
+   /* 🔽 Show image only at the center */
+   background: #f0f0f0 url("/AreaHealth NG Folder/FB_IMG_17580202436038222.jpg") no-repeat center center;
+   background-size: 300px auto;
+   /* Adjust size (300px wide), can tweak */
+   background-attachment: fixed;
+   
+   display: flex;
+   justify-content: center;
+   align-items: center;
+   height: 100vh;
+   margin: 0;
+}
     .form-box {
       background: rgba(255, 255, 255, 0.95);
       padding: 30px;
@@ -124,10 +129,10 @@
         Sign in with Google
       </div>
 
-      <!-- ✅ Facebook Login -->
-      <div id="facebookLogin" class="social-btn">
-        <img src="https://www.svgrepo.com/show/299425/facebook.svg" alt="Facebook Logo">
-        Sign in with Facebook
+      <!-- ✅ Apple Login -->
+      <div id="appleLogin" class="social-btn">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/f/fa/Apple_logo_black.svg" alt="Apple Logo">
+        Sign in with Apple
       </div>
 
       <p>Don't have an account? <a href="AreaHealth Register.html">Register</a></p>
@@ -143,7 +148,7 @@
     getAuth,
     signInWithEmailAndPassword,
     GoogleAuthProvider,
-    FacebookAuthProvider,
+    OAuthProvider,
     signInWithPopup,
     onAuthStateChanged
   } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
@@ -241,9 +246,9 @@
     }
   });
 
-  // ✅ Facebook Sign-in
-  document.getElementById("facebookLogin").addEventListener("click", async () => {
-    const provider = new FacebookAuthProvider();
+  // ✅ Apple Sign-in
+  document.getElementById("appleLogin").addEventListener("click", async () => {
+    const provider = new OAuthProvider("apple.com");
     try {
       const result = await signInWithPopup(auth, provider);
       const user = result.user;
@@ -255,7 +260,7 @@
         lastLogin: serverTimestamp()
       }, { merge: true });
     } catch (error) {
-      document.getElementById("error-message").textContent = "❌ Facebook Sign-in failed.";
+      document.getElementById("error-message").textContent = "❌ Apple Sign-in failed.";
       console.error(error);
     }
   });
