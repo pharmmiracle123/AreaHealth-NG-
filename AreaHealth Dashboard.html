@@ -1,4 +1,4 @@
-<!-- 🔥 AreaHealth NG Dashboard (Updated with Fixes) -->
+<!-- 🔥 AreaHealth NG Dashboard (Sidebar Login/Logout Fixed) -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -8,6 +8,7 @@
 
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <script>
     tailwind.config = {
       theme: {
@@ -21,13 +22,6 @@
       }
     }
   </script>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-
-  <!-- Firebase -->
-  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-storage-compat.js"></script>
 
   <style>
     .gradient-header {
@@ -72,9 +66,9 @@
         <a href="Medication.html" class="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-slate-100">📦 Medications</a>
         <a href="Nearby Services.html" class="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-slate-100">📍 Nearby Services</a>
         <a href="#" class="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-slate-100">⚙ Settings</a>
-        <button onclick="logout()" class="w-full flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-rose-50 hover:text-rose-600">
-          🚪 Logout
-        </button>
+        
+        <!-- Dynamic Login/Logout button -->
+        <div id="authBtnContainer"></div>
       </nav>
     </aside>
 
@@ -112,7 +106,7 @@
       <!-- Profile Card -->
       <section class="bg-white rounded-2xl shadow-sm p-5 mb-6 text-center">
         <div class="flex flex-col items-center gap-4">
-          <img id="userPic" src="AreaHealth%20NG%20Folder/IMG-20250904-WA0010.jpg"
+          <img id="userPic"
                class="mx-auto w-20 h-20 rounded-full object-cover ring-2 ring-primary/20"
                alt="Profile">
           <div>
@@ -122,7 +116,6 @@
         </div>
       </section>
 
-      <!-- Footer -->
       <footer class="text-center text-sm text-slate-500 py-6">© 2025 AreaHealth NG</footer>
     </main>
   </div>
@@ -131,8 +124,8 @@
   import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
   import { getAuth, onAuthStateChanged, sendEmailVerification, signOut } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js";
   import { getFirestore, doc, getDoc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js";
+  import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-storage.js";
 
-  /* Firebase Init */
   const firebaseConfig = {
     apiKey: "AIzaSyC79cSDPpC4bbhlRBpu7WhON3j8AMxMLyE",
     authDomain: "areahealth-ng.firebaseapp.com",
@@ -144,31 +137,44 @@
   const app = initializeApp(firebaseConfig);
   const auth = getAuth(app);
   const db = getFirestore(app);
+  const storage = getStorage(app);
 
-  /* Auth State */
+  const authBtnContainer = document.getElementById("authBtnContainer");
+
+  // Handle auth state
   onAuthStateChanged(auth, async (u) => {
+    authBtnContainer.innerHTML = ""; // Clear container first
+
     if (!u) {
-      window.location.href = "AreaHealth Login.html"; 
+      // Show login button
+      authBtnContainer.innerHTML = `
+        <a href="AreaHealth Login.html" class="w-full flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-green-50 hover:text-green-600">
+          🔑 Login
+        </a>`;
       return;
     }
+
+    // Show logout button
+    authBtnContainer.innerHTML = `
+      <button onclick="logout()" class="w-full flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-rose-50 hover:text-rose-600">
+        🚪 Logout
+      </button>`;
+
     const userDocRef = doc(db, 'users', u.uid);
     let snap = await getDoc(userDocRef);
     let userData = snap.exists() ? snap.data() : {};
 
-    /* 🔄 Migration Patch */
     const updates = {};
     if (!userData.registeredAt) updates.registeredAt = serverTimestamp();
-    if (!userData.name && !userData.username) updates.name = u.email.split('@')[0];
-    if (!userData.profilePic) updates.profilePic = "AreaHealth%20NG%20Folder/IMG-20250904-WA0010.jpg"; // Default pic
-    if (!userData.documents) updates.documents = [];
-    if (Object.keys(updates).length > 0) {
-      await setDoc(userDocRef, updates, { merge: true });
-      snap = await getDoc(userDocRef);
-      userData = snap.data();
-    }
+    if (!userData.name) updates.name = u.displayName || u.email.split('@')[0];
+    if (!userData.profilePic) updates.profilePic = "AreaHealth NG Folder/IMG-20250904-WA0010.jpg";
+    await setDoc(userDocRef, updates, { merge: true });
 
-    /* UI Populate */
-    const name = userData.name || userData.username || u.displayName || 'User';
+    snap = await getDoc(userDocRef);
+    userData = snap.data();
+
+    // Populate UI
+    const name = userData.name;
     document.getElementById("userName").textContent = name;
     document.getElementById("profileName").textContent = name;
     document.getElementById("headerGreeting").textContent = `Hello, ${name} 👋`;
@@ -183,30 +189,40 @@
     document.getElementById("memberSince").textContent = userData.registeredAt?.toDate?.() ? userData.registeredAt.toDate().toLocaleDateString() : '—';
   });
 
-  /* Resend Email Verification */
-  document.getElementById("resendVerifyBtn")?.addEventListener("click", async () => {
+  // Upload profile pic
+  document.getElementById("profilePicInput").addEventListener("change", async (e) => {
+    const file = e.target.files[0];
+    if (!file || !auth.currentUser) return;
+    const fileRef = ref(storage, `profilePics/${auth.currentUser.uid}`);
+    await uploadBytes(fileRef, file);
+    const url = await getDownloadURL(fileRef);
+    await setDoc(doc(db, 'users', auth.currentUser.uid), { profilePic: url }, { merge: true });
+    document.getElementById("userPic").src = url;
+    document.getElementById("headerPic").src = url;
+  });
+
+  // Resend verification
+  document.getElementById("resendVerifyBtn").addEventListener("click", async () => {
     if (auth.currentUser) {
       await sendEmailVerification(auth.currentUser);
       alert("Verification email sent!");
     }
   });
 
-  /* Logout */
+  // Logout
   window.logout = async () => { 
     await signOut(auth); 
     window.location.href = "AreaHealth Login.html"; 
   }
 
-  /* Sidebar Toggle */
+  // Sidebar toggle
   const sidebarToggle = document.getElementById("sidebarToggle");
   const sidebar = document.getElementById("sidebar");
   const overlay = document.getElementById("overlay");
-
   sidebarToggle.addEventListener("click", () => {
     sidebar.classList.toggle("-translate-x-full");
     overlay.classList.toggle("hidden");
   });
-
   overlay.addEventListener("click", () => {
     sidebar.classList.add("-translate-x-full");
     overlay.classList.add("hidden");
