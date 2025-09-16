@@ -7,11 +7,8 @@
   <style>
     body {
       font-family: Arial, sans-serif;
-
-      /* 🔽 Background image */
       background: url("/AreaHealth NG Folder/IMG-20250904-WA0010.jpg") no-repeat center center fixed;
       background-size: cover;
-
       display: flex;
       justify-content: center;
       align-items: center;
@@ -65,7 +62,7 @@
     button:hover {
       background: #005fa3;
     }
-    .google-btn {
+    .social-btn {
       display: flex;
       align-items: center;
       justify-content: center;
@@ -79,10 +76,10 @@
       cursor: pointer;
       transition: 0.3s;
     }
-    .google-btn:hover {
+    .social-btn:hover {
       background: #f9f9f9;
     }
-    .google-btn img {
+    .social-btn img {
       width: 20px;
       height: 20px;
       margin-right: 10px;
@@ -120,9 +117,17 @@
       </div>
       
       <button type="submit">Login</button>
-      <div id="googleLogin" class="google-btn">
+
+      <!-- ✅ Google Login -->
+      <div id="googleLogin" class="social-btn">
         <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google Logo">
         Sign in with Google
+      </div>
+
+      <!-- ✅ Facebook Login -->
+      <div id="facebookLogin" class="social-btn">
+        <img src="https://www.svgrepo.com/show/299425/facebook.svg" alt="Facebook Logo">
+        Sign in with Facebook
       </div>
 
       <p>Don't have an account? <a href="AreaHealth Register.html">Register</a></p>
@@ -132,13 +137,13 @@
   </div>
 
   <!-- ✅ Firebase SDK -->
-<!-- ✅ Firebase SDK -->
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
   import {
     getAuth,
     signInWithEmailAndPassword,
     GoogleAuthProvider,
+    FacebookAuthProvider,
     signInWithPopup,
     onAuthStateChanged
   } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
@@ -149,7 +154,7 @@
     serverTimestamp
   } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
   
-  // ✅ Firebase Config (replace with your own project settings)
+  // ✅ Firebase Config
   const firebaseConfig = {
     apiKey: "AIzaSyC79cSDPpC4bbhlRBpu7WhON3j8AMxMLyE",
     authDomain: "areahealth-ng.firebaseapp.com",
@@ -188,7 +193,7 @@
     }
   });
   
-  // ✅ Login with Email & Password
+  // ✅ Email/Password Login
   document.getElementById("loginForm").addEventListener("submit", async (e) => {
     e.preventDefault();
     const email = document.getElementById("email").value;
@@ -198,15 +203,12 @@
     try {
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
-      
-      // Save/update user profile in Firestore
       const userRef = doc(db, "users", user.uid);
       await setDoc(userRef, {
         email: user.email,
         name: user.displayName || email.split("@")[0],
         lastLogin: serverTimestamp()
       }, { merge: true });
-      
     } catch (error) {
       let message = "❌ Something went wrong!";
       if (error.code === "auth/user-not-found") {
@@ -220,13 +222,12 @@
     }
   });
   
-  // ✅ Google Sign-in with Firestore Profile
+  // ✅ Google Sign-in
   document.getElementById("googleLogin").addEventListener("click", async () => {
     const provider = new GoogleAuthProvider();
     try {
       const result = await signInWithPopup(auth, provider);
       const user = result.user;
-      
       const userRef = doc(db, "users", user.uid);
       await setDoc(userRef, {
         email: user.email,
@@ -234,10 +235,28 @@
         profilePic: user.photoURL || "",
         lastLogin: serverTimestamp()
       }, { merge: true });
-      
     } catch (error) {
       document.getElementById("error-message").textContent = "❌ Google Sign-in failed.";
-      console.error("Google Sign-in Error:", error);
+      console.error(error);
+    }
+  });
+
+  // ✅ Facebook Sign-in
+  document.getElementById("facebookLogin").addEventListener("click", async () => {
+    const provider = new FacebookAuthProvider();
+    try {
+      const result = await signInWithPopup(auth, provider);
+      const user = result.user;
+      const userRef = doc(db, "users", user.uid);
+      await setDoc(userRef, {
+        email: user.email,
+        name: user.displayName || user.email.split("@")[0],
+        profilePic: user.photoURL || "",
+        lastLogin: serverTimestamp()
+      }, { merge: true });
+    } catch (error) {
+      document.getElementById("error-message").textContent = "❌ Facebook Sign-in failed.";
+      console.error(error);
     }
   });
 </script>
