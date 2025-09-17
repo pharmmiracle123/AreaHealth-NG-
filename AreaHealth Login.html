@@ -6,20 +6,16 @@
   <title>Login - AreaHealth</title>
   <style>
     body {
-   font-family: Arial, sans-serif;
-   
-   /* 🔽 Show image only at the center */
-   background: #f0f0f0 url("/AreaHealth NG Folder/FB_IMG_17580202436038222.jpg") no-repeat center center;
-   background-size: 300px auto;
-   /* Adjust size (300px wide), can tweak */
-   background-attachment: fixed;
-   
-   display: flex;
-   justify-content: center;
-   align-items: center;
-   height: 100vh;
-   margin: 0;
-}
+      font-family: Arial, sans-serif;
+      background: #f0f0f0 url("/AreaHealth NG Folder/FB_IMG_17580202436038222.jpg") no-repeat center center;
+      background-size: 300px auto;
+      background-attachment: fixed;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
     .form-box {
       background: rgba(255, 255, 255, 0.95);
       padding: 30px;
@@ -150,6 +146,8 @@
     GoogleAuthProvider,
     OAuthProvider,
     signInWithPopup,
+    signInWithRedirect,
+    getRedirectResult,
     onAuthStateChanged
   } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
   import {
@@ -227,7 +225,7 @@
     }
   });
   
-  // ✅ Google Sign-in
+  // ✅ Google Sign-in (Popup)
   document.getElementById("googleLogin").addEventListener("click", async () => {
     const provider = new GoogleAuthProvider();
     try {
@@ -246,11 +244,20 @@
     }
   });
 
-  // ✅ Apple Sign-in
+  // ✅ Apple Sign-in (Redirect - iPhone friendly)
   document.getElementById("appleLogin").addEventListener("click", async () => {
     const provider = new OAuthProvider("apple.com");
     try {
-      const result = await signInWithPopup(auth, provider);
+      await signInWithRedirect(auth, provider);
+    } catch (error) {
+      document.getElementById("error-message").textContent = "❌ Apple Sign-in failed.";
+      console.error(error);
+    }
+  });
+
+  // ✅ Handle Redirect Result
+  getRedirectResult(auth).then(async (result) => {
+    if (result && result.user) {
       const user = result.user;
       const userRef = doc(db, "users", user.uid);
       await setDoc(userRef, {
@@ -259,10 +266,10 @@
         profilePic: user.photoURL || "",
         lastLogin: serverTimestamp()
       }, { merge: true });
-    } catch (error) {
-      document.getElementById("error-message").textContent = "❌ Apple Sign-in failed.";
-      console.error(error);
+      redirectToDashboard();
     }
+  }).catch((error) => {
+    console.error("Redirect sign-in error:", error);
   });
 </script>
 </body>
