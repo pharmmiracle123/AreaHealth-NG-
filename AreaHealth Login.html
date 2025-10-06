@@ -3,274 +3,182 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Login - AreaHealth</title>
+  <title>PTS Login</title>
+  <script src="https://cdn.tailwindcss.com"></script>
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #f0f0f0 url("/AreaHealth NG Folder/FB_IMG_17580202436038222.jpg") no-repeat center center;
-      background-size: 300px auto;
-      background-attachment: fixed;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-      margin: 0;
+    /* 🔹 Glassmorphism style */
+    .overlay {
+      background: rgba(255, 255, 255, 0.25);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.18);
     }
-    .form-box {
-      background: rgba(255, 255, 255, 0.95);
-      padding: 30px;
-      border-radius: 12px;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.3);
-      width: 350px;
-      backdrop-filter: blur(6px);
+
+    /* 🔹 Typewriter effect */
+    .typewriter {
+      border-right: .15em solid #4B5563;
+      white-space: nowrap;
+      overflow: hidden;
+      display: inline-block;
     }
-    .form-box h2 {
-      text-align: center;
-      margin-bottom: 20px;
-      color: #0077cc;
+
+    /* 🔹 Fade-in animation */
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
     }
-    .input-group {
-      position: relative;
-      margin: 10px 0;
+    .fade-in {
+      animation: fadeIn 1s ease-out;
     }
-    input {
-      width: 100%;
-      padding: 12px;
-      border: 1px solid #ddd;
-      border-radius: 6px;
-    }
-    .toggle-password {
-      position: absolute;
-      right: 12px;
-      top: 50%;
-      transform: translateY(-50%);
-      cursor: pointer;
-      font-size: 16px;
-      color: #0077cc;
-    }
-    button {
-      width: 100%;
-      padding: 12px;
-      margin-top: 10px;
-      background: #0077cc;
-      color: white;
-      font-weight: bold;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
-      transition: 0.3s;
-    }
-    button:hover {
-      background: #005fa3;
-    }
-    .social-btn {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: white;
-      border: 1px solid #ddd;
-      color: #444;
-      font-weight: bold;
-      padding: 10px;
-      margin-top: 15px;
-      border-radius: 6px;
-      cursor: pointer;
-      transition: 0.3s;
-    }
-    .social-btn:hover {
-      background: #f9f9f9;
-    }
-    .social-btn img {
+
+    /* 🔹 Spinner */
+    .spinner {
+      border: 3px solid rgba(255, 255, 255, 0.3);
+      border-top: 3px solid #828CFF;
+      border-radius: 50%;
       width: 20px;
       height: 20px;
-      margin-right: 10px;
+      animation: spin 1s linear infinite;
+      display: inline-block;
     }
-    p {
-      text-align: center;
-      margin-top: 12px;
-    }
-    a {
-      text-decoration: none;
-      color: #0077cc;
-      font-weight: bold;
-      transition: color 0.3s ease;
-    }
-    a:hover {
-      color: #005fa3;
-      text-decoration: underline;
-    }
-    #error-message {
-      color: red;
-      text-align: center;
-      margin-top: 10px;
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
     }
   </style>
 </head>
-<body>
-  <div class="form-box">
-    <h2>Login</h2>
-    <form id="loginForm">
-      <input type="email" id="email" placeholder="Email" required>
-      
-      <div class="input-group">
-        <input type="password" id="password" placeholder="Password" required>
-        <span class="toggle-password" onclick="togglePassword('password', this)">👁</span>
-      </div>
-      
-      <button type="submit">Login</button>
+<body class="relative flex items-center justify-center h-screen bg-gray-900 text-gray-800">
 
-      <!-- ✅ Google Login -->
-      <div id="googleLogin" class="social-btn">
-        <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google Logo">
-        Sign in with Google
-      </div>
+  <!-- 🔹 Gradient background -->
+  <div class="absolute inset-0 bg-gradient-to-br from-[#1a1c2c] via-[#2d325a] to-[#828CFF] opacity-90"></div>
 
-      <!-- ✅ Apple Login -->
-      <div id="appleLogin" class="social-btn">
-        <img src="https://upload.wikimedia.org/wikipedia/commons/f/fa/Apple_logo_black.svg" alt="Apple Logo">
-        Sign in with Apple
-      </div>
+  <!-- 🔹 Overlay card -->
+  <div class="overlay relative z-10 p-10 rounded-2xl shadow-2xl w-[400px] text-center fade-in">
+    <!-- School logo -->
+    <img src="IMG-20250515-WA0010.jpg" alt="School Logo" class="w-20 h-20 mx-auto mb-4 drop-shadow-lg">
 
-      <p>Don't have an account? <a href="AreaHealth Register.html">Register</a></p>
-      <p><a href="Forgot Password.html">Forgot Password?</a></p>
-      <p id="error-message"></p>
-    </form>
+    <!-- Welcome text -->
+    <h1 id="welcomeText" class="typewriter text-lg font-semibold text-gray-900 mb-6"></h1>
+
+    <!-- Login section -->
+    <h2 class="text-2xl font-bold mb-6 text-gray-900">Login to PTS</h2>
+    <button id="googleLogin"
+      class="w-full flex items-center justify-center gap-3 bg-[#828CFF] text-white px-4 py-2 rounded-lg shadow-lg hover:shadow-xl hover:scale-105 transition transform duration-200">
+      <img src="https://www.svgrepo.com/show/355037/google.svg" class="w-5 h-5" alt="Google">
+      Sign in with Google
+    </button>
+
+    <!-- Status + Spinner -->
+    <div id="status" class="mt-4 text-sm text-gray-700"></div>
+    <div id="spinner" class="mt-4 hidden"><span class="spinner"></span> <span class="text-sm text-gray-700">Processing...</span></div>
+
+    <!-- Footer -->
+    <p class="mt-8 text-xs text-gray-600">© 2025 PTS Department | Powered by Rt Hon. Onyeka-Udechukwu Miracle, Tailwind & Firebase</p>
+
+    <!-- Developer credit -->
+    <div class="mt-4 text-xs text-gray-700 bg-white/40 p-2 rounded-lg shadow-inner">
+      <p>💻 Developed by <span class="font-semibold">Rt Hon. Onyeka-Udechukwu Miracle</span></p>
+      <p>Email: <a href="mailto:onyekamiracle08@gmail.com" class="text-blue-600 underline">onyekamiracle08@gmail.com</a></p>
+      <p>Phone: <a href="tel:08169395022" class="text-blue-600 underline">08169395022</a></p>
+    </div>
   </div>
 
-  <!-- ✅ Firebase SDK -->
-<script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
-  import {
-    getAuth,
-    signInWithEmailAndPassword,
-    GoogleAuthProvider,
-    OAuthProvider,
-    signInWithPopup,
-    signInWithRedirect,
-    getRedirectResult,
-    onAuthStateChanged
-  } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
-  import {
-    getFirestore,
-    doc,
-    setDoc,
-    serverTimestamp
-  } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
-  
-  // ✅ Firebase Config
-  const firebaseConfig = {
-    apiKey: "AIzaSyC79cSDPpC4bbhlRBpu7WhON3j8AMxMLyE",
-    authDomain: "areahealth-ng.firebaseapp.com",
-    projectId: "areahealth-ng",
-    storageBucket: "areahealth-ng.appspot.com",
-    messagingSenderId: "986651954303",
-    appId: "1:986651954303:web:3f38dc24e246b7047d834a"
-  };
-  
-  // Initialize Firebase
-  const app = initializeApp(firebaseConfig);
-  const auth = getAuth(app);
-  const db = getFirestore(app);
-  
-  // ✅ Toggle password visibility
-  window.togglePassword = function(fieldId, icon) {
-    const input = document.getElementById(fieldId);
-    if (input.type === "password") {
-      input.type = "text";
-      icon.textContent = "🙈";
-    } else {
-      input.type = "password";
-      icon.textContent = "👁";
-    }
-  }
-  
-  // ✅ Redirect helper
-  function redirectToDashboard() {
-    window.location.replace("AreaHealth Dashboard.html");
-  }
-  
-  // ✅ Watch for login state changes
-  onAuthStateChanged(auth, (user) => {
-    if (user) {
-      redirectToDashboard();
-    }
-  });
-  
-  // ✅ Email/Password Login
-  document.getElementById("loginForm").addEventListener("submit", async (e) => {
-    e.preventDefault();
-    const email = document.getElementById("email").value;
-    const password = document.getElementById("password").value;
-    const errorBox = document.getElementById("error-message");
-    
-    try {
-      const userCredential = await signInWithEmailAndPassword(auth, email, password);
-      const user = userCredential.user;
-      const userRef = doc(db, "users", user.uid);
-      await setDoc(userRef, {
-        email: user.email,
-        name: user.displayName || email.split("@")[0],
-        lastLogin: serverTimestamp()
-      }, { merge: true });
-    } catch (error) {
-      let message = "❌ Something went wrong!";
-      if (error.code === "auth/user-not-found") {
-        message = "❌ No user found with this email.";
-      } else if (error.code === "auth/wrong-password") {
-        message = "❌ Incorrect password.";
-      } else if (error.code === "auth/invalid-email") {
-        message = "❌ Invalid email format.";
-      }
-      errorBox.textContent = message;
-    }
-  });
-  
-  // ✅ Google Sign-in (Popup)
-  document.getElementById("googleLogin").addEventListener("click", async () => {
+  <!-- Firebase + Typewriter -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
+    import { 
+      getAuth, 
+      GoogleAuthProvider, 
+      signInWithPopup, 
+      sendEmailVerification,
+      onAuthStateChanged,
+      signOut
+    } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
+
+    // ✅ Replace with your Firebase config
+    const firebaseConfig = {  
+    apiKey: "AIzaSyC79cSDPpC4bbhlRBpu7WhON3j8AMxMLyE",  
+    authDomain: "areahealth-ng.firebaseapp.com",  
+    projectId: "areahealth-ng",  
+    storageBucket: "areahealth-ng.appspot.com",  
+    messagingSenderId: "986651954303",  
+    appId: "1:986651954303:web:3f38dc24e246b7047d834a"  
+  };  
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
     const provider = new GoogleAuthProvider();
-    try {
-      const result = await signInWithPopup(auth, provider);
-      const user = result.user;
-      const userRef = doc(db, "users", user.uid);
-      await setDoc(userRef, {
-        email: user.email,
-        name: user.displayName || user.email.split("@")[0],
-        profilePic: user.photoURL || "",
-        lastLogin: serverTimestamp()
-      }, { merge: true });
-    } catch (error) {
-      document.getElementById("error-message").textContent = "❌ Google Sign-in failed.";
-      console.error(error);
-    }
-  });
 
-  // ✅ Apple Sign-in (Redirect - iPhone friendly)
-  document.getElementById("appleLogin").addEventListener("click", async () => {
-    const provider = new OAuthProvider("apple.com");
-    try {
-      await signInWithRedirect(auth, provider);
-    } catch (error) {
-      document.getElementById("error-message").textContent = "❌ Apple Sign-in failed.";
-      console.error(error);
-    }
-  });
+    const googleLoginBtn = document.getElementById("googleLogin");
+    const statusEl = document.getElementById("status");
+    const spinnerEl = document.getElementById("spinner");
 
-  // ✅ Handle Redirect Result
-  getRedirectResult(auth).then(async (result) => {
-    if (result && result.user) {
-      const user = result.user;
-      const userRef = doc(db, "users", user.uid);
-      await setDoc(userRef, {
-        email: user.email,
-        name: user.displayName || user.email.split("@")[0],
-        profilePic: user.photoURL || "",
-        lastLogin: serverTimestamp()
-      }, { merge: true });
-      redirectToDashboard();
+    // 🔹 Sign in with Google
+    googleLoginBtn.addEventListener("click", async () => {
+      try {
+        statusEl.textContent = "";
+        spinnerEl.classList.remove("hidden");
+
+        const result = await signInWithPopup(auth, provider);
+        const user = result.user;
+
+        if (user.emailVerified) {
+          spinnerEl.classList.add("hidden");
+          statusEl.textContent = "✅ Verified. Redirecting...";
+          window.location.href = "index.html";
+        } else {
+          spinnerEl.classList.add("hidden");
+          statusEl.textContent = "📧 Verification email sent. Please check your inbox.";
+          await sendEmailVerification(user);
+          await signOut(auth);
+        }
+      } catch (error) {
+        spinnerEl.classList.add("hidden");
+        console.error(error);
+        statusEl.textContent = "❌ " + error.message;
+      }
+    });
+
+    // 🔹 Auto-redirect if already logged in and verified
+    onAuthStateChanged(auth, (user) => {
+      if (user && user.emailVerified) {
+        window.location.href = "index.html";
+      }
+    });
+
+    // 🔹 Typewriter rotating welcome messages
+    const messages = [
+      "🎓 Welcome Students 👩‍🎓",
+      "👨‍🏫 Welcome Staff",
+      "👔 Welcome Management",
+      "🎉 Welcome to PTS Department"
+    ];
+
+    let messageIndex = 0;
+    let charIndex = 0;
+    const welcomeEl = document.getElementById("welcomeText");
+
+    function typeMessage() {
+      if (charIndex < messages[messageIndex].length) {
+        welcomeEl.textContent += messages[messageIndex].charAt(charIndex);
+        charIndex++;
+        setTimeout(typeMessage, 100);
+      } else {
+        setTimeout(eraseMessage, 2000);
+      }
     }
-  }).catch((error) => {
-    console.error("Redirect sign-in error:", error);
-  });
-</script>
+
+    function eraseMessage() {
+      if (charIndex > 0) {
+        welcomeEl.textContent = messages[messageIndex].substring(0, charIndex - 1);
+        charIndex--;
+        setTimeout(eraseMessage, 50);
+      } else {
+        messageIndex = (messageIndex + 1) % messages.length;
+        setTimeout(typeMessage, 500);
+      }
+    }
+
+    typeMessage();
+  </script>
 </body>
 </html>
