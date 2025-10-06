@@ -1,17 +1,37 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Pharmacist Portfolio</title>
+  <title>Find Pharmacies - AreaHealth</title>
   <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-sky-50 min-h-screen">
+
+  <!-- Header -->
+  <header class="bg-sky-600 text-white p-4 shadow-md">
+    <h1 class="text-2xl font-bold text-center">Find Pharmacies Near You 💊</h1>
+  </header>
+
+  <!-- Search Bar -->
+  <div class="flex justify-center mt-6">
+    <input
+      id="searchInput"
+      type="text"
+      placeholder="Search pharmacy name or location..."
+      class="w-3/4 md:w-1/2 p-3 border border-sky-400 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500"
+    />
+  </div>
+
+  <!-- Pharmacy List -->
+  <section id="pharmacyList" class="mt-8 px-4 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+    <!-- Pharmacies will appear here -->
+  </section>
+
+  <!-- Firebase SDK -->
   <script type="module">
-    // ✅ Firebase Imports
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
-    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
-    import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
-    import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-storage.js";
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-app.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-auth.js";
 
     // ✅ Firebase Config
     const firebaseConfig = {
@@ -22,187 +42,197 @@
       messagingSenderId: "986651954303",
       appId: "1:986651954303:web:3f38dc24e246b7047d834a"
     };
+
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
-    const db = getFirestore(app);
-    const storage = getStorage(app);
 
-    // 🔐 Unique pharmacist access password
-    const pharmacistAccessCode = "PHARMA-2025-ACCESS";
+    const pharmacyList = document.getElementById("pharmacyList");
+    const searchInput = document.getElementById("searchInput");
 
-    let canEdit = false;
+    // ✅ Local Data (No Firebase Fetch)
+    const pharmacies = [
+      {
+        id: "pharma1",
+        name: "HealthPlus Pharmacy",
+        location: "Yenagoa",
+        contact: "08012345678",
+        email: "info@healthplus.com",
+        hours: "8am - 9pm",
+        drugs: ["Paracetamol", "Amoxicillin", "Insulin"],
+        services: "Dispensing, Counseling, BP Check",
+        about: "Providing quality pharmaceutical care in Yenagoa."
+      },
+      {
+        id: "pharma2",
+        name: "MedCare Pharmacy",
+        location: "Ogbia Town",
+        contact: "08123456789",
+        email: "contact@medcare.com",
+        hours: "7am - 10pm",
+        drugs: ["Ibuprofen", "Cough Syrup", "Vitamin C"],
+        services: "OTC Sales, Health Advice, Vaccinations",
+        about: "Community pharmacy committed to patient care."
+      },
+      {
+        id: "pharma3",
+        name: "LifeLine Pharmacy",
+        location: "Opolo, Yenagoa",
+        contact: "07034567890",
+        email: "lifeline@pharm.com",
+        hours: "24 Hours",
+        drugs: ["Antibiotics", "Antimalarials", "Supplements"],
+        services: "24/7 Service, Delivery, Drug Counseling",
+        about: "Open round the clock for your health needs."
+      },
+      {
+        id: "pharma4",
+        name: "CityCare Pharmacy",
+        location: "Etegwe",
+        contact: "09056789012",
+        email: "citycare@pharm.com",
+        hours: "8am - 8pm",
+        drugs: ["Insulin", "Painkillers", "BP Drugs"],
+        services: "Consultation, Dispensing, Follow-up",
+        about: "Trusted pharmacy for chronic care management."
+      },
+      {
+        id: "pharma5",
+        name: "Wellness Drug Store",
+        location: "Amassoma",
+        contact: "08109876543",
+        email: "wellness@pharmacy.com",
+        hours: "9am - 6pm",
+        drugs: ["Supplements", "Cold Meds", "Antacids"],
+        services: "Nutrition Advice, OTC Drugs",
+        about: "Focused on wellness and preventive health."
+      },
+      {
+        id: "pharma6",
+        name: "Bayelsa Pharma Hub",
+        location: "Ekeki",
+        contact: "08023456789",
+        email: "bayelsahub@pharm.com",
+        hours: "8am - 9pm",
+        drugs: ["All categories"],
+        services: "Wholesale & Retail, Counseling",
+        about: "Your one-stop pharmacy hub in Bayelsa."
+      },
+      {
+        id: "pharma7",
+        name: "Royal Care Pharmacy",
+        location: "Akenfa",
+        contact: "09098765432",
+        email: "royalcare@pharm.com",
+        hours: "7am - 8pm",
+        drugs: ["Malaria drugs", "Cough Syrup", "Vitamins"],
+        services: "Consultation, Counseling, Home Delivery",
+        about: "Royal care for royal health."
+      },
+      {
+        id: "pharma8",
+        name: "Grace Pharmacy",
+        location: "Tombia Road",
+        contact: "08155667788",
+        email: "grace@pharmacy.com",
+        hours: "9am - 7pm",
+        drugs: ["OTC Drugs", "Supplements"],
+        services: "Sales, Advice, Monitoring",
+        about: "Serving with grace and professionalism."
+      },
+      {
+        id: "pharma9",
+        name: "Elite Pharmacy",
+        location: "Biogbolo",
+        contact: "08077889900",
+        email: "elite@pharm.com",
+        hours: "8am - 8pm",
+        drugs: ["Antibiotics", "BP Drugs", "Insulin"],
+        services: "BP Check, Counseling, Lab Test Booking",
+        about: "Elite service, elite care."
+      },
+      {
+        id: "pharma10",
+        name: "Community Health Pharmacy",
+        location: "Kpansia",
+        contact: "07099887766",
+        email: "community@pharmacy.com",
+        hours: "8am - 9pm",
+        drugs: ["Basic and prescription drugs"],
+        services: "Health Education, Drug Dispensing",
+        about: "Serving the community with care."
+      }
+    ];
 
-    // 🔹 Listen for user authentication
-    onAuthStateChanged(auth, async (user) => {
-      if (user) {
-        const userRef = doc(db, "users", user.uid);
-        const docSnap = await getDoc(userRef);
-
-        if (docSnap.exists()) {
-          const data = docSnap.data();
-          document.getElementById("pharmaName").textContent = data.fullName || "Pharmacist Name";
-          document.getElementById("pharmaTitle").textContent = data.title || "Pharmacist | Health Professional";
-          document.getElementById("pharmaAbout").textContent = data.about || "No bio added yet.";
-          document.getElementById("pharmaCompany").textContent = data.company || "No company added yet.";
-          document.getElementById("pharmaExperience").textContent = data.experience || "Experience not added yet.";
-          document.getElementById("pharmaServices").textContent = data.services || "No services listed.";
-          document.getElementById("pharmaEmail").href = `mailto:${data.email}`;
-          document.getElementById("linkedin").href = data.linkedin || "#";
-          document.getElementById("portfolio").href = data.portfolio || "#";
-
-          const photo = document.getElementById("pharmaPhoto");
-          if (data.photoURL) photo.src = data.photoURL;
-
-          // Fill update form if editable
-          document.getElementById("fullName").value = data.fullName || "";
-          document.getElementById("title").value = data.title || "";
-          document.getElementById("about").value = data.about || "";
-          document.getElementById("company").value = data.company || "";
-          document.getElementById("experience").value = data.experience || "";
-          document.getElementById("services").value = data.services || "";
-          document.getElementById("linkedinInput").value = data.linkedin || "";
-          document.getElementById("portfolioInput").value = data.portfolio || "";
-
-          // Show edit form only if access granted
-          if (canEdit) {
-            document.getElementById("updateSection").classList.remove("hidden");
-          }
-        }
+    // 🔒 Auth Check
+    onAuthStateChanged(auth, (user) => {
+      if (!user) {
+        window.location.href = "AreaHealth Login.html";
+      } else {
+        console.log("✅ Logged in as:", user.email);
+        displayPharmacies(pharmacies);
       }
     });
 
-    // 🔹 Ask for access code
-    function requestEditAccess() {
-      const code = prompt("Enter pharmacist access code:");
-      if (code === pharmacistAccessCode) {
-        canEdit = true;
-        alert("✅ Access granted. You can now edit your profile.");
-        document.getElementById("updateSection").classList.remove("hidden");
-      } else {
-        alert("❌ Invalid access code. View-only mode activated.");
-      }
-    }
-    window.requestEditAccess = requestEditAccess;
+    // 🧠 Search Functionality
+    searchInput.addEventListener("input", () => {
+      const query = searchInput.value.toLowerCase();
+      const filtered = pharmacies.filter(
+        (p) =>
+          (p.name && p.name.toLowerCase().includes(query)) ||
+          (p.location && p.location.toLowerCase().includes(query))
+      );
+      displayPharmacies(filtered);
+    });
 
-    // 🔹 Update profile
-    async function updateProfile(e) {
-      e.preventDefault();
-      const user = auth.currentUser;
-      if (!user) return alert("Please sign in first");
-      if (!canEdit) return alert("You don't have edit access");
-
-      const fullName = document.getElementById("fullName").value;
-      const title = document.getElementById("title").value;
-      const about = document.getElementById("about").value;
-      const company = document.getElementById("company").value;
-      const experience = document.getElementById("experience").value;
-      const services = document.getElementById("services").value;
-      const linkedin = document.getElementById("linkedinInput").value;
-      const portfolio = document.getElementById("portfolioInput").value;
-      const photoFile = document.getElementById("photo").files[0];
-
-      let photoURL = null;
-      // 🔹 Upload photo if new
-      if (photoFile) {
-        const photoRef = ref(storage, `profiles/${user.uid}/${photoFile.name}`);
-        await uploadBytes(photoRef, photoFile);
-        photoURL = await getDownloadURL(photoRef);
+    // 🧱 Display Pharmacies
+    function displayPharmacies(list) {
+      pharmacyList.innerHTML = "";
+      if (list.length === 0) {
+        pharmacyList.innerHTML = `<p class="text-center text-sky-600 col-span-full">No pharmacies found.</p>`;
+        return;
       }
 
-      // 🔹 Save profile data to Firestore
-      await setDoc(doc(db, "users", user.uid), {
-        fullName, title, about, company, experience, services,
-        linkedin, portfolio,
-        email: user.email,
-        photoURL: photoURL || auth.currentUser.photoURL
-      }, { merge: true });
+      list.forEach((pharmacy) => {
+        const card = document.createElement("div");
+        card.className =
+          "bg-white rounded-xl shadow-md p-5 hover:shadow-lg transition relative";
 
-      alert("✅ Profile updated successfully!");
-      location.reload();
+        card.innerHTML = `
+          <h2 class="text-xl font-bold text-sky-700">${pharmacy.name}</h2>
+          <p class="text-gray-600 mt-1"><strong>Location:</strong> ${pharmacy.location}</p>
+          <p class="text-gray-600 mt-1"><strong>Contact:</strong> ${pharmacy.contact}</p>
+          <button 
+            class="mt-3 bg-sky-500 text-white px-4 py-2 rounded-lg hover:bg-sky-600 transition w-full"
+            onclick="toggleDetails('${pharmacy.id}')">
+            View Details
+          </button>
+          <div id="details-${pharmacy.id}" class="hidden mt-4 border-t pt-3 text-gray-700">
+            <p><strong>Email:</strong> ${pharmacy.email}</p>
+            <p><strong>Hours:</strong> ${pharmacy.hours}</p>
+            <p><strong>Services:</strong> ${pharmacy.services}</p>
+            <p class="mt-2"><strong>About:</strong> ${pharmacy.about}</p>
+            <div class="mt-2">
+              <strong>Available Drugs:</strong>
+              <ul class="list-disc list-inside text-gray-600 mt-1">
+                ${(pharmacy.drugs || []).map((d) => `<li>${d}</li>`).join("")}
+              </ul>
+            </div>
+            <button 
+              class="mt-3 bg-gray-300 text-gray-800 px-4 py-2 rounded-lg hover:bg-gray-400 transition w-full"
+              onclick="toggleDetails('${pharmacy.id}')">
+              Close Details
+            </button>
+          </div>
+        `;
+        pharmacyList.appendChild(card);
+      });
     }
 
-    window.updateProfile = updateProfile;
+    // 🔄 Toggle Details
+    window.toggleDetails = function (id) {
+      const details = document.getElementById(`details-${id}`);
+      details.classList.toggle("hidden");
+    };
   </script>
-</head>
-
-<body class="bg-sky-50 text-gray-800">
-
-  <!-- Navbar -->
-  <nav class="bg-white shadow-md sticky top-0 z-50">
-    <div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
-      <h1 class="text-2xl font-bold text-sky-600">PharmaConnect 💊</h1>
-      <div class="space-x-6">
-        <a href="#about" class="hover:text-sky-600 font-medium">About</a>
-        <a href="#company" class="hover:text-sky-600 font-medium">Company</a>
-        <a href="#services" class="hover:text-sky-600 font-medium">Services</a>
-        <button onclick="requestEditAccess()" class="bg-sky-600 text-white px-4 py-2 rounded-lg hover:bg-sky-700">Access Edit</button>
-      </div>
-    </div>
-  </nav>
-
-  <!-- Hero -->
-  <section class="bg-sky-600 text-white py-16 text-center">
-    <img id="pharmaPhoto" src="https://via.placeholder.com/150"
-      class="mx-auto rounded-full shadow-lg border-4 border-white mb-6 w-40 h-40 object-cover" alt="Profile Photo">
-    <h2 id="pharmaName" class="text-4xl font-bold">Pharmacist Name</h2>
-    <p id="pharmaTitle" class="text-lg mt-2">Pharmacist | Health Professional</p>
-  </section>
-
-  <!-- About -->
-  <section id="about" class="max-w-4xl mx-auto py-12 px-6 bg-white rounded-xl shadow mt-10">
-    <h3 class="text-3xl font-bold mb-4 text-sky-600">About Me</h3>
-    <p id="pharmaAbout" class="text-lg leading-relaxed">Loading profile...</p>
-  </section>
-
-  <!-- Company Info -->
-  <section id="company" class="max-w-4xl mx-auto py-12 px-6 bg-white rounded-xl shadow mt-10">
-    <h3 class="text-3xl font-bold mb-4 text-sky-600">Company</h3>
-    <p id="pharmaCompany" class="text-lg">Loading...</p>
-  </section>
-
-  <!-- Experience -->
-  <section id="experience" class="max-w-4xl mx-auto py-12 px-6 bg-white rounded-xl shadow mt-10">
-    <h3 class="text-3xl font-bold mb-4 text-sky-600">Experience</h3>
-    <p id="pharmaExperience" class="text-lg">Loading...</p>
-  </section>
-
-  <!-- Services -->
-  <section id="services" class="max-w-4xl mx-auto py-12 px-6 bg-white rounded-xl shadow mt-10">
-    <h3 class="text-3xl font-bold mb-4 text-sky-600">Services Offered</h3>
-    <p id="pharmaServices" class="text-lg">Loading...</p>
-  </section>
-
-  <!-- Update Section (Hidden by Default) -->
-  <section id="updateSection" class="hidden max-w-3xl mx-auto py-12 px-6 bg-white rounded-xl shadow mt-10">
-    <h3 class="text-2xl font-bold mb-6 text-sky-600">Update Profile</h3>
-    <form onsubmit="updateProfile(event)" class="space-y-4">
-      <input id="fullName" type="text" placeholder="Full Name" class="w-full p-3 border rounded-lg">
-      <input id="title" type="text" placeholder="Title / Specialty" class="w-full p-3 border rounded-lg">
-      <textarea id="about" placeholder="About Me" class="w-full p-3 border rounded-lg h-32"></textarea>
-      <input id="company" type="text" placeholder="Company Name" class="w-full p-3 border rounded-lg">
-      <textarea id="experience" placeholder="Experience" class="w-full p-3 border rounded-lg h-24"></textarea>
-      <textarea id="services" placeholder="Services Offered" class="w-full p-3 border rounded-lg h-24"></textarea>
-      <input id="linkedinInput" type="url" placeholder="LinkedIn URL" class="w-full p-3 border rounded-lg">
-      <input id="portfolioInput" type="url" placeholder="Portfolio URL" class="w-full p-3 border rounded-lg">
-      <input id="photo" type="file" accept="image/*" class="w-full p-2 border rounded-lg">
-      <button type="submit" class="w-full bg-sky-600 text-white py-3 rounded-lg hover:bg-sky-700 font-semibold">Save Changes</button>
-    </form>
-  </section>
-
-  <!-- Contact Links -->
-  <section class="bg-sky-600 text-white py-10 text-center mt-10">
-    <h3 class="text-2xl font-bold mb-4">Connect with Me</h3>
-    <div class="flex justify-center space-x-4">
-      <a id="pharmaEmail" href="#" class="bg-white text-sky-600 px-4 py-2 rounded-lg shadow">📧 Email</a>
-      <a id="linkedin" href="#" class="bg-white text-sky-600 px-4 py-2 rounded-lg shadow">🔗 LinkedIn</a>
-      <a id="portfolio" href="#" class="bg-white text-sky-600 px-4 py-2 rounded-lg shadow">💻 Portfolio</a>
-    </div>
-  </section>
-
-  <!-- Footer -->
-  <footer class="bg-gray-900 text-gray-300 py-4 text-center mt-10">
-    <p>&copy; 2025 PharmaConnect | Powered by AreaHealth</p>
-  </footer>
-
 </body>
 </html>
