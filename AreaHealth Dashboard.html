@@ -1,232 +1,118 @@
-<!-- 🔥 AreaHealth NG Dashboard (Sidebar Login/Logout Fixed) -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Dashboard - AreaHealth NG</title>
-
-  <!-- Tailwind CSS -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AreaHealth Dashboard</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          fontFamily: { sans: ['Inter', 'ui-sans-serif', 'system-ui'] },
-          colors: {
-            primary: { DEFAULT: '#2563eb' },
-            brand: '#06b6d4',
-          }
-        }
-      }
-    }
-  </script>
-
   <style>
-    .gradient-header {
-      background: linear-gradient(270deg,#06b6d4,#3b82f6,#8b5cf6,#ec4899);
-      background-size: 800% 800%;
-      animation: gradientShift 12s ease infinite;
+    body {
+      background: linear-gradient(135deg, #1a1c2c, #2d325a, #828CFF);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #333;
     }
-    @keyframes gradientShift {
-      0%{background-position:0% 50%}
-      50%{background-position:100% 50%}
-      100%{background-position:0% 50%}
+    .glass {
+      background: rgba(255, 255, 255, 0.2);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-radius: 1rem;
+      border: 1px solid rgba(255, 255, 255, 0.2);
     }
-    input[type="file"] { display: none; }
   </style>
 </head>
-<body class="bg-slate-50 text-slate-800">
-  <!-- Header -->
-  <header class="gradient-header text-white">
-    <div class="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
-      <div class="flex items-center gap-3">
-        <button id="sidebarToggle" class="md:hidden p-2 rounded-lg hover:bg-white/10">☰</button>
-        <h1 class="text-lg font-semibold tracking-tight">AreaHealth NG</h1>
-      </div>
-      <div class="flex items-center gap-3">
-        <div class="text-sm md:text-base" id="headerGreeting">Hello 👋</div>
-        <img id="headerPic" class="w-10 h-10 rounded-full ring-2 ring-white object-cover cursor-pointer"
-             title="Click to update profile picture"
-             onclick="document.getElementById('profilePicInput').click()">
+<body>
+  <div id="dashboard" class="glass p-8 w-[90%] max-w-3xl shadow-2xl hidden">
+    <div class="flex justify-between items-center mb-6">
+      <h1 class="text-2xl font-bold text-white">👋 Welcome to AreaHealth Dashboard</h1>
+      <button id="logoutBtn" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg">Logout</button>
+    </div>
+
+    <div class="flex flex-col md:flex-row gap-6 items-center">
+      <!-- Profile Image -->
+      <img id="profilePic" src="" alt="Profile Picture"
+           class="w-32 h-32 rounded-full border-4 border-white shadow-lg object-cover" />
+
+      <!-- User Info -->
+      <div class="text-white">
+        <p class="text-lg"><strong>Name:</strong> <span id="displayName">Loading...</span></p>
+        <p class="text-lg"><strong>Email:</strong> <span id="email">Loading...</span></p>
+        <p class="text-lg"><strong>Phone:</strong> <span id="phone">Not Provided</span></p>
+        <p class="text-lg"><strong>Role:</strong> <span id="role">Registered User</span></p>
+        <p class="text-lg"><strong>Joined:</strong> <span id="createdAt">Loading...</span></p>
       </div>
     </div>
-  </header>
 
-  <!-- Content Layout -->
-  <div class="max-w-7xl mx-auto px-4 py-6 flex">
-    <!-- Sidebar -->
-    <aside id="sidebar"
-      class="fixed md:static inset-y-0 left-0 w-64 transform -translate-x-full md:translate-x-0 transition-transform duration-300 z-40
-             bg-white shadow md:shadow-none">
-      <nav class="h-full p-4 space-y-1">
-        <a href="Update profile.html" class="flex items-center gap-2 px-3 py-2 rounded-lg bg-slate-100">🤵 Update profile info</a>
-        <a href="Pharmacies..html" class="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-slate-100">💊 Pharmacies</a>
-        <a href="Medication.html" class="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-slate-100">📦 Medications</a>
-        <a href="Nearby Services.html" class="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-slate-100">📍 Nearby Services</a>
-        <a href="#" class="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-slate-100">⚙ Settings</a>
-        
-        <!-- Dynamic Login/Logout button -->
-        <div id="authBtnContainer"></div>
-      </nav>
-    </aside>
+    <div class="mt-8 text-white">
+      <h2 class="text-xl font-semibold mb-2">About AreaHealth</h2>
+      <p class="mb-4">We connect patients directly to nearby pharmacies 📦💊 — saving you time and stress from moving store to store. Register, search, and get your medications easily!</p>
 
-    <!-- Overlay -->
-    <div id="overlay" class="fixed inset-0 bg-black/30 hidden z-30 md:hidden"></div>
-
-    <!-- Main -->
-    <main class="flex-1 md:ml-6">
-      <!-- Welcome -->
-      <section class="bg-white shadow-sm rounded-2xl p-5 mb-6">
-        <h2 class="text-xl sm:text-2xl font-semibold">
-          Hello, <span id="userName">User</span> 👋
-          <span id="verifiedBadge" class="hidden ml-2 text-xs px-2 py-1 rounded-full bg-green-100 text-green-700">Verified</span>
-        </h2>
-        <p class="text-slate-600">Welcome to your AreaHealth dashboard.</p>
-        <div class="mt-3 flex gap-2">
-          <button id="resendVerifyBtn" class="hidden text-xs px-3 py-2 rounded-lg border border-amber-300 text-amber-700 hover:bg-amber-50">
-            Resend verification
-          </button>
-          <label for="profilePicInput" class="cursor-pointer text-xs px-3 py-2 rounded-lg bg-primary text-white hover:bg-blue-700">
-            Update Profile Picture
-          </label>
-          <input type="file" id="profilePicInput" accept="image/*">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="p-4 bg-white/20 rounded-lg">
+          <h3 class="font-semibold text-lg">📱 Easy Access</h3>
+          <p>Search and order from multiple pharmacies within minutes.</p>
         </div>
-      </section>
-
-      <!-- Quick Stats -->
-      <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-        <div class="bg-white rounded-2xl shadow-sm p-4"><div>Email Status</div><div id="emailStatus" class="font-semibold">Checking…</div></div>
-        <div class="bg-white rounded-2xl shadow-sm p-4"><div>Last Login</div><div id="lastLogin" class="font-semibold">—</div></div>
-        <div class="bg-white rounded-2xl shadow-sm p-4"><div>Documents</div><div id="docCount" class="font-semibold">0</div></div>
-        <div class="bg-white rounded-2xl shadow-sm p-4"><div>Member Since</div><div id="memberSince" class="font-semibold">—</div></div>
-      </section>
-
-      <!-- Profile Card -->
-      <section class="bg-white rounded-2xl shadow-sm p-5 mb-6 text-center">
-        <div class="flex flex-col items-center gap-4">
-          <img id="userPic"
-               class="mx-auto w-20 h-20 rounded-full object-cover ring-2 ring-primary/20"
-               alt="Profile">
-          <div>
-            <div class="text-lg font-semibold" id="profileName">—</div>
-            <div class="text-slate-600 text-sm" id="userEmail">—</div>
-          </div>
+        <div class="p-4 bg-white/20 rounded-lg">
+          <h3 class="font-semibold text-lg">🏥 Pharmacy Partnership</h3>
+          <p>Pharmacies register and upload their inventory to serve patients faster.</p>
         </div>
-      </section>
-
-      <footer class="text-center text-sm text-slate-500 py-6">© 2025 AreaHealth NG</footer>
-    </main>
+      </div>
+    </div>
   </div>
 
-<script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
-  import { getAuth, onAuthStateChanged, sendEmailVerification, signOut } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js";
-  import { getFirestore, doc, getDoc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js";
-  import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-storage.js";
+  <div id="loading" class="text-center text-white">
+    <p class="text-lg">Loading your dashboard...</p>
+  </div>
 
-  const firebaseConfig = {
-    apiKey: "AIzaSyC79cSDPpC4bbhlRBpu7WhON3j8AMxMLyE",
-    authDomain: "areahealth-ng.firebaseapp.com",
-    projectId: "areahealth-ng",
-    storageBucket: "areahealth-ng.appspot.com",
-    messagingSenderId: "986651954303",
-    appId: "1:986651954303:web:3f38dc24e246b7047d834a"
-  };
-  const app = initializeApp(firebaseConfig);
-  const auth = getAuth(app);
-  const db = getFirestore(app);
-  const storage = getStorage(app);
+  <!-- Firebase -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
+    import { 
+      getAuth, 
+      onAuthStateChanged, 
+      signOut 
+    } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
 
-  const authBtnContainer = document.getElementById("authBtnContainer");
+    // ✅ Your Firebase Config
+    const firebaseConfig = {
+      apiKey: "AIzaSyC79cSDPpC4bbhlRBpu7WhON3j8AMxMLyE",
+      authDomain: "areahealth-ng.firebaseapp.com",
+      projectId: "areahealth-ng",
+      storageBucket: "areahealth-ng.appspot.com",
+      messagingSenderId: "986651954303",
+      appId: "1:986651954303:web:3f38dc24e246b7047d834a"
+    };
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
 
-  // Handle auth state
-  onAuthStateChanged(auth, async (u) => {
-    authBtnContainer.innerHTML = ""; // Clear container first
+    const dashboard = document.getElementById("dashboard");
+    const loading = document.getElementById("loading");
+    const logoutBtn = document.getElementById("logoutBtn");
 
-    if (!u) {
-      // Show login button
-      authBtnContainer.innerHTML = `
-        <a href="AreaHealth Login.html" class="w-full flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-green-50 hover:text-green-600">
-          🔑 Login
-        </a>`;
-      return;
-    }
+    // 🔹 Check Auth State
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        // ✅ User logged in
+        document.getElementById("displayName").textContent = user.displayName || "No Name";
+        document.getElementById("email").textContent = user.email || "No Email";
+        document.getElementById("profilePic").src = user.photoURL || "https://www.svgrepo.com/show/382106/profile-user.svg";
+        document.getElementById("createdAt").textContent = new Date(user.metadata.creationTime).toLocaleDateString();
 
-    // Show logout button
-    authBtnContainer.innerHTML = `
-      <button onclick="logout()" class="w-full flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-rose-50 hover:text-rose-600">
-        🚪 Logout
-      </button>`;
+        loading.classList.add("hidden");
+        dashboard.classList.remove("hidden");
+      } else {
+        // ❌ Not logged in → redirect to login
+        window.location.href = "AreaHealth Login.html";
+      }
+    });
 
-    const userDocRef = doc(db, 'users', u.uid);
-    let snap = await getDoc(userDocRef);
-    let userData = snap.exists() ? snap.data() : {};
-
-    const updates = {};
-    if (!userData.registeredAt) updates.registeredAt = serverTimestamp();
-    if (!userData.name) updates.name = u.displayName || u.email.split('@')[0];
-    if (!userData.profilePic) updates.profilePic = "AreaHealth NG Folder/IMG-20250904-WA0010.jpg";
-    await setDoc(userDocRef, updates, { merge: true });
-
-    snap = await getDoc(userDocRef);
-    userData = snap.data();
-
-    // Populate UI
-    const name = userData.name;
-    document.getElementById("userName").textContent = name;
-    document.getElementById("profileName").textContent = name;
-    document.getElementById("headerGreeting").textContent = `Hello, ${name} 👋`;
-    document.getElementById("userEmail").textContent = u.email;
-    document.getElementById("userPic").src = userData.profilePic;
-    document.getElementById("headerPic").src = userData.profilePic;
-
-    document.getElementById("emailStatus").textContent = u.emailVerified ? 'Verified' : 'Not verified';
-    document.getElementById("verifiedBadge").classList.toggle('hidden', !u.emailVerified);
-    document.getElementById("resendVerifyBtn").classList.toggle('hidden', u.emailVerified);
-    document.getElementById("lastLogin").textContent = new Date(u.metadata.lastSignInTime).toLocaleString();
-    document.getElementById("memberSince").textContent = userData.registeredAt?.toDate?.() ? userData.registeredAt.toDate().toLocaleDateString() : '—';
-  });
-
-  // Upload profile pic
-  document.getElementById("profilePicInput").addEventListener("change", async (e) => {
-    const file = e.target.files[0];
-    if (!file || !auth.currentUser) return;
-    const fileRef = ref(storage, `profilePics/${auth.currentUser.uid}`);
-    await uploadBytes(fileRef, file);
-    const url = await getDownloadURL(fileRef);
-    await setDoc(doc(db, 'users', auth.currentUser.uid), { profilePic: url }, { merge: true });
-    document.getElementById("userPic").src = url;
-    document.getElementById("headerPic").src = url;
-  });
-
-  // Resend verification
-  document.getElementById("resendVerifyBtn").addEventListener("click", async () => {
-    if (auth.currentUser) {
-      await sendEmailVerification(auth.currentUser);
-      alert("Verification email sent!");
-    }
-  });
-
-  // Logout
-  window.logout = async () => { 
-    await signOut(auth); 
-    window.location.href = "AreaHealth Login.html"; 
-  }
-
-  // Sidebar toggle
-  const sidebarToggle = document.getElementById("sidebarToggle");
-  const sidebar = document.getElementById("sidebar");
-  const overlay = document.getElementById("overlay");
-  sidebarToggle.addEventListener("click", () => {
-    sidebar.classList.toggle("-translate-x-full");
-    overlay.classList.toggle("hidden");
-  });
-  overlay.addEventListener("click", () => {
-    sidebar.classList.add("-translate-x-full");
-    overlay.classList.add("hidden");
-  });
-</script>
+    // 🔹 Logout
+    logoutBtn.addEventListener("click", async () => {
+      await signOut(auth);
+      window.location.href = "AreaHealth Login.html";
+    });
+  </script>
 </body>
 </html>
