@@ -9,73 +9,154 @@
     body {
       background: linear-gradient(135deg, #1a1c2c, #2d325a, #828CFF);
       min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: #333;
+      color: white;
+      font-family: 'Inter', sans-serif;
     }
     .glass {
       background: rgba(255, 255, 255, 0.2);
       backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
-      border-radius: 1rem;
       border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 1rem;
+    }
+    .sidebar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      height: 100%;
+      width: 250px;
+      background: rgba(0, 0, 0, 0.4);
+      backdrop-filter: blur(10px);
+      padding: 2rem 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+    .sidebar a {
+      color: #fff;
+      padding: 0.75rem 1rem;
+      border-radius: 0.5rem;
+      text-decoration: none;
+      transition: background 0.3s;
+    }
+    .sidebar a:hover {
+      background: rgba(255, 255, 255, 0.2);
+    }
+    .content {
+      margin-left: 270px;
+      padding: 2rem;
     }
   </style>
 </head>
 <body>
-  <div id="dashboard" class="glass p-8 w-[90%] max-w-3xl shadow-2xl hidden">
-    <div class="flex justify-between items-center mb-6">
-      <h1 class="text-2xl font-bold text-white">👋 Welcome to AreaHealth Dashboard</h1>
-      <button id="logoutBtn" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg">Logout</button>
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <h2 class="text-2xl font-bold mb-4">💊 AreaHealth</h2>
+    <a href="AreaHealth Dashboard.html">🏠 Home</a>
+    <a href="Pharmacies.html">💊 Find Pharmacies</a>
+    <a href="Medication.html">📦 Medications</a>
+    <a href="Nearby Services.html">📍 Nearby Services</a>
+    <a href="#">⚙ Settings</a>
+    <a href="AreaHealth Login.html" id="logoutBtn">🚪 Logout</a>
+  </div>
+
+  <!-- Main Content -->
+  <div class="content">
+    <div id="loading" class="text-center text-white">
+      <p class="text-lg">Loading your dashboard...</p>
     </div>
 
-    <div class="flex flex-col md:flex-row gap-6 items-center">
-      <!-- Profile Image -->
-      <img id="profilePic" src="" alt="Profile Picture"
-           class="w-32 h-32 rounded-full border-4 border-white shadow-lg object-cover" />
+    <div id="dashboard" class="hidden">
+      <!-- Hero Section -->
+      <section class="mb-8">
+        <h1 class="text-3xl font-bold mb-2">👋 Welcome, <span id="displayName">Loading...</span></h1>
+        <p class="text-white/80">Your healthcare companion is ready to serve.</p>
+      </section>
 
-      <!-- User Info -->
-      <div class="text-white">
-        <p class="text-lg"><strong>Name:</strong> <span id="displayName">Loading...</span></p>
-        <p class="text-lg"><strong>Email:</strong> <span id="email">Loading...</span></p>
-        <p class="text-lg"><strong>Phone:</strong> <span id="phone">Not Provided</span></p>
-        <p class="text-lg"><strong>Role:</strong> <span id="role">Registered User</span></p>
-        <p class="text-lg"><strong>Joined:</strong> <span id="createdAt">Loading...</span></p>
-      </div>
-    </div>
-
-    <div class="mt-8 text-white">
-      <h2 class="text-xl font-semibold mb-2">About AreaHealth</h2>
-      <p class="mb-4">We connect patients directly to nearby pharmacies 📦💊 — saving you time and stress from moving store to store. Register, search, and get your medications easily!</p>
-
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div class="p-4 bg-white/20 rounded-lg">
-          <h3 class="font-semibold text-lg">📱 Easy Access</h3>
-          <p>Search and order from multiple pharmacies within minutes.</p>
+      <!-- Profile Section -->
+      <section class="glass p-6 mb-8 flex flex-col md:flex-row gap-6 items-center">
+        <img id="profilePic" src="https://www.svgrepo.com/show/382106/profile-user.svg"
+             alt="Profile Picture"
+             class="w-32 h-32 rounded-full border-4 border-white shadow-lg object-cover" />
+        <div>
+          <p class="text-lg"><strong>Name:</strong> <span id="displayNameInfo">Loading...</span></p>
+          <p class="text-lg"><strong>Email:</strong> <span id="email">Loading...</span></p>
+          <p class="text-lg"><strong>Phone:</strong> <span id="phone">Not Provided</span></p>
+          <p class="text-lg"><strong>Role:</strong> <span id="role">Registered User</span></p>
+          <p class="text-lg"><strong>Joined:</strong> <span id="createdAt">Loading...</span></p>
         </div>
-        <div class="p-4 bg-white/20 rounded-lg">
-          <h3 class="font-semibold text-lg">🏥 Pharmacy Partnership</h3>
-          <p>Pharmacies register and upload their inventory to serve patients faster.</p>
+      </section>
+
+      <!-- Quick Services -->
+      <section class="mb-8">
+        <h2 class="text-2xl font-semibold mb-4">🚀 Quick Access</h2>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div class="glass p-4 text-center">
+            <h3 class="text-xl font-bold">💊 Pharmacies</h3>
+            <p>Find nearby pharmacies and check drug availability.</p>
+          </div>
+          <div class="glass p-4 text-center">
+            <h3 class="text-xl font-bold">📦 Medications</h3>
+            <p>Search and order your prescribed drugs with ease.</p>
+          </div>
+          <div class="glass p-4 text-center">
+            <h3 class="text-xl font-bold">📍 Services</h3>
+            <p>Discover healthcare services near your location.</p>
+          </div>
         </div>
-      </div>
+      </section>
+
+      <!-- About Section -->
+      <section class="glass p-6 mb-8">
+        <h2 class="text-2xl font-semibold mb-2">🌍 About AreaHealth</h2>
+        <p>We connect patients directly to pharmacies, eliminating stress and ensuring access to medications at your fingertips. With AreaHealth, the pharmacy is at your doorstep.</p>
+      </section>
+
+      <!-- Mission & Vision -->
+      <section class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+        <div class="glass p-6">
+          <h3 class="text-xl font-semibold mb-2">🎯 Mission</h3>
+          <p>To simplify healthcare access through technology, connecting patients to trusted pharmacies with speed and convenience.</p>
+        </div>
+        <div class="glass p-6">
+          <h3 class="text-xl font-semibold mb-2">🚀 Vision</h3>
+          <p>To become the most trusted health access platform in Africa, bridging gaps and improving healthcare delivery.</p>
+        </div>
+      </section>
+
+      <!-- Analytics -->
+      <section class="mb-8">
+        <h2 class="text-2xl font-semibold mb-4">📊 Your Overview</h2>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div class="glass p-4 text-center">
+            <h3 class="text-3xl font-bold">120+</h3>
+            <p>Medications Searched</p>
+          </div>
+          <div class="glass p-4 text-center">
+            <h3 class="text-3xl font-bold">45+</h3>
+            <p>Pharmacies Connected</p>
+          </div>
+          <div class="glass p-4 text-center">
+            <h3 class="text-3xl font-bold">85+</h3>
+            <p>Services Accessed</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Contact -->
+      <section class="glass p-6">
+        <h2 class="text-2xl font-semibold mb-2">📞 Support</h2>
+        <p>Email: <a href="mailto:support@areahealth.ng" class="underline">support@areahealth.ng</a></p>
+        <p>Phone: +234 8169395022</p>
+        <p>Website: <a href="#" class="underline">www.areahealth.ng</a></p>
+      </section>
     </div>
   </div>
 
-  <div id="loading" class="text-center text-white">
-    <p class="text-lg">Loading your dashboard...</p>
-  </div>
-
-  <!-- Firebase -->
+  <!-- Firebase Auth -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
-    import { 
-      getAuth, 
-      onAuthStateChanged, 
-      signOut 
-    } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
 
-    // ✅ Your Firebase Config
     const firebaseConfig = {
       apiKey: "AIzaSyC79cSDPpC4bbhlRBpu7WhON3j8AMxMLyE",
       authDomain: "areahealth-ng.firebaseapp.com",
@@ -84,6 +165,7 @@
       messagingSenderId: "986651954303",
       appId: "1:986651954303:web:3f38dc24e246b7047d834a"
     };
+
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
 
@@ -91,25 +173,23 @@
     const loading = document.getElementById("loading");
     const logoutBtn = document.getElementById("logoutBtn");
 
-    // 🔹 Check Auth State
     onAuthStateChanged(auth, (user) => {
       if (user) {
-        // ✅ User logged in
-        document.getElementById("displayName").textContent = user.displayName || "No Name";
-        document.getElementById("email").textContent = user.email || "No Email";
+        document.getElementById("displayName").textContent = user.displayName || "User";
+        document.getElementById("displayNameInfo").textContent = user.displayName || "User";
+        document.getElementById("email").textContent = user.email;
         document.getElementById("profilePic").src = user.photoURL || "https://www.svgrepo.com/show/382106/profile-user.svg";
         document.getElementById("createdAt").textContent = new Date(user.metadata.creationTime).toLocaleDateString();
 
         loading.classList.add("hidden");
         dashboard.classList.remove("hidden");
       } else {
-        // ❌ Not logged in → redirect to login
         window.location.href = "AreaHealth Login.html";
       }
     });
 
-    // 🔹 Logout
-    logoutBtn.addEventListener("click", async () => {
+    logoutBtn.addEventListener("click", async (e) => {
+      e.preventDefault();
       await signOut(auth);
       window.location.href = "AreaHealth Login.html";
     });
