@@ -5,128 +5,141 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>AreaHealth Dashboard</title>
   <script src="https://cdn.tailwindcss.com"></script>
+
   <style>
     body {
       background: linear-gradient(135deg, #1a1c2c, #2d325a, #828CFF);
       min-height: 100vh;
       color: white;
       font-family: 'Inter', sans-serif;
+      transition: background 1s ease-in-out;
     }
+
     .glass {
       background: rgba(255, 255, 255, 0.2);
       backdrop-filter: blur(16px);
       border: 1px solid rgba(255, 255, 255, 0.2);
       border-radius: 1rem;
     }
+
     .sidebar {
-      position: fixed;
-      top: 0;
-      left: 0;
-      height: 100%;
-      width: 250px;
-      background: rgba(0, 0, 0, 0.4);
-      backdrop-filter: blur(10px);
+      background: rgba(0, 0, 0, 0.6);
+      backdrop-filter: blur(12px);
       padding: 2rem 1rem;
-      display: flex;
-      flex-direction: column;
-      gap: 1rem;
+      width: 250px;
+      transition: transform 0.3s ease-in-out;
     }
-    .sidebar a {
-      color: #fff;
-      padding: 0.75rem 1rem;
-      border-radius: 0.5rem;
-      text-decoration: none;
-      transition: background 0.3s;
+
+    @media (max-width: 768px) {
+      .sidebar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        height: 100%;
+        transform: translateX(-100%);
+        z-index: 50;
+      }
+      .sidebar.open {
+        transform: translateX(0);
+      }
+      .menu-btn {
+        display: block;
+      }
     }
-    .sidebar a:hover {
-      background: rgba(255, 255, 255, 0.2);
-    }
-    .content {
-      margin-left: 270px;
-      padding: 2rem;
+
+    @media (min-width: 769px) {
+      .menu-btn {
+        display: none;
+      }
     }
   </style>
 </head>
 <body>
+  <!-- Mobile Menu Button -->
+  <button id="menuBtn" class="menu-btn fixed top-4 left-4 z-50 bg-white text-black p-2 rounded-md shadow-md md:hidden">
+    ☰
+  </button>
+
   <!-- Sidebar -->
-  <div class="sidebar">
-    <h2 class="text-2xl font-bold mb-4">💊 AreaHealth</h2>
-    <a href="AreaHealth Dashboard.html">🏠 Home</a>
-    <a href="Pharmacies.html">💊 Find Pharmacies</a>
-    <a href="Medication.html">📦 Medications</a>
-    <a href="Nearby Services.html">📍 Nearby Services</a>
-    <a href="#">⚙ Settings</a>
-    <a href="AreaHealth Login.html" id="logoutBtn">🚪 Logout</a>
+  <div id="sidebar" class="sidebar fixed md:static md:translate-x-0">
+    <h2 class="text-2xl font-bold mb-6 text-center">💊 AreaHealth</h2>
+    <nav class="flex flex-col gap-3">
+      <a href="AreaHealth Dashboard.html" class="hover:bg-white/20 p-2 rounded-lg">🏠 Home</a>
+      <a href="Pharmacies.html" class="hover:bg-white/20 p-2 rounded-lg">💊 Find Pharmacies</a>
+      <a href="Medication.html" class="hover:bg-white/20 p-2 rounded-lg">📦 Medications</a>
+      <a href="Nearby Services.html" class="hover:bg-white/20 p-2 rounded-lg">📍 Nearby Services</a>
+      <a href="#" class="hover:bg-white/20 p-2 rounded-lg">⚙ Settings</a>
+      <a href="AreaHealth Login.html" id="logoutBtn" class="hover:bg-white/20 p-2 rounded-lg">🚪 Logout</a>
+    </nav>
   </div>
 
-  <!-- Main Content -->
-  <div class="content">
-    <div id="loading" class="text-center text-white">
-      <p class="text-lg">Loading your dashboard...</p>
+  <!-- Content -->
+  <div class="md:ml-[260px] p-6">
+    <div id="loading" class="text-center mt-20 text-white">
+      <p class="text-lg animate-pulse">Loading your dashboard...</p>
     </div>
 
-    <div id="dashboard" class="hidden">
-      <!-- Hero Section -->
-      <section class="mb-8">
+    <div id="dashboard" class="hidden space-y-8">
+      <!-- Hero -->
+      <section>
         <h1 class="text-3xl font-bold mb-2">👋 Welcome, <span id="displayName">Loading...</span></h1>
         <p class="text-white/80">Your healthcare companion is ready to serve.</p>
       </section>
 
-      <!-- Profile Section -->
-      <section class="glass p-6 mb-8 flex flex-col md:flex-row gap-6 items-center">
+      <!-- Profile -->
+      <section class="glass p-6 flex flex-col sm:flex-row items-center gap-6">
         <img id="profilePic" src="https://www.svgrepo.com/show/382106/profile-user.svg"
-             alt="Profile Picture"
-             class="w-32 h-32 rounded-full border-4 border-white shadow-lg object-cover" />
+          class="w-24 h-24 sm:w-32 sm:h-32 rounded-full border-4 border-white shadow-lg object-cover" />
         <div>
-          <p class="text-lg"><strong>Name:</strong> <span id="displayNameInfo">Loading...</span></p>
-          <p class="text-lg"><strong>Email:</strong> <span id="email">Loading...</span></p>
-          <p class="text-lg"><strong>Phone:</strong> <span id="phone">Not Provided</span></p>
-          <p class="text-lg"><strong>Role:</strong> <span id="role">Registered User</span></p>
-          <p class="text-lg"><strong>Joined:</strong> <span id="createdAt">Loading...</span></p>
+          <p><strong>Name:</strong> <span id="displayNameInfo">Loading...</span></p>
+          <p><strong>Email:</strong> <span id="email">Loading...</span></p>
+          <p><strong>Phone:</strong> <span id="phone">Not Provided</span></p>
+          <p><strong>Role:</strong> Registered User</p>
+          <p><strong>Joined:</strong> <span id="createdAt">Loading...</span></p>
         </div>
       </section>
 
-      <!-- Quick Services -->
-      <section class="mb-8">
+      <!-- Quick Access -->
+      <section>
         <h2 class="text-2xl font-semibold mb-4">🚀 Quick Access</h2>
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           <div class="glass p-4 text-center">
-            <h3 class="text-xl font-bold">💊 Pharmacies</h3>
+            <h3 class="text-xl font-bold mb-1">💊 Pharmacies</h3>
             <p>Find nearby pharmacies and check drug availability.</p>
           </div>
           <div class="glass p-4 text-center">
-            <h3 class="text-xl font-bold">📦 Medications</h3>
+            <h3 class="text-xl font-bold mb-1">📦 Medications</h3>
             <p>Search and order your prescribed drugs with ease.</p>
           </div>
           <div class="glass p-4 text-center">
-            <h3 class="text-xl font-bold">📍 Services</h3>
+            <h3 class="text-xl font-bold mb-1">📍 Services</h3>
             <p>Discover healthcare services near your location.</p>
           </div>
         </div>
       </section>
 
-      <!-- About Section -->
-      <section class="glass p-6 mb-8">
+      <!-- About -->
+      <section class="glass p-6">
         <h2 class="text-2xl font-semibold mb-2">🌍 About AreaHealth</h2>
-        <p>We connect patients directly to pharmacies, eliminating stress and ensuring access to medications at your fingertips. With AreaHealth, the pharmacy is at your doorstep.</p>
+        <p>We connect patients directly to pharmacies, ensuring access to medications without stress. With AreaHealth, healthcare is just a click away — your well-being is our priority.</p>
       </section>
 
       <!-- Mission & Vision -->
-      <section class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+      <section class="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div class="glass p-6">
           <h3 class="text-xl font-semibold mb-2">🎯 Mission</h3>
           <p>To simplify healthcare access through technology, connecting patients to trusted pharmacies with speed and convenience.</p>
         </div>
         <div class="glass p-6">
           <h3 class="text-xl font-semibold mb-2">🚀 Vision</h3>
-          <p>To become the most trusted health access platform in Africa, bridging gaps and improving healthcare delivery.</p>
+          <p>To become Africa’s most trusted healthcare access platform, bridging gaps and improving health outcomes for all.</p>
         </div>
       </section>
 
-      <!-- Analytics -->
-      <section class="mb-8">
+      <!-- Overview -->
+      <section>
         <h2 class="text-2xl font-semibold mb-4">📊 Your Overview</h2>
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <div class="glass p-4 text-center">
             <h3 class="text-3xl font-bold">120+</h3>
             <p>Medications Searched</p>
@@ -142,17 +155,17 @@
         </div>
       </section>
 
-      <!-- Contact -->
+      <!-- Support -->
       <section class="glass p-6">
         <h2 class="text-2xl font-semibold mb-2">📞 Support</h2>
         <p>Email: <a href="mailto:support@areahealth.ng" class="underline">support@areahealth.ng</a></p>
         <p>Phone: +234 8169395022</p>
-        <p>Website: <a href="#" class="underline">www.areahealth.ng</a></p>
+        <p>Website: <a href="https://www.areahealthng.com" class="underline">www.areahealthng.com</a></p>
       </section>
     </div>
   </div>
 
-  <!-- Firebase Auth -->
+  <!-- Firebase -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
     import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
@@ -172,7 +185,15 @@
     const dashboard = document.getElementById("dashboard");
     const loading = document.getElementById("loading");
     const logoutBtn = document.getElementById("logoutBtn");
+    const menuBtn = document.getElementById("menuBtn");
+    const sidebar = document.getElementById("sidebar");
 
+    // Toggle Sidebar
+    menuBtn.addEventListener("click", () => {
+      sidebar.classList.toggle("open");
+    });
+
+    // Auth State
     onAuthStateChanged(auth, (user) => {
       if (user) {
         document.getElementById("displayName").textContent = user.displayName || "User";
