@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pharmacy Registration | AreaHealth NG</title>
+
+  <!-- TailwindCSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: { extend: { colors: { primary: "#0284c7", accent: "#0ea5e9" } } }
+    }
+  </script>
+
+  <!-- Firebase -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyC79cSDPpC4bbhlRBpu7WhON3j8AMxMLyE",
+      authDomain: "areahealth-ng.firebaseapp.com",
+      projectId: "areahealth-ng",
+      storageBucket: "areahealth-ng.appspot.com",
+      messagingSenderId: "986651954303",
+      appId: "1:986651954303:web:3f38dc24e246b7047d834a"
+    };
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+
+    onAuthStateChanged(auth, (user) => {
+      if (!user) window.location.href = "AreaHealth Login.html";
+      else {
+        document.getElementById("userName").innerText = user.displayName || "Pharmacist";
+        document.getElementById("userEmail").innerText = user.email || "";
+        document.getElementById("userPhoto").src = user.photoURL || "placeholder-photo.jpg";
+      }
+    });
+  </script>
+
+  <!-- jsPDF & QRCode -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
+  <!-- Google Maps -->
+  <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_GOOGLE_MAPS_API_KEY&libraries=places"></script>
+</head>
+
+<body class="bg-sky-50 min-h-screen flex items-center justify-center p-4">
+  <div class="bg-white max-w-4xl w-full rounded-2xl shadow-2xl p-8 space-y-8 border border-blue-100">
+    <!-- Header -->
+    <div class="flex flex-col md:flex-row items-center justify-between border-b pb-4">
+      <div class="flex items-center gap-4">
+        <img id="userPhoto" src="placeholder-photo.jpg" alt="User" class="w-16 h-16 rounded-full border-2 border-primary shadow">
+        <div>
+          <h1 id="userName" class="text-xl font-bold text-primary">Pharmacist</h1>
+          <p id="userEmail" class="text-gray-600 text-sm">email@example.com</p>
+        </div>
+      </div>
+      <img src="areahealth-logo.png" alt="AreaHealth Logo" class="w-16 h-16 mt-4 md:mt-0">
+    </div>
+
+    <!-- Intro -->
+    <div>
+      <h2 class="text-2xl font-bold text-primary mb-2">Welcome to AreaHealth NG 👋</h2>
+      <p class="text-gray-600">Please fill in your pharmacy details below. It takes less than 5 minutes.</p>
+    </div>
+
+    <!-- Form -->
+    <form id="pharmacyForm" action="https://formsubmit.co/onyekaudechukwum@gmail.com" method="POST" class="space-y-8">
+      <input type="hidden" name="_cc" value="areahealthng@gmail.com,onyekamiracle08@gmail.com">
+      <input type="hidden" name="_subject" value="New Pharmacy Registration - AreaHealth NG">
+      <input type="hidden" name="_captcha" value="false">
+
+      <!-- SECTION 1 -->
+      <section>
+        <h3 class="text-lg font-semibold border-b pb-2 mb-4">🧾 SECTION 1: Pharmacy Information</h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div><label>Pharmacy Name</label><input type="text" name="Pharmacy Name" required class="w-full border rounded p-2"></div>
+          <div><label>Owner/Manager’s Name</label><input type="text" name="Manager Name" required class="w-full border rounded p-2"></div>
+          <div><label>Phone Number</label><input type="tel" name="Phone" required class="w-full border rounded p-2"></div>
+          <div><label>WhatsApp Number</label><input type="tel" name="WhatsApp" class="w-full border rounded p-2"></div>
+          <div class="md:col-span-2"><label>Address</label><textarea name="Address" rows="2" required class="w-full border rounded p-2"></textarea></div>
+          <div><label>Opening Hours</label><input type="text" name="Opening Hours" placeholder="8am–8pm Mon–Sat" required class="w-full border rounded p-2"></div>
+          <div><label>Email (optional)</label><input type="email" name="Email" class="w-full border rounded p-2"></div>
+        </div>
+      </section>
+
+      <!-- SECTION 2 -->
+      <section>
+        <h3 class="text-lg font-semibold border-b pb-2 mb-4">💊 SECTION 2: Drug Information</h3>
+        <p class="text-gray-600 mb-2">Tick all available drugs:</p>
+        <div class="grid grid-cols-2 md:grid-cols-3 gap-2">
+          <label><input type="checkbox" name="Drugs" value="Paracetamol" class="mr-2">Paracetamol</label>
+          <label><input type="checkbox" name="Drugs" value="Ibuprofen" class="mr-2">Ibuprofen</label>
+          <label><input type="checkbox" name="Drugs" value="Amoxicillin" class="mr-2">Amoxicillin</label>
+          <label><input type="checkbox" name="Drugs" value="Metformin" class="mr-2">Metformin</label>
+          <label><input type="checkbox" name="Drugs" value="Insulin" class="mr-2">Insulin</label>
+          <label><input type="checkbox" name="Drugs" value="Azithromycin" class="mr-2">Azithromycin</label>
+          <label><input type="checkbox" name="Drugs" value="Cough Syrup" class="mr-2">Cough Syrup</label>
+          <label><input type="checkbox" name="Drugs" value="Vitamin C" class="mr-2">Vitamin C</label>
+        </div>
+      </section>
+
+      <!-- MAP -->
+      <section>
+        <h3 class="text-lg font-semibold border-b pb-2 mb-4">📍 SECTION 3: Pharmacy Location</h3>
+        <div id="map" class="w-full h-64 border-2 border-primary rounded-lg"></div>
+        <input type="hidden" id="latitude" name="Latitude">
+        <input type="hidden" id="longitude" name="Longitude">
+      </section>
+
+      <!-- Agreement -->
+      <div class="flex items-start gap-2">
+        <input type="checkbox" required class="mt-1">
+        <span>I agree that the provided information is accurate and can be used to list my pharmacy on AreaHealth NG.</span>
+      </div>
+
+      <!-- Submit -->
+      <div class="text-center mt-6">
+        <button type="submit" class="bg-primary hover:bg-accent text-white px-8 py-3 rounded-lg font-semibold shadow-lg">Submit Form</button>
+        <p id="successMsg" class="hidden mt-4 text-green-600 font-semibold">✅ Submitted successfully!</p>
+      </div>
+    </form>
+  </div>
+
+  <script>
+    // MAP PICKER
+    let map, marker;
+    function initMap() {
+      map = new google.maps.Map(document.getElementById("map"), {
+        center: { lat: 4.912, lng: 6.274 }, zoom: 13,
+      });
+      marker = new google.maps.Marker({ position: map.getCenter(), map, draggable: true });
+      google.maps.event.addListener(marker, "dragend", () => {
+        document.getElementById("latitude").value = marker.getPosition().lat();
+        document.getElementById("longitude").value = marker.getPosition().lng();
+      });
+    }
+    window.initMap = initMap;
+
+    // FORM SUBMISSION
+    const form = document.getElementById("pharmacyForm");
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF();
+
+      // Header banner
+      doc.setFillColor(2, 132, 199);
+      doc.rect(0, 0, 220, 25, "F");
+      doc.addImage("areahealth-logo.png", "PNG", 10, 5, 20, 15);
+      doc.setTextColor(255, 255, 255);
+      doc.setFontSize(16);
+      doc.text("AreaHealth NG - Pharmacy Registration", 40, 15);
+
+      // QR Code
+      const qrDiv = document.createElement("div");
+      new QRCode(qrDiv, { text: "https://www.areahealthng.com", width: 80, height: 80 });
+      const qrImg = qrDiv.querySelector("img");
+      await new Promise((r) => qrImg.onload = r);
+      doc.addImage(qrImg.src, "PNG", 160, 40, 30, 30);
+
+      // Form data
+      const data = new FormData(form);
+      let y = 50;
+      doc.setTextColor(0, 0, 0);
+      doc.setFontSize(11);
+      doc.text("Registration Details:", 10, 45);
+      for (const [key, value] of data.entries()) {
+        doc.text(`${key}: ${value}`, 10, y);
+        y += 7;
+      }
+
+      // Footer
+      doc.setFontSize(10);
+      doc.text(`Generated: ${new Date().toLocaleString()}`, 10, 275);
+      doc.text("Thank you for registering with AreaHealth NG!", 120, 275);
+      doc.save("AreaHealth_Registration.pdf");
+
+      // WhatsApp confirmation
+      const name = data.get("Pharmacy Name");
+      const phone = data.get("WhatsApp") || data.get("Phone");
+      const msg = `Hello ${name}, your pharmacy registration with AreaHealth NG was successful.`;
+      window.open(`https://wa.me/${phone}?text=${encodeURIComponent(msg)}`, "_blank");
+
+      document.getElementById("successMsg").classList.remove("hidden");
+      setTimeout(() => form.submit(), 1500);
+    });
+  </script>
+</body>
+</html>
