@@ -16,7 +16,7 @@
   <!-- Firebase -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
-    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyC79cSDPpC4bbhlRBpu7WhON3j8AMxMLyE",
@@ -30,13 +30,19 @@
     const auth = getAuth(app);
 
     onAuthStateChanged(auth, (user) => {
-      if (!user) window.location.href = "AreaHealth Login.html";
-      else {
+      if (!user) {
+        window.location.href = "AreaHealth Login.html";
+      } else {
         document.getElementById("userName").innerText = user.displayName || "Pharmacist";
         document.getElementById("userEmail").innerText = user.email || "";
         document.getElementById("userPhoto").src = user.photoURL || "photosss-placeholder.jpg";
       }
     });
+
+    window.logoutUser = async function () {
+      await signOut(auth);
+      window.location.href = "AreaHealth Login.html";
+    };
   </script>
 
   <!-- jsPDF & QRCode -->
@@ -58,7 +64,10 @@
           <p id="userEmail" class="text-gray-600 text-sm">email@example.com</p>
         </div>
       </div>
-      <img src="areahealth-logo.png" alt="AreaHealth Logo" class="w-16 h-16 mt-4 md:mt-0">
+      <div class="flex items-center gap-4">
+        <img src="areahealth-logo.png" alt="AreaHealth Logo" class="w-16 h-16">
+        <button onclick="logoutUser()" class="bg-primary text-white px-3 py-1 rounded-md text-sm hover:bg-accent">Logout</button>
+      </div>
     </div>
 
     <!-- Intro -->
@@ -125,13 +134,11 @@
     </form>
   </div>
 
+  <!-- Submission Script -->
   <script>
-    // MAP PICKER
     let map, marker;
     function initMap() {
-      map = new google.maps.Map(document.getElementById("map"), {
-        center: { lat: 4.912, lng: 6.274 }, zoom: 13,
-      });
+      map = new google.maps.Map(document.getElementById("map"), { center: { lat: 4.912, lng: 6.274 }, zoom: 13 });
       marker = new google.maps.Marker({ position: map.getCenter(), map, draggable: true });
       google.maps.event.addListener(marker, "dragend", () => {
         document.getElementById("latitude").value = marker.getPosition().lat();
@@ -140,29 +147,34 @@
     }
     window.initMap = initMap;
 
-    // FORM SUBMISSION (enhanced)
     const form = document.getElementById("pharmacyForm");
+
+    const spinner = document.createElement("div");
+    spinner.innerHTML = `<div class="fixed inset-0 bg-white/80 flex flex-col items-center justify-center z-50">
+      <div class="animate-spin rounded-full h-12 w-12 border-t-4 border-b-4 border-primary"></div>
+      <p class="mt-4 text-primary font-semibold">Submitting your details...</p></div>`;
+    spinner.style.display = "none";
+    document.body.appendChild(spinner);
+
     form.addEventListener("submit", async (e) => {
       e.preventDefault();
+      spinner.style.display = "flex";
 
-      const { jsPDF } = window.jspdf;
-      const doc = new jsPDF();
+      try {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
 
-      // Get Firebase user details
-      const userName = document.getElementById("userName").innerText;
-      const userEmail = document.getElementById("userEmail").innerText;
-      const userPhoto = document.getElementById("userPhoto").src;
+        const userName = document.getElementById("userName").innerText;
+        const userEmail = document.getElementById("userEmail").innerText;
+        const userPhoto = document.getElementById("userPhoto").src;
 
-      // Header banner
-      doc.setFillColor(2, 132, 199);
-      doc.rect(0, 0, 220, 25, "F");
-      doc.addImage("areahealth-logo.png", "PNG", 10, 5, 20, 15);
-      doc.setTextColor(255, 255, 255);
-      doc.setFontSize(15);
-      doc.text("AreaHealth NG - Pharmacy Registration", 40, 15);
+        doc.setFillColor(2, 132, 199);
+        doc.rect(0, 0, 220, 25, "F");
+        doc.addImage("areahealth-logo.png", "PNG", 10, 5, 20, 15);
+        doc.setTextColor(255, 255, 255);
+        doc.setFontSize(15);
+        doc.text("AreaHealth NG - Pharmacy Registration", 40, 15);
 
-      // Pharmacist info
-      if (userPhoto) {
         try {
           const img = await fetch(userPhoto);
           const blob = await img.blob();
@@ -170,70 +182,62 @@
           reader.readAsDataURL(blob);
           await new Promise((r) => (reader.onload = r));
           doc.addImage(reader.result, "JPEG", 170, 30, 25, 25);
-        } catch (err) { console.log("User photo skipped"); }
-      }
-      doc.setTextColor(0, 0, 0);
-      doc.setFontSize(12);
-      doc.text(`Submitted by: ${userName}`, 10, 35);
-      doc.text(`Email: ${userEmail}`, 10, 42);
+        } catch {}
 
-      // QR Code
-      const qrDiv = document.createElement("div");
-      new QRCode(qrDiv, { text: "https://www.areahealthng.com", width: 80, height: 80 });
-      const qrImg = qrDiv.querySelector("img");
-      await new Promise((r) => (qrImg.onload = r));
-      doc.addImage(qrImg.src, "PNG", 160, 60, 30, 30);
+        doc.setTextColor(0, 0, 0);
+        doc.setFontSize(12);
+        doc.text(`Submitted by: ${userName}`, 10, 35);
+        doc.text(`Email: ${userEmail}`, 10, 42);
 
-      // Form data
-      const data = new FormData(form);
-      let y = 60;
-      doc.setFontSize(11);
-      doc.text("Registration Details:", 10, 55);
-      for (const [key, value] of data.entries()) {
-        if (key === "Drugs") continue;
-        doc.text(`${key}: ${value}`, 10, y);
-        y += 7;
-        if (y > 260) { doc.addPage(); y = 20; }
-      }
+        const qrDiv = document.createElement("div");
+        new QRCode(qrDiv, { text: "https://www.areahealthng.com", width: 80, height: 80 });
+        const qrImg = qrDiv.querySelector("img");
+        await new Promise((r) => (qrImg.onload = r));
+        doc.addImage(qrImg.src, "PNG", 160, 60, 30, 30);
 
-      // Drugs
-      const drugs = data.getAll("Drugs");
-      if (drugs.length) {
-        doc.text("Available Drugs:", 10, y + 5);
-        y += 12;
-        drugs.forEach((d) => { doc.text(`• ${d}`, 15, y); y += 6; });
-      }
+        const data = new FormData(form);
+        let y = 60;
+        doc.setFontSize(11);
+        doc.text("Registration Details:", 10, 55);
+        for (const [key, value] of data.entries()) {
+          if (key === "Drugs") continue;
+          doc.text(`${key}: ${value}`, 10, y);
+          y += 7;
+          if (y > 260) { doc.addPage(); y = 20; }
+        }
 
-      // Footer
-      doc.setFillColor(2, 132, 199);
-      doc.rect(0, 275, 220, 20, "F");
-      doc.setTextColor(255, 255, 255);
-      doc.setFontSize(10);
-      doc.text("Thank you for registering with AreaHealth NG!", 10, 285);
-      doc.text("www.areahealthng.com | info@areahealthng.com", 120, 285);
+        const drugs = data.getAll("Drugs");
+        if (drugs.length) {
+          doc.text("Available Drugs:", 10, y + 5);
+          y += 12;
+          drugs.forEach((d) => { doc.text(`• ${d}`, 15, y); y += 6; });
+        }
 
-      // Save PDF
-      doc.save("AreaHealth_Registration.pdf");
+        doc.setFillColor(2, 132, 199);
+        doc.rect(0, 275, 220, 20, "F");
+        doc.setTextColor(255, 255, 255);
+        doc.setFontSize(10);
+        doc.text("Thank you for registering with AreaHealth NG!", 10, 285);
+        doc.text("www.areahealthng.com | info@areahealthng.com", 120, 285);
 
-      // WhatsApp confirmation
-      const name = data.get("Pharmacy Name");
-      const phone = data.get("WhatsApp") || data.get("Phone");
-      const msg = `Hello ${name}, your pharmacy registration with AreaHealth NG was successful.`;
-      window.open(`https://wa.me/${phone}?text=${encodeURIComponent(msg)}`, "_blank");
+        const pdfBlob = doc.output("blob");
+        const formData = new FormData(form);
+        formData.append("_attachment", new File([pdfBlob], "AreaHealth_Registration.pdf", { type: "application/pdf" }));
 
-      document.getElementById("successMsg").classList.remove("hidden");
+        const name = data.get("Pharmacy Name");
+        const phone = data.get("WhatsApp") || data.get("Phone");
+        const msg = `Hello ${name}, your pharmacy registration with AreaHealth NG was successful.`;
+        window.open(`https://wa.me/${phone}?text=${encodeURIComponent(msg)}`, "_blank");
 
-      // Send to FormSubmit
-      const formDataObj = Object.fromEntries(data.entries());
-      try {
-        await fetch(form.action, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(formDataObj),
-        });
+        await fetch(form.action, { method: "POST", body: formData });
+
+        spinner.style.display = "none";
+        document.getElementById("successMsg").classList.remove("hidden");
+        form.reset();
       } catch (err) {
-        console.error("Email submission failed:", err);
-        alert("⚠️ Could not send email. Please try again later.");
+        console.error(err);
+        spinner.style.display = "none";
+        alert("❌ Submission failed. Please check your internet and try again.");
       }
     });
   </script>
