@@ -1,27 +1,23 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Pharmacy Registration | AreaHealth NG</title>
-  
-  <!-- Tailwind CSS -->
+
+  <!-- TailwindCSS -->
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
-      theme: {
-        extend: { colors: { primary: '#0284c7', accent: '#0ea5e9' } }
-      }
+      theme: { extend: { colors: { primary: "#0284c7", accent: "#0ea5e9" } } }
     }
   </script>
-  
-  <!-- Firebase SDK -->
+
+  <!-- Firebase -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
-    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
-    
-    // ✅ Replace with your Firebase config
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
+
     const firebaseConfig = {
       apiKey: "AIzaSyC79cSDPpC4bbhlRBpu7WhON3j8AMxMLyE",
       authDomain: "areahealth-ng.firebaseapp.com",
@@ -30,159 +26,111 @@
       messagingSenderId: "986651954303",
       appId: "1:986651954303:web:3f38dc24e246b7047d834a"
     };
-    
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
-    
+
     onAuthStateChanged(auth, (user) => {
       if (!user) {
         window.location.href = "AreaHealth Login.html";
       } else {
         document.getElementById("userName").innerText = user.displayName || "Pharmacist";
         document.getElementById("userEmail").innerText = user.email || "";
-        document.getElementById("userPhoto").src = user.photoURL || "placeholder.jpg";
+        document.getElementById("userPhoto").src = user.photoURL || "photosss-placeholder.jpg";
       }
     });
+
+    window.logoutUser = async function () {
+      await signOut(auth);
+      window.location.href = "AreaHealth Login.html";
+    };
   </script>
-  
-  <!-- jsPDF -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-  
-  <!-- Google Maps -->
-  <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_GOOGLE_MAPS_API_KEY&libraries=places"></script>
 </head>
 
 <body class="bg-sky-50 min-h-screen flex items-center justify-center p-4">
-  
   <div class="bg-white max-w-4xl w-full rounded-2xl shadow-2xl p-8 space-y-8 border border-blue-100">
-    
     <!-- Header -->
     <div class="flex flex-col md:flex-row items-center justify-between border-b pb-4">
       <div class="flex items-center gap-4">
-        <img id="userPhoto" src="placeholder.jpg" alt="User Photo" class="w-16 h-16 rounded-full border-2 border-primary shadow">
+        <img id="userPhoto" src="photosss-placeholder.jpg" alt="User" class="w-16 h-16 rounded-full border-2 border-primary shadow">
         <div>
-          <h1 id="userName" class="text-xl font-bold text-primary">Pharmacist Name</h1>
+          <h1 id="userName" class="text-xl font-bold text-primary">Pharmacist</h1>
           <p id="userEmail" class="text-gray-600 text-sm">email@example.com</p>
         </div>
       </div>
-      <img src="your-logo.png" alt="AreaHealth Logo" class="w-16 h-16 mt-4 md:mt-0">
+      <div class="flex items-center gap-4">
+        <img src="areahealth-logo.png" alt="AreaHealth Logo" class="w-16 h-16">
+        <button onclick="logoutUser()" class="bg-primary text-white px-3 py-1 rounded-md text-sm hover:bg-accent">Logout</button>
+      </div>
     </div>
-    
+
     <!-- Intro -->
     <div>
       <h2 class="text-2xl font-bold text-primary mb-2">Welcome to AreaHealth NG 👋</h2>
       <p class="text-gray-600">
-        Please fill in your pharmacy details below. This helps patients find you easily on our platform.
-        It takes less than 5 minutes. Once submitted, our team will review and contact you for confirmation.
+        Please click below to proceed to the official pharmacy registration form.
       </p>
     </div>
-    
-    <!-- Registration Form -->
-    <form id="pharmacyForm" action="https://formsubmit.co/onyekaudechukwum@gmail.com" method="POST" class="space-y-8">
-      <input type="hidden" name="_cc" value="areahealthng@gmail.com, onyekamiracle08@gmail.com">
-      <input type="hidden" name="_subject" value="New Pharmacy Registration - AreaHealth NG">
-      <input type="hidden" name="_captcha" value="false">
-      
-      <!-- SECTION 1 -->
-      <section>
-        <h3 class="text-lg font-semibold text-dark border-b pb-2 mb-4">🧾 SECTION 1: Pharmacy Information</h3>
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div><label>Pharmacy Name</label><input type="text" name="Pharmacy Name" required class="w-full border rounded p-2 focus:ring-primary focus:ring-2"></div>
-          <div><label>Owner/Manager’s Full Name</label><input type="text" name="Manager Name" required class="w-full border rounded p-2 focus:ring-primary focus:ring-2"></div>
-          <div><label>Phone Number</label><input type="tel" name="Phone" required class="w-full border rounded p-2 focus:ring-primary focus:ring-2"></div>
-          <div><label>WhatsApp Number</label><input type="tel" name="WhatsApp" class="w-full border rounded p-2 focus:ring-primary focus:ring-2"></div>
-          <div class="md:col-span-2"><label>Address</label><textarea name="Address" id="addressField" rows="2" required class="w-full border rounded p-2 focus:ring-primary focus:ring-2"></textarea></div>
-          <div><label>Opening Hours</label><input type="text" name="Opening Hours" placeholder="8am–8pm Mon–Sat" required class="w-full border rounded p-2 focus:ring-primary focus:ring-2"></div>
-          <div><label>Email (optional)</label><input type="email" name="Email" class="w-full border rounded p-2 focus:ring-primary focus:ring-2"></div>
-        </div>
-      </section>
-      
-      <!-- SECTION 2 -->
-      <section>
-        <h3 class="text-lg font-semibold text-dark border-b pb-2 mb-4">💊 SECTION 2: Drug Information</h3>
-        <p class="text-gray-600 mb-2">Tick all the drugs available in your pharmacy:</p>
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
-          <label><input type="checkbox" name="Drugs" value="Paracetamol" class="mr-2">Paracetamol</label>
-          <label><input type="checkbox" name="Drugs" value="Amoxicillin" class="mr-2">Amoxicillin</label>
-          <label><input type="checkbox" name="Drugs" value="Metformin" class="mr-2">Metformin</label>
-          <label><input type="checkbox" name="Drugs" value="Insulin" class="mr-2">Insulin</label>
-          <label><input type="checkbox" name="Drugs" value="Ibuprofen" class="mr-2">Ibuprofen</label>
-          <label><input type="checkbox" name="Drugs" value="Vitamin C" class="mr-2">Vitamin C</label>
-          <label><input type="checkbox" name="Drugs" value="Diclofenac" class="mr-2">Diclofenac</label>
-          <label><input type="checkbox" name="Drugs" value="Antimalarial" class="mr-2">Antimalarial</label>
-          <label><input type="checkbox" name="Drugs" value="Cough Syrup" class="mr-2">Cough Syrup</label>
-          <label><input type="checkbox" name="Drugs" value="Azithromycin" class="mr-2">Azithromycin</label>
-        </div>
-      </section>
-      
-      <!-- SECTION 3 -->
-      <section>
-        <h3 class="text-lg font-semibold text-dark border-b pb-2 mb-4">📍 SECTION 3: Pharmacy Location</h3>
-        <div id="map" class="w-full h-64 border-2 border-primary rounded-lg"></div>
-        <input type="hidden" id="latitude" name="Latitude">
-        <input type="hidden" id="longitude" name="Longitude">
-      </section>
-      
-      <!-- Agreement -->
-      <div>
-        <label class="flex gap-2 items-start">
-          <input type="checkbox" required class="mt-1">
-          <span class="text-gray-700">I agree that the information provided is accurate and can be used to list my pharmacy on AreaHealth NG.</span>
-        </label>
-      </div>
-      
-      <!-- Submit -->
-      <div class="text-center mt-6">
-        <button type="submit" class="bg-primary hover:bg-accent text-white px-8 py-3 rounded-lg shadow-lg font-semibold transition">
-          Submit Form
-        </button>
-        <p id="successMsg" class="hidden mt-4 text-green-600 font-semibold">
-          ✅ Submitted successfully! PDF summary downloaded and WhatsApp message sent.
-        </p>
-      </div>
-    </form>
+
+    <!-- Info Section -->
+    <div class="bg-blue-50 border border-blue-200 p-4 rounded-lg">
+      <h3 class="text-lg font-semibold text-primary mb-2">🧾 Registration Update</h3>
+      <p class="text-gray-700">
+        AreaHealth NG now uses a secure Google Form for all pharmacy registrations and drug updates. 
+        After verification, your pharmacy will appear in the official AreaHealth Network database.
+      </p>
+      <ul class="list-disc ml-5 mt-2 text-gray-700">
+        <li>Provide accurate pharmacy details</li>
+        <li>Upload a clear pharmacy license photo</li>
+        <li>Include your contact and WhatsApp number</li>
+        <li>Specify available drugs for faster listing</li>
+      </ul>
+    </div>
+
+    <!-- Registration Button -->
+    <div class="text-center mt-6">
+      <button id="openFormBtn" type="button" 
+        class="bg-primary hover:bg-accent text-white px-8 py-3 rounded-lg font-semibold shadow-lg">
+        Submit Registration
+      </button>
+    </div>
+
+    <!-- Spinner Overlay -->
+    <div id="spinnerOverlay" class="fixed inset-0 bg-white/80 hidden flex-col items-center justify-center z-50">
+      <div class="animate-spin rounded-full h-12 w-12 border-t-4 border-b-4 border-primary"></div>
+      <p class="mt-4 text-primary font-semibold">Submitting your details...</p>
+    </div>
+
+    <!-- Success Message -->
+    <p id="successMsg" class="hidden mt-4 text-green-600 font-semibold text-center">
+      ✅ Redirecting to Google Form...
+    </p>
+
+    <!-- Footer -->
+    <footer class="border-t pt-4 text-center text-gray-500 text-sm">
+      <p>© 2025 AreaHealth NG | <a href="https://www.areahealthng.com" class="text-primary hover:underline">www.areahealthng.com</a></p>
+    </footer>
   </div>
-  
+
+  <!-- Spinner and Redirect Logic -->
   <script>
-    // Google Map Picker
-    let map, marker;
-    
-    function initMap() {
-      map = new google.maps.Map(document.getElementById("map"), {
-        center: { lat: 4.912, lng: 6.274 },
-        zoom: 13,
-      });
-      marker = new google.maps.Marker({ position: map.getCenter(), map, draggable: true });
-      google.maps.event.addListener(marker, "dragend", function() {
-        document.getElementById("latitude").value = marker.getPosition().lat();
-        document.getElementById("longitude").value = marker.getPosition().lng();
-      });
-    }
-    window.initMap = initMap;
-    
-    // Form submission
-    const form = document.getElementById("pharmacyForm");
-    form.addEventListener("submit", async function(e) {
-      e.preventDefault();
-      const { jsPDF } = window.jspdf;
-      const doc = new jsPDF();
-      doc.text("AreaHealth NG - Pharmacy Registration Summary", 10, 10);
-      const data = new FormData(form);
-      let y = 20;
-      for (const [key, value] of data.entries()) {
-        doc.text(`${key}: ${value}`, 10, y);
-        y += 8;
-      }
-      doc.save("AreaHealth_Registration.pdf");
-      
-      // WhatsApp confirmation
-      const name = data.get("Pharmacy Name");
-      const phone = data.get("WhatsApp") || data.get("Phone");
-      const msg = `Hello ${name}, your pharmacy registration has been successfully submitted to AreaHealth NG. We'll contact you soon!`;
-      window.open(`https://wa.me/${phone}?text=${encodeURIComponent(msg)}`, "_blank");
-      
-      document.getElementById("successMsg").classList.remove("hidden");
-      setTimeout(() => form.submit(), 1500);
+    const openFormBtn = document.getElementById("openFormBtn");
+    const spinnerOverlay = document.getElementById("spinnerOverlay");
+    const successMsg = document.getElementById("successMsg");
+
+    openFormBtn.addEventListener("click", () => {
+      // Show spinner
+      spinnerOverlay.classList.remove("hidden");
+
+      // Wait 5 seconds before redirecting
+      setTimeout(() => {
+        spinnerOverlay.classList.add("hidden");
+        successMsg.classList.remove("hidden");
+
+        // After showing success message for 2 seconds, open Google Form
+        setTimeout(() => {
+          window.open("https://forms.gle/jsRkHrmjfAk7x9vt5", "_blank");
+        }, 2000);
+      }, 5000);
     });
   </script>
 </body>
