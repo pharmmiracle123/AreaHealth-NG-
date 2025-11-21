@@ -58,7 +58,7 @@
     }
 
     .sidebar a:hover {
-      background: #007BFF;
+      background: #0F178B;
     }
 
     .sidebar .close-btn {
@@ -102,7 +102,7 @@
     .cta-btn {
       margin-top: 25px;
       padding: 12px 25px;
-      background: #ff7eb3;
+      background: #12B416;##0F178B
       border: none;
       border-radius: 8px;
       font-size: 18px;
@@ -111,25 +111,46 @@
     }
 
     .cta-btn:hover {
-      background: #ff4d88;
+      background: #0F178B;
     }
   </style>
 </head>
 <body>
-  <header>
-    <h1>AreaHealth</h1>
-    <span class="menu-icon" onclick="openSidebar()">☰</span>
-  </header>
+ <header style="
+  display:flex; 
+  align-items:center; 
+  gap:10px; 
+  padding:10px 20px;
+">
+
+  <!-- Facebook Icon Before Text -->
+  <img src="FB_IMG_17580202436038222.jpg" 
+       alt="AreaHealth-NG"
+       style="
+         width:40px; 
+         height:40px; 
+         border:2px solid #0F178B; 
+         border-radius:10px; 
+         object-fit:cover;
+       ">
+
+  <h1 style="margin:0;">AreaHealth-NG</h1>
+
+  <span class="menu-icon" 
+        onclick="openSidebar()" 
+        style="margin-left:auto; font-size:28px; cursor:pointer;">
+    ☰
+  </span>
+
+</header>
 
   <!-- Sidebar -->
   <div class="sidebar" id="sidebar">
     <span class="close-btn" onclick="closeSidebar()">×</span>
-    <a href="index.html">📒Overview</a>
     <a href="AreaHealth Dashboard.html">🏠 Home</a>
     <a href="Pharmacies.html">💊 Find Pharmacies</a>
     <a href="Medication.html">📦 Medications</a>
     <a href="Nearby Services.html">📍 Nearby Services</a>
-    <a href="#">⚙ Settings</a>
     <a href="AreaHealth Login.html" onclick="logout()">🚪 Logout</a>
   </div>
 
@@ -216,11 +237,11 @@
 
     // Gradient background animation
     const colors = [
-      "linear-gradient(135deg, #ff7eb3, #ff758c)",
-      "linear-gradient(135deg, #6a11cb, #2575fc)",
-      "linear-gradient(135deg, #43cea2, #185a9d)",
-      "linear-gradient(135deg, #f7971e, #ffd200)",
-      "linear-gradient(135deg, #00c6ff, #0072ff)"
+      "linear-gradient(135deg, #0F178B, #12B416)",
+      "linear-gradient(135deg, #0F178B, #12B416)",
+      "linear-gradient(135deg, #0F178B, #12B416)",
+      "linear-gradient(135deg, #12B416, #0F178B)",
+      "linear-gradient(135deg, #0F178B, #12B416)"
     ];
     let index = 0;
 
@@ -232,16 +253,64 @@
     setInterval(changeBackground, 9000);
     changeBackground(); // Initial call
   </script>
-    <!-- Contact Us -->
-  <section style="background: rgba(0,0,0,0.6); padding: 40px 20px; text-align: center; border-top: 2px solid rgba(255,255,255,0.2);">
-    <h2>📞 Contact Us</h2>
-    <p style="font-size:18px; line-height:1.8;">
-      <span style="display:block; margin:8px 0;">📧 Email: <a href="mailto:areahealthng@gmail.com" style="color:#ff7eb3; text-decoration:none;">areahealthng@gmail.com</a></span>
-      <span style="display:block; margin:8px 0;">📱 WhatsApp: 
-        <a href="https://wa.me/2348169395022" style="color:#ff7eb3; text-decoration:none;">08169395022</a>, 
-        <a href="https://wa.me/2349043427865" style="color:#ff7eb3; text-decoration:none;"fon>09043427865</a>
-      </span>
-    </p>
-  </section>
+  <!-- Contact Us -->
+<section style="
+  background: rgba(0,0,0,0.6); 
+  padding: 40px 20px; 
+  text-align: center; 
+  border-top: 2px solid rgba(255,255,255,0.2);
+  color: #fff;
+">
+  <h2>📞 Contact Us</h2>
+
+  <p style="font-size:18px; line-height:1.8; margin-bottom: 25px;">
+    <span style="display:block; margin:8px 0;">
+      📧 Email: 
+      <a href="mailto:areahealthng@gmail.com" style="color:#ffffff; text-decoration:none;">
+        areahealthng@gmail.com
+      </a>
+    </span>
+  <!-- Social Media Icons -->
+  <div style="margin-top: 25px;">
+    <h3 style="font-size:20px; margin-bottom: 15px;">Follow Us</h3>
+
+    <div style="display:flex; justify-content:center; gap:20px;">
+
+      <!-- Facebook -->
+      <a href="https://facebook.com/yourpage" target="_blank" 
+         style="text-decoration:none; color:white; font-size:28px;">
+        <i class="fab fa-facebook"></i>
+      </a>
+
+      <!-- Instagram -->
+      <a href="https://instagram.com/yourpage" target="_blank" 
+         style="text-decoration:none; color:white; font-size:28px;">
+        <i class="fab fa-instagram"></i>
+      </a>
+
+      <!-- Twitter / X -->
+      <a href="https://twitter.com/yourpage" target="_blank" 
+         style="text-decoration:none; color:white; font-size:28px;">
+        <i class="fab fa-twitter"></i>
+      </a>
+
+      <!-- LinkedIn -->
+      <a href="https://linkedin.com/yourpage" target="_blank" 
+         style="text-decoration:none; color:white; font-size:28px;">
+        <i class="fab fa-linkedin"></i>
+      </a>
+
+      <!-- YouTube -->
+      <a href="https://youtube.com/yourpage" target="_blank" 
+         style="text-decoration:none; color:white; font-size:28px;">
+        <i class="fab fa-youtube"></i>
+      </a>
+
+    </div>
+  </div>
+</section>
+
+<!-- Font Awesome Icons (Required) -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 </body>
 </html> 
