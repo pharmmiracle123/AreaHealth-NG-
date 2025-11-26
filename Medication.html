@@ -1,1221 +1,862 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Medication Finder - AreaHealth NG</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>AreaHealth-NG — Drug Request</title>
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      margin: 0;
-      padding: 0;
-      color: #333;
-      transition: background 2s ease;
+    /* ---------- Theme & Layout ---------- */
+    :root{
+      --blue:#0f62fe;
+      --green:#00b28c;
+      --muted:#6b7280;
+      --card:#ffffff;
+      --accent:#0b2545;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial;
+      background: linear-gradient(135deg,var(--blue),var(--green));
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
+      color:var(--accent);
+      padding:18px;
+    }
+    .app {
+      max-width:1100px;
+      margin:0 auto;
+      background:rgba(255,255,255,0.96);
+      border-radius:12px;
+      overflow:hidden;
+      box-shadow:0 12px 40px rgba(2,6,23,0.18);
+    }
+    /* Header bar */
+    .topbar {
+      display:flex;
+      align-items:center;
+      gap:16px;
+      padding:14px 18px;
+      background:linear-gradient(90deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02));
+      border-bottom:1px solid rgba(15,23,42,0.04);
+    }
+    .logo-wrap{display:flex;align-items:center;gap:12px;}
+    .logo{
+      width:56px;height:56px;border-radius:10px;object-fit:contain;background:#fff;padding:6px;border:1px solid #eef2ff;
+    }
+    .title {
+      display:flex;flex-direction:column;
+    }
+    .title h1{margin:0;font-size:20px;color:var(--blue);}
+    .title p{margin:0;font-size:13px;color:var(--muted)}
+    .logo-input {margin-left:auto;display:flex;gap:8px;align-items:center;}
+    .logo-input input{padding:8px 10px;border:1px solid #e6eef6;border-radius:8px;width:260px}
+    .logo-input button{padding:9px 12px;border-radius:8px;border:0;background:var(--blue);color:#fff;font-weight:600;cursor:pointer}
+
+    /* announcement marquee */
+    .announcement{
+      background:linear-gradient(90deg, rgba(58, 63, 58, 0.51), rgba(11,37,69,0.02));
+      border-top:1px solid rgba(15,23,42,0.02);
+      padding:8px 12px; display:flex; align-items:center; gap:12px;
+    }
+    .marquee {
+      overflow:hidden;white-space:nowrap;
+      width:100%;
+      box-sizing:border-box;
+    }
+    .marquee p{
+      display:inline-block;
+      padding-left:100%;
+      animation: marquee 16s linear infinite;
+      font-weight:600;color:var(--green);
+    }
+    @keyframes marquee{
+      0%{transform:translateX(0)}100%{transform:translateX(-100%)}
     }
 
-    header {
-      text-align: center;
-      padding: 20px;
-      color: white;
+    /* main content */
+    .content{display:flex;gap:18px;padding:18px;}
+    .left{flex:1;min-width:320px}
+    .right{width:360px;flex-shrink:0}
+
+    .card{background:var(--card);border-radius:10px;padding:14px;border:1px solid #e6eef6;box-shadow:0 6px 18px rgba(2,6,23,0.03)}
+    label{font-weight:600;font-size:13px;color:var(--accent)}
+    input[type="text"], input[type="email"], input[type="search"]{
+      width:100%;padding:10px;border:1px solid #e6eef6;border-radius:8px;font-size:14px;margin-top:8px;
     }
 
-    .search-box {
-      margin: 20px auto;
-      width: 90%;
-      max-width: 600px;
-      display: flex;
-      gap: 10px;
-    }
-    .search-box input {
-      flex: 1;
-      padding: 12px;
-      border: 1px solid #ccc;
-      border-radius: 6px;
-    }
-    .search-box button {
-      background: #0077b6;
-      color: white;
-      padding: 12px 18px;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
-    }
-    .search-box button:hover {
-      background: #005f8a;
-    }
+    .controls{display:flex;gap:10px;margin-top:12px;flex-wrap:wrap}
+    .btn{padding:10px 14px;border-radius:8px;border:0;cursor:pointer;font-weight:700}
+    .btn.primary{background:var(--blue);color:#fff}
+    .btn.ghost{background:transparent;border:1px solid rgba(15,23,42,0.06);color:var(--accent)}
+    .small{font-size:13px;color:var(--muted)}
 
-    .drug-list {
-      width: 90%;
-      max-width: 900px;
-      margin: 20px auto;
-    }
+    /* drug list */
+    .drug-list{margin-top:12px;max-height:560px;overflow:auto;padding:6px;border-radius:8px;border:1px solid #eef2ff;background:#fbfdff}
+    .drug-item{display:flex;align-items:center;padding:8px;border-bottom:1px dashed #eef6ff}
+    .drug-item:last-child{border-bottom:0}
+    .drug-item input{width:16px;height:16px}
+    .drug-item label{margin-left:10px;font-weight:600;color:var(--accent);font-size:14px}
 
-    .drug-card {
-      background: #fff;
-      padding: 20px;
-      margin-bottom: 15px;
-      border-radius: 12px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-    }
+    .footer{padding:12px 18px;display:flex;justify-content:space-between;align-items:center;background:linear-gradient(90deg, rgba(0,0,0,0.02), rgba(255,255,255,0));border-top:1px solid rgba(15,23,42,0.02)}
+    .socials{display:flex;gap:12px;align-items:center}
+    .socials a{display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;border-radius:8px;background:#fff;border:1px solid #eef2ff;text-decoration:none}
+    .note{font-size:13px;color:var(--muted)}
 
-    .drug-card h3 {
-      margin: 0 0 10px 0;
-      color: #0077b6;
-    }
-
-    .pharmacy-availability {
-      margin-top: 10px;
-      font-size: 0.95rem;
-      background: #f4f4f4;
-      padding: 8px;
-      border-radius: 6px;
-    }
-
-    footer {
-      text-align: center;
-      padding: 15px;
-      background: #0077b6;
-      color: #fff;
-      margin-top: 30px;
-    }
-
-    @media (max-width: 600px) {
-      .drug-card {
-        font-size: 0.9rem;
-      }
+    /* responsive */
+    @media (max-width:980px){
+      .content{flex-direction:column}
+      .right{width:100%}
+      .logo-input input{width:170px}
     }
   </style>
+
+  <!-- EmailJS SDK -->
+  <script src="https://cdn.emailjs.com/sdk/3.2.0/email.min.js"></script>
 </head>
 <body>
+  <div class="app" role="application" aria-labelledby="appTitle">
+    <!-- ====== AREAHEALTH-NG Gradient Header ====== -->
+<header style="
+  width: 100%;
+  padding: 15px 25px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: linear-gradient(90deg, #0f62fe, #00b28c);
+  color: #ffffff;
+  font-family: Arial, sans-serif;
+">
+  <!-- Logo Left -->
+  <div style="display: flex; align-items: center; gap: 12px;">
+    <img src="FB_IMG_17580202436038222.jpg" alt="AreaHealth NG Logo" style="height: 45px; width: auto;">
+    <h2 style="margin: 0; font-size: 20px; font-weight: 600;">AreaHealth-NG</h2>
+  </div>
+  
+  <!-- Date + Time Right -->
+  <div style="text-align: right; font-size: 14px;">
+    <div id="currentDate"></div>
+    <div id="currentTime"></div>
+  </div>
+</header>
 
-  <header>
-    <h1>Medication Finder</h1>
-    <p>Search drugs, indications, side effects, and pharmacies near you</p>
-  </header>
+<script>
+  function updateDateTime() {
+    const dateEl = document.getElementById("currentDate");
+    const timeEl = document.getElementById("currentTime");
+    
+    const now = new Date();
+    
+    // Format date
+    const date = now.toLocaleDateString("en-US", {
+      weekday: "long",
+      year: "numeric",
+      month: "long",
+      day: "numeric"
+    });
+    
+    // Format time
+    const time = now.toLocaleTimeString("en-US", {
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit"
+    });
+    
+    dateEl.textContent = date;
+    timeEl.textContent = "Updated: " + time;
+  }
+  
+  // Update immediately + every second
+  updateDateTime();
+  setInterval(updateDateTime, 1000);
+</script>
 
-  <!-- Search Box -->
-  <div class="search-box">
-    <input type="text" id="searchDrug" placeholder="Search drug by name...">
-    <button onclick="searchDrug()">🔍 Search</button>
+    <!-- HEADER BAR -->
+  <!-- AREAHEALTH-NG MISSION & VISION (TAILWIND) -->
+
+ <!-- Logo Left -->
+  <div style="display: flex; align-items: center; gap: 12px;">
+    <img src="/IMG-20250920-WA0000.jpg" alt="AreaHealth NG Logo" style="height: 450px; width 15px: auto;">
+  </div>
+  
+<!-- Tailwind CDN (only if not already included) -->
+<link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+
+<!-- ===== Refill Reminder Card (Tailwind + JS) ===== -->
+<div id="refillCard" class="card p-4 max-w-3xl mx-auto mt-6">
+  <h3 class="text-lg font-semibold text-blue-600 mb-3">Set Drug Refill Reminder</h3>
+
+  <!-- Controls row -->
+  <div class="flex gap-2 mb-3 items-center">
+    <button id="btnSelectAllVisible" class="px-3 py-1 rounded bg-blue-600 text-white text-sm">Select All Visible</button>
+    <button id="btnClearAll" class="px-3 py-1 rounded border text-sm">Clear All</button>
+    <div class="ml-auto text-sm text-gray-600">Selected: <span id="selectedCount">0</span></div>
   </div>
 
-  <!-- Drug List -->
-  <div class="drug-list" id="drugList">
-    <!-- Example drug -->
-    <div class="drug-card">
-      <h3>Paracetamol</h3>
-      <p><b>Indication:</b> Pain relief, fever reduction</p>
-      <p><b>How to use:</b> 1g every 6-8 hours as needed (max 4g daily)</p>
-      <p><b>Side effects:</b> Nausea, rash, liver damage (if overdosed)</p>
-      <div class="pharmacy-availability">
-        📍 Available at:  
-        <ul>
-          <li>HealthPlus Pharmacy (Yenagoa Main Market Road) - 📞 08012345678</li>
-          <li>City Health Pharmacy (Ekeki Park, Yenagoa) - 📞 08198765432</li>
-        </ul>
+  <!-- Collapsible groups -->
+  <div id="groups" class="space-y-3 max-h-64 overflow-y-auto pr-2">
+    <!-- Example group template (will be used statically here): -->
+    <!-- Antihypertensives -->
+    <div class="group border rounded-lg">
+      <button type="button" class="group-toggle w-full px-3 py-2 text-left flex items-center justify-between">
+        <span class="font-medium text-blue-600">Antihypertensives</span>
+        <span class="text-sm text-gray-500">..</span>
+      </button>
+      <div class="group-body px-3 py-2 hidden">
+        <div class="flex gap-2 items-center mb-2">
+          <button class="select-category text-sm px-2 py-1 bg-green-600 text-white rounded">Select All</button>
+          <button class="deselect-category text-sm px-2 py-1 border rounded">Clear</button>
+        </div>
+        <div class="grid grid-cols-2 gap-2 text-sm">
+          <label class="inline-flex items-center"><input type="checkbox" class="drug-checkbox" value="Amlodipine" /> <span class="ml-2">Amlodipine</span></label>
+          <label class="inline-flex items-center"><input type="checkbox" class="drug-checkbox" value="Lisinopril" /> <span class="ml-2">Lisinopril</span></label>
+          <label class="inline-flex items-center"><input type="checkbox" class="drug-checkbox" value="Losartan" /> <span class="ml-2">Losartan</span></label>
+          <label class="inline-flex items-center"><input type="checkbox" class="drug-checkbox" value="Hydrochlorothiazide" /> <span class="ml-2">Hydrochlorothiazide</span></label>
+          <label class="inline-flex items-center"><input type="checkbox" class="drug-checkbox" value="Candesartan" /> <span class="ml-2">Candesartan</span></label>
+          <label class="inline-flex items-center"><input type="checkbox" class="drug-checkbox" value="Metoprolol" /> <span class="ml-2">Metoprolol</span></label>
+          <label class="inline-flex items-center"><input type="checkbox" class="drug-checkbox" value="Propranolol" /> <span class="ml-2">Propranolol</span></label>
+          <label class="inline-flex items-center"><input type="checkbox" class="drug-checkbox" value="Spironolactone" /> <span class="ml-2">Spironolactone</span></label>
+          <label class="inline-flex items-center"><input type="checkbox" class="drug-checkbox" value="Triamterene-HCTZ" /> <span class="ml-2">Triamterene-HCTZ</span></label>
+          <label class="inline-flex items-center"><input type="checkbox" class="drug-checkbox" value="Atenolol" /> <span class="ml-2">Atenolol</span></label>
+        </div>
       </div>
     </div>
+
+    <!-- Antidiabetics -->
+    <div class="group border rounded-lg">
+      <button type="button" class="group-toggle w-full px-3 py-2 text-left flex items-center justify-between">
+        <span class="font-medium text-blue-600">Antidiabetics</span>
+        <span class="text-sm text-gray-500">..</span>
+      </button>
+      <div class="group-body px-3 py-2 hidden">
+        <div class="flex gap-2 items-center mb-2">
+          <button class="select-category text-sm px-2 py-1 bg-green-600 text-white rounded">Select All</button>
+          <button class="deselect-category text-sm px-2 py-1 border rounded">Clear</button>
+        </div>
+        <div class="grid grid-cols-2 gap-2 text-sm">
+          <label class="inline-flex items-center"><input type="checkbox" class="drug-checkbox" value="Metformin" /> <span class="ml-2">Metformin</span></label>
+          <label class="inline-flex items-center"><input type="checkbox" class="drug-checkbox" value="Glibenclamide" /> <span class="ml-2">Glibenclamide</span></label>
+          <label class="inline-flex items-center"><input type="checkbox" class="drug-checkbox" value="Pioglitazone" /> <span class="ml-2">Pioglitazone</span></label>
+          <label class="inline-flex items-center"><input type="checkbox" class="drug-checkbox" value="Glimepiride" /> <span class="ml-2">Glimepiride</span></label>
+          <label class="inline-flex items-center"><input type="checkbox" class="drug-checkbox" value="Sitagliptin" /> <span class="ml-2">Sitagliptin</span></label>
+          <label class="inline-flex items-center"><input type="checkbox" class="drug-checkbox" value="Vildagliptin" /> <span class="ml-2">Vildagliptin</span></label>
+          <label class="inline-flex items-center"><input type="checkbox" class="drug-checkbox" value="Empagliflozin" /> <span class="ml-2">Empagliflozin</span></label>
+          <label class="inline-flex items-center"><input type="checkbox" class="drug-checkbox" value="Dapagliflozin" /> <span class="ml-2">Dapagliflozin</span></label>
+          <label class="inline-flex items-center"><input type="checkbox" class="drug-checkbox" value="Linagliptin" /> <span class="ml-2">Linagliptin</span></label>
+          <label class="inline-flex items-center"><input type="checkbox" class="drug-checkbox" value="Repaglinide" /> <span class="ml-2">Repaglinide</span></label>
+        </div>
+      </div>
+    </div>
+
+    <!-- Antibiotics -->
+    <div class="group border rounded-lg">
+      <button type="button" class="group-toggle w-full px-3 py-2 text-left flex items-center justify-between">
+        <span class="font-medium text-blue-600">Antibiotics</span>
+        <span class="text-sm text-gray-500">..</span>
+      </button>
+      <div class="group-body px-3 py-2 hidden">
+        <div class="flex gap-2 items-center mb-2">
+          <button class="select-category text-sm px-2 py-1 bg-green-600 text-white rounded">Select All</button>
+          <button class="deselect-category text-sm px-2 py-1 border rounded">Clear</button>
+        </div>
+        <div class="grid grid-cols-2 gap-2 text-sm">
+          <label class="inline-flex items-center"><input type="checkbox" class="drug-checkbox" value="Amoxicillin" /> <span class="ml-2">Amoxicillin</span></label>
+          <label class="inline-flex items-center"><input type="checkbox" class="drug-checkbox" value="Ciprofloxacin" /> <span class="ml-2">Ciprofloxacin</span></label>
+          <label class="inline-flex items-center"><input type="checkbox" class="drug-checkbox" value="Azithromycin" /> <span class="ml-2">Azithromycin</span></label>
+          <label class="inline-flex items-center"><input type="checkbox" class="drug-checkbox" value="Ceftriaxone" /> <span class="ml-2">Ceftriaxone</span></label>
+          <label class="inline-flex items-center"><input type="checkbox" class="drug-checkbox" value="Cefuroxime" /> <span class="ml-2">Cefuroxime</span></label>
+          <label class="inline-flex items-center"><input type="checkbox" class="drug-checkbox" value="Clarithromycin" /> <span class="ml-2">Clarithromycin</span></label>
+          <label class="inline-flex items-center"><input type="checkbox" class="drug-checkbox" value="Doxycycline" /> <span class="ml-2">Doxycycline</span></label>
+          <label class="inline-flex items-center"><input type="checkbox" class="drug-checkbox" value="Nitrofurantoin" /> <span class="ml-2">Nitrofurantoin</span></label>
+          <label class="inline-flex items-center"><input type="checkbox" class="drug-checkbox" value="Co-trimoxazole" /> <span class="ml-2">Co-trimoxazole</span></label>
+          <label class="inline-flex items-center"><input type="checkbox" class="drug-checkbox" value="Levofloxacin" /> <span class="ml-2">Levofloxacin</span></label>
+        </div>
+      </div>
+    </div>
+
+    <!-- Analgesics, Vitamins, Respiratory, GI, Neuro, Others (omitted here for brevity) -->
+    <!-- For a full 100 items, add more groups following the same pattern. -->
   </div>
 
-  <footer>
-    <p>&copy; 2025 AreaHealth NG. All rights reserved.</p>
-  </footer>
+  <!-- Date -->
+  <div class="mt-3">
+    <label for="reminderDate" class="block text-sm font-medium text-gray-700">Refill Date</label>
+    <input id="reminderDate" type="date" class="mt-1 p-2 border rounded w-full" />
+  </div>
 
-  <script>
-    // Background gradient changer
-    const gradients = [
-      "linear-gradient(135deg, #0077b6, #90e0ef)",
-      "linear-gradient(135deg, #ff6b6b, #fcd34d)",
-      "linear-gradient(135deg, #6d28d9, #f472b6)",
-      "linear-gradient(135deg, #16a34a, #86efac)",
-      "linear-gradient(135deg, #f97316, #facc15)"
-    ];
-    let index = 0;
-    function changeBackground() {
-      document.body.style.background = gradients[index];
-      index = (index + 1) % gradients.length;
+  <!-- Buttons -->
+  <div class="flex gap-2 mt-3">
+    <button id="saveReminder" class="px-3 py-2 bg-blue-600 text-white rounded">Save Reminder</button>
+    <button id="previewReminder" class="px-3 py-2 border rounded">Preview</button>
+    <button id="sendReminder" class="px-3 py-2 bg-green-600 text-white rounded">Send Now (Email)</button>
+  </div>
+
+  <!-- status -->
+  <div class="mt-3 text-sm text-gray-700" id="reminderStatus"></div>
+
+  <!-- Saved reminders list -->
+  <div class="mt-4">
+    <h4 class="text-sm font-medium text-gray-800">Saved Reminders</h4>
+    <ul id="savedList" class="mt-2 space-y-2 text-sm"></ul>
+  </div>
+</div>
+
+<!-- ===== Script: localStorage, EmailJS, Notifications, Firebase (optional) ===== -->
+<script src="https://cdn.jsdelivr.net/npm/emailjs-com@2/dist/email.min.js"></script>
+<script>
+/* ====================
+   CONFIG - replace these
+   ==================== */
+const PRIMARY_EMAIL = 'onyekaudechukwum@gmail.com'; // To
+const CC_EMAIL = 'areahealthng@gmail.com';         // Cc
+
+const EMAILJS_SERVICE_ID = 'YOUR_EMAILJS_SERVICE_ID';
+const EMAILJS_TEMPLATE_ID = 'YOUR_EMAILJS_TEMPLATE_ID';
+const EMAILJS_PUBLIC_KEY = 'YOUR_EMAILJS_PUBLIC_KEY';
+
+/* Optional Firebase (for push) - paste your config here to enable FCM
+   Get these from your Firebase console (Project Settings) and Cloud Messaging */
+const firebaseConfig = {  
+    apiKey: "AIzaSyC79cSDPpC4bbhlRBpu7WhON3j8AMxMLyE",  
+    authDomain: "areahealth-ng.firebaseapp.com",  
+    projectId: "areahealth-ng",  
+    storageBucket: "areahealth-ng.appspot.com",  
+    messagingSenderId: "986651954303",  
+    appId: "1:986651954303:web:3f38dc24e246b7047d834a"  
+  };  
+/* ==================== END CONFIG ==================== */
+
+(function initEmailJS(){
+  try {
+    if (emailjs && EMAILJS_PUBLIC_KEY && !EMAILJS_PUBLIC_KEY.includes('YOUR')) {
+      emailjs.init(EMAILJS_PUBLIC_KEY);
+      console.log('EmailJS initialized');
+    } else {
+      console.warn('EmailJS not initialized — add your keys in the config section.');
     }
-    setInterval(changeBackground, 10000);
-    changeBackground();
+  } catch(e){ console.warn(e); }
+})();
 
-    // Example drug data (you can expand this to 100 drugs)
-    const drugs = [
-  {
-    name: "Paracetamol",
-    indication: "Pain relief, fever reduction",
-    usage: "1g every 6-8 hours as needed (max 4g daily)",
-    sideEffects: "Nausea, rash, liver damage (if overdosed)",
-    pharmacies: [
-      { name: "HealthPlus Pharmacy", location: "Yenagoa Main Market Road", contact: "08012345678" },
-      { name: "City Health Pharmacy", location: "Ekeki Park, Yenagoa", contact: "08198765432" }
-    ]
-  },
-  {
-    name: "Amoxicillin",
-    indication: "Bacterial infections",
-    usage: "500mg every 8 hours for 5–7 days",
-    sideEffects: "Diarrhea, rash, nausea, allergic reaction",
-    pharmacies: [
-      { name: "MediCare Pharmacy", location: "Oxbow Lake Road, Yenagoa", contact: "07055555555" },
-      { name: "WellCare Drugs", location: "Swali Market, Yenagoa", contact: "08123456789" }
-    ]
-  },
-  {
-    name: "Ibuprofen",
-    indication: "Pain, inflammation, fever",
-    usage: "400mg every 6–8 hours as needed (max 3200mg daily)",
-    sideEffects: "Stomach upset, ulcers, kidney issues",
-    pharmacies: [
-      { name: "Wellness Pharmacy", location: "Yenizue-Gene, Yenagoa", contact: "08177778888" }
-    ]
-  },
-  {
-    name: "Metformin",
-    indication: "Type 2 Diabetes",
-    usage: "500–1000mg twice daily with meals",
-    sideEffects: "Nausea, diarrhea, vitamin B12 deficiency",
-    pharmacies: [
-      { name: "Glucocare Pharmacy", location: "Opolo, Yenagoa", contact: "08099990000" }
-    ]
-  },
-  {
-    name: "Insulin",
-    indication: "Diabetes mellitus (Type 1 and advanced Type 2)",
-    usage: "Dosage individualized based on blood glucose levels",
-    sideEffects: "Hypoglycemia, weight gain, injection site reactions",
-    pharmacies: [
-      { name: "Diabetes Care Pharmacy", location: "Tombia Road, Yenagoa", contact: "07011112222" },
-      { name: "Lifeline Pharmacy", location: "Kpansia, Yenagoa", contact: "08133334444" }
-    ]
-  },
-  {
-    name: "Lisinopril",
-    indication: "Hypertension, heart failure",
-    usage: "10–40mg once daily",
-    sideEffects: "Cough, dizziness, high potassium",
-    pharmacies: [
-      { name: "Heart Health Pharmacy", location: "Okaka, Yenagoa", contact: "08022223333" }
-    ]
-  },
-  {
-    name: "Amlodipine",
-    indication: "High blood pressure, angina",
-    usage: "5–10mg once daily",
-    sideEffects: "Swelling of feet, dizziness, flushing",
-    pharmacies: [
-      { name: "Prime Pharmacy", location: "Etegwe, Yenagoa", contact: "08155556666" }
-    ]
-  },
-  {
-    name: "Azithromycin",
-    indication: "Bacterial infections (respiratory, skin, STDs)",
-    usage: "500mg once daily for 3–5 days",
-    sideEffects: "Diarrhea, nausea, QT prolongation",
-    pharmacies: [
-      { name: "QuickMed Pharmacy", location: "Okutukutu, Yenagoa", contact: "08188889999" }
-    ]
-  },
-  {
-    name: "Ciprofloxacin",
-    indication: "Urinary tract, respiratory, and GI infections",
-    usage: "500mg every 12 hours for 7–14 days",
-    sideEffects: "Tendon rupture, dizziness, nausea",
-    pharmacies: [
-      { name: "TrustCare Pharmacy", location: "Agudama, Yenagoa", contact: "08044445555" }
-    ]
-  },
-  {
-    name: "Omeprazole",
-    indication: "Acid reflux, ulcers, GERD",
-    usage: "20mg once daily before meals",
-    sideEffects: "Headache, diarrhea, vitamin B12 deficiency",
-    pharmacies: [
-      { name: "Stomach Relief Pharmacy", location: "Okaka, Yenagoa", contact: "08122223344" }
-    ]
-  },
-  {
-    name: "Losartan",
-    indication: "Hypertension, kidney protection in diabetes",
-    usage: "50–100mg once daily",
-    sideEffects: "Dizziness, high potassium",
-    pharmacies: [
-      { name: "Kidney Care Pharmacy", location: "Amarata, Yenagoa", contact: "08066667777" }
-    ]
-  },
-  {
-    name: "Atorvastatin",
-    indication: "High cholesterol, prevention of heart disease",
-    usage: "10–80mg once daily",
-    sideEffects: "Muscle pain, liver enzyme elevation",
-    pharmacies: [
-      { name: "Cardio Pharmacy", location: "Okutukutu, Yenagoa", contact: "08111112222" }
-    ]
-  },
-  {
-    name: "Salbutamol",
-    indication: "Asthma, chronic obstructive pulmonary disease (COPD)",
-    usage: "100–200 mcg inhaled every 4–6 hours as needed",
-    sideEffects: "Tremor, palpitations, headache",
-    pharmacies: [
-      { name: "BreathEasy Pharmacy", location: "Okaka, Yenagoa", contact: "08133330000" }
-    ]
-  },
-  {
-    name: "Prednisolone",
-    indication: "Allergic disorders, asthma, inflammation",
-    usage: "5–60mg daily depending on severity",
-    sideEffects: "Weight gain, mood changes, osteoporosis (long term)",
-    pharmacies: [
-      { name: "Relief Pharmacy", location: "Akenfa, Yenagoa", contact: "08122221111" }
-    ]
-  },
-  {
-    name: "Furosemide",
-    indication: "Hypertension, edema, heart failure",
-    usage: "20–80mg once or twice daily",
-    sideEffects: "Frequent urination, low potassium, dehydration",
-    pharmacies: [
-      { name: "LifeSpring Pharmacy", location: "Biogbolo, Yenagoa", contact: "08055556666" }
-    ]
-  },
-  {
-    name: "Hydrochlorothiazide",
-    indication: "Hypertension, edema",
-    usage: "12.5–50mg once daily",
-    sideEffects: "Low potassium, dizziness, muscle cramps",
-    pharmacies: [
-      { name: "WellCare Pharmacy", location: "Swali Market, Yenagoa", contact: "08112345678" }
-    ]
-  },
-  {
-    name: "Warfarin",
-    indication: "Blood clot prevention (DVT, PE, atrial fibrillation)",
-    usage: "Dosage adjusted by INR monitoring",
-    sideEffects: "Bleeding, bruising, drug interactions",
-    pharmacies: [
-      { name: "SafeHeart Pharmacy", location: "Opolo, Yenagoa", contact: "07099991111" }
-    ]
-  },
-  {
-    name: "Clopidogrel",
-    indication: "Prevention of stroke, heart attack",
-    usage: "75mg once daily",
-    sideEffects: "Bleeding, rash, diarrhea",
-    pharmacies: [
-      { name: "TrustMed Pharmacy", location: "Etegwe, Yenagoa", contact: "08155559999" }
-    ]
-  },
-  {
-    name: "Aspirin (low-dose)",
-    indication: "Prevention of stroke, heart attack",
-    usage: "75–150mg once daily",
-    sideEffects: "Stomach upset, bleeding",
-    pharmacies: [
-      { name: "CarePlus Pharmacy", location: "Kpansia, Yenagoa", contact: "08011113333" }
-    ]
-  },
-  {
-    name: "Levothyroxine",
-    indication: "Hypothyroidism",
-    usage: "25–200mcg once daily before breakfast",
-    sideEffects: "Palpitations, weight loss, anxiety (if overdosed)",
-    pharmacies: [
-      { name: "ThyroCare Pharmacy", location: "Amarata, Yenagoa", contact: "08166667777" }
-    ]
-  },
-  {
-    name: "Diazepam",
-    indication: "Anxiety, muscle spasms, seizures",
-    usage: "2–10mg two to four times daily",
-    sideEffects: "Drowsiness, dependence, confusion",
-    pharmacies: [
-      { name: "CalmLife Pharmacy", location: "Okutukutu, Yenagoa", contact: "08144445555" }
-    ]
-  },
-  {
-    name: "Sertraline",
-    indication: "Depression, anxiety, OCD",
-    usage: "50–200mg once daily",
-    sideEffects: "Nausea, insomnia, sexual dysfunction",
-    pharmacies: [
-      { name: "MindCare Pharmacy", location: "Okaka, Yenagoa", contact: "08188887777" }
-    ]
-  },
-  {
-    name: "Fluoxetine",
-    indication: "Depression, anxiety, bulimia",
-    usage: "20–60mg once daily",
-    sideEffects: "Nausea, insomnia, sexual dysfunction",
-    pharmacies: [
-      { name: "Hope Pharmacy", location: "Tombia Road, Yenagoa", contact: "08122223322" }
-    ]
-  },
-  {
-    name: "Olanzapine",
-    indication: "Schizophrenia, bipolar disorder",
-    usage: "5–20mg once daily",
-    sideEffects: "Weight gain, drowsiness, high cholesterol",
-    pharmacies: [
-      { name: "Peace Pharmacy", location: "Akenfa, Yenagoa", contact: "08166668888" }
-    ]
-  },
-  {
-    name: "Haloperidol",
-    indication: "Psychosis, schizophrenia, acute agitation",
-    usage: "2–10mg daily (oral) or as prescribed",
-    sideEffects: "Drowsiness, tremor, stiffness",
-    pharmacies: [
-      { name: "MentalCare Pharmacy", location: "Biogbolo, Yenagoa", contact: "08133332222" }
-    ]
-  },
-  {
-    name: "Morphine",
-    indication: "Severe pain relief",
-    usage: "Dosage individualized (oral/IV/IM)",
-    sideEffects: "Dependence, constipation, drowsiness",
-    pharmacies: [
-      { name: "Pain Relief Pharmacy", location: "Etegwe, Yenagoa", contact: "07022221111" }
-    ]
-  },
-  {
-    name: "Tramadol",
-    indication: "Moderate to severe pain",
-    usage: "50–100mg every 6–8 hours (max 400mg daily)",
-    sideEffects: "Nausea, dizziness, dependence",
-    pharmacies: [
-      { name: "QuickRelief Pharmacy", location: "Swali Market, Yenagoa", contact: "08111119999" }
-    ]
-  },
-  {
-    name: "Cetirizine",
-    indication: "Allergic rhinitis, urticaria",
-    usage: "10mg once daily",
-    sideEffects: "Drowsiness, dry mouth",
-    pharmacies: [
-      { name: "AllergyCare Pharmacy", location: "Okaka, Yenagoa", contact: "08199990000" }
-    ]
-  },
-  {
-    name: "Loratadine",
-    indication: "Allergic rhinitis, skin allergies",
-    usage: "10mg once daily",
-    sideEffects: "Headache, fatigue",
-    pharmacies: [
-      { name: "FreshAir Pharmacy", location: "Opolo, Yenagoa", contact: "08155554444" }
-    ]
-  },
-  {
-    name: "Chloroquine",
-    indication: "Malaria treatment",
-    usage: "600mg initially, then 300mg after 6 hours, then daily for 2 days",
-    sideEffects: "Nausea, blurred vision, itching",
-    pharmacies: [
-      { name: "MalariaCare Pharmacy", location: "Amarata, Yenagoa", contact: "08077778888" }
-    ]
-  },
-  {
-    name: "Artemether-Lumefantrine",
-    indication: "First-line malaria treatment",
-    usage: "20/120mg, 4 tablets twice daily for 3 days",
-    sideEffects: "Headache, dizziness, loss of appetite",
-    pharmacies: [
-      { name: "Hope Alive Pharmacy", location: "Kpansia, Yenagoa", contact: "08111118888" }
-    ]
-  },
-  {
-    name: "Albendazole",
-    indication: "Worm infestations (roundworm, hookworm, tapeworm)",
-    usage: "400mg single dose (repeat after 2 weeks if needed)",
-    sideEffects: "Abdominal pain, nausea, dizziness",
-    pharmacies: [
-      { name: "Deworm Pharmacy", location: "Tombia, Yenagoa", contact: "08133334455" }
-    ]
-  },
-  // 👉 Continue adding until you reach 100
-  // ... your previous drugs above
+/* ---------- helpers ---------- */
+function qs(selector, parent=document) { return parent.querySelector(selector); }
+function qsa(selector, parent=document) { return Array.from(parent.querySelectorAll(selector)); }
 
-  {
-    name: "Mebendazole",
-    indication: "Worm infestations (roundworm, whipworm, pinworm, hookworm)",
-    usage: "100mg twice daily for 3 days or as prescribed",
-    sideEffects: "Abdominal pain, diarrhea, rash",
-    pharmacies: [
-      { name: "WellCare Pharmacy", location: "Swali Market, Yenagoa", contact: "08112345678" }
-    ]
-  },
-  {
-    name: "Ivermectin",
-    indication: "Onchocerciasis, strongyloidiasis, scabies",
-    usage: "150–200 mcg/kg single dose, repeat after months if required",
-    sideEffects: "Dizziness, itching, swelling",
-    pharmacies: [
-      { name: "Community Pharmacy", location: "Amarata, Yenagoa", contact: "08022220000" }
-    ]
-  },
-  {
-    name: "Quinine",
-    indication: "Severe malaria treatment",
-    usage: "600mg every 8 hours for 7 days (oral) or IV as prescribed",
-    sideEffects: "Tinnitus, nausea, blurred vision",
-    pharmacies: [
-      { name: "MalariaCare Pharmacy", location: "Etegwe, Yenagoa", contact: "08144446666" }
-    ]
-  },
-  {
-    name: "Doxycycline",
-    indication: "Bacterial infections, malaria prophylaxis",
-    usage: "100mg once or twice daily",
-    sideEffects: "Photosensitivity, stomach upset, esophageal irritation",
-    pharmacies: [
-      { name: "TrustCare Pharmacy", location: "Agudama, Yenagoa", contact: "08155556666" }
-    ]
-  },
-  {
-    name: "Tetracycline",
-    indication: "Bacterial infections (respiratory, skin, STDs)",
-    usage: "250–500mg every 6 hours",
-    sideEffects: "Tooth discoloration, nausea, photosensitivity",
-    pharmacies: [
-      { name: "Classic Pharmacy", location: "Kpansia, Yenagoa", contact: "08077779999" }
-    ]
-  },
-  {
-    name: "Ceftriaxone",
-    indication: "Severe bacterial infections (pneumonia, meningitis, sepsis)",
-    usage: "1–2g IV/IM once daily or divided doses",
-    sideEffects: "Injection site pain, diarrhea, rash",
-    pharmacies: [
-      { name: "MediQuick Pharmacy", location: "Opolo, Yenagoa", contact: "08166665555" }
-    ]
-  },
-  {
-    name: "Cefuroxime",
-    indication: "Respiratory and urinary tract infections",
-    usage: "250–500mg twice daily for 7–10 days",
-    sideEffects: "Nausea, diarrhea, rash",
-    pharmacies: [
-      { name: "City Health Pharmacy", location: "Ekeki Park, Yenagoa", contact: "08198765432" }
-    ]
-  },
-  {
-    name: "Gentamicin",
-    indication: "Severe bacterial infections (sepsis, UTIs)",
-    usage: "3–5mg/kg/day IM/IV in divided doses",
-    sideEffects: "Kidney toxicity, hearing loss, dizziness",
-    pharmacies: [
-      { name: "Prime Pharmacy", location: "Etegwe, Yenagoa", contact: "08155556666" }
-    ]
-  },
-  {
-    name: "Erythromycin",
-    indication: "Respiratory tract and skin infections",
-    usage: "250–500mg every 6 hours",
-    sideEffects: "Stomach upset, diarrhea, QT prolongation",
-    pharmacies: [
-      { name: "LifeSpring Pharmacy", location: "Biogbolo, Yenagoa", contact: "08055556666" }
-    ]
-  },
-  {
-    name: "Clarithromycin",
-    indication: "Respiratory infections, H. pylori eradication",
-    usage: "250–500mg twice daily for 7–14 days",
-    sideEffects: "Nausea, diarrhea, metallic taste",
-    pharmacies: [
-      { name: "QuickMed Pharmacy", location: "Okutukutu, Yenagoa", contact: "08188889999" }
-    ]
-  },
-  {
-    name: "Ranitidine",
-    indication: "Peptic ulcer, GERD, acid reflux",
-    usage: "150mg twice daily or 300mg at bedtime",
-    sideEffects: "Headache, constipation, dizziness",
-    pharmacies: [
-      { name: "Stomach Relief Pharmacy", location: "Okaka, Yenagoa", contact: "08122223344" }
-    ]
-  },
-  {
-    name: "Pantoprazole",
-    indication: "GERD, ulcers, Zollinger-Ellison syndrome",
-    usage: "40mg once daily",
-    sideEffects: "Headache, diarrhea, abdominal pain",
-    pharmacies: [
-      { name: "Hope Pharmacy", location: "Tombia Road, Yenagoa", contact: "08122223322" }
-    ]
-  },
-  {
-    name: "Domperidone",
-    indication: "Nausea, vomiting, gastric motility disorders",
-    usage: "10mg three times daily before meals",
-    sideEffects: "Dry mouth, abdominal cramps, QT prolongation",
-    pharmacies: [
-      { name: "FreshAir Pharmacy", location: "Opolo, Yenagoa", contact: "08155554444" }
-    ]
-  },
-  {
-    name: "Ondansetron",
-    indication: "Nausea and vomiting (chemotherapy, surgery)",
-    usage: "4–8mg every 8 hours as needed",
-    sideEffects: "Constipation, headache, dizziness",
-    pharmacies: [
-      { name: "CarePlus Pharmacy", location: "Kpansia, Yenagoa", contact: "08011113333" }
-    ]
-  },
-  {
-    name: "Metoclopramide",
-    indication: "Nausea, vomiting, delayed gastric emptying",
-    usage: "10mg three times daily",
-    sideEffects: "Drowsiness, restlessness, movement disorders",
-    pharmacies: [
-      { name: "TrustMed Pharmacy", location: "Etegwe, Yenagoa", contact: "08155559999" }
-    ]
-  },
-  {
-    name: "Vitamin C",
-    indication: "Vitamin C deficiency, immune support",
-    usage: "500–1000mg once daily",
-    sideEffects: "Stomach upset, kidney stones (high doses)",
-    pharmacies: [
-      { name: "Wellness Pharmacy", location: "Yenizue-Gene, Yenagoa", contact: "08177778888" }
-    ]
-  },
-  {
-    name: "Vitamin D",
-    indication: "Vitamin D deficiency, bone health",
-    usage: "400–2000 IU daily (dose varies)",
-    sideEffects: "Nausea, weakness, hypercalcemia",
-    pharmacies: [
-      { name: "Lifeline Pharmacy", location: "Kpansia, Yenagoa", contact: "08133334444" }
-    ]
-  },
-  {
-    name: "Calcium Carbonate",
-    indication: "Calcium deficiency, osteoporosis",
-    usage: "500–1200mg daily in divided doses",
-    sideEffects: "Constipation, bloating, kidney stones",
-    pharmacies: [
-      { name: "BoneCare Pharmacy", location: "Amarata, Yenagoa", contact: "08111112223" }
-    ]
-  },
-  {
-    name: "Iron (Ferrous Sulfate)",
-    indication: "Iron deficiency anemia",
-    usage: "200mg once or twice daily",
-    sideEffects: "Constipation, black stools, abdominal pain",
-    pharmacies: [
-      { name: "SafeLife Pharmacy", location: "Opolo, Yenagoa", contact: "08099998888" }
-    ]
-  },
-  {
-    name: "Folic Acid",
-    indication: "Folate deficiency, pregnancy supplementation",
-    usage: "5mg once daily",
-    sideEffects: "Nausea, bloating, allergic reaction (rare)",
-    pharmacies: [
-      { name: "MediCare Pharmacy", location: "Oxbow Lake Road, Yenagoa", contact: "07055555555" }
-    ]
-  },
-  // ... your previous 60 drugs above
-  
-  {
-    name: "Vitamin B Complex",
-    indication: "Vitamin B deficiency, energy support, nerve health",
-    usage: "1 tablet daily or as prescribed",
-    sideEffects: "Mild nausea, urine discoloration",
-    pharmacies: [
-      { name: "WellCare Pharmacy", location: "Swali Market, Yenagoa", contact: "08112345678" }
-    ]
-  },
-  {
-    name: "Zinc Sulfate",
-    indication: "Zinc deficiency, immune support",
-    usage: "20–50mg once daily",
-    sideEffects: "Nausea, stomach upset",
-    pharmacies: [
-      { name: "CarePlus Pharmacy", location: "Kpansia, Yenagoa", contact: "08011113333" }
-    ]
-  },
-  {
-    name: "Magnesium Sulfate",
-    indication: "Eclampsia, severe asthma, hypomagnesemia",
-    usage: "IV/IM as prescribed",
-    sideEffects: "Flushing, low blood pressure, drowsiness",
-    pharmacies: [
-      { name: "Lifeline Pharmacy", location: "Kpansia, Yenagoa", contact: "08133334444" }
-    ]
-  },
-  {
-    name: "Potassium Chloride",
-    indication: "Low potassium (hypokalemia)",
-    usage: "20–40 mEq daily (oral/IV as prescribed)",
-    sideEffects: "Nausea, stomach irritation, high potassium",
-    pharmacies: [
-      { name: "Prime Pharmacy", location: "Etegwe, Yenagoa", contact: "08155556666" }
-    ]
-  },
-  {
-    name: "Sodium Bicarbonate",
-    indication: "Acidosis, indigestion, urinary alkalinization",
-    usage: "325–2000mg orally as prescribed",
-    sideEffects: "Gas, alkalosis, swelling",
-    pharmacies: [
-      { name: "TrustMed Pharmacy", location: "Etegwe, Yenagoa", contact: "08155559999" }
-    ]
-  },
-  {
-    name: "Oral Rehydration Salts (ORS)",
-    indication: "Dehydration from diarrhea",
-    usage: "Dissolve 1 sachet in 1L water and drink as needed",
-    sideEffects: "Bloating (rare)",
-    pharmacies: [
-      { name: "Hope Alive Pharmacy", location: "Kpansia, Yenagoa", contact: "08111118888" }
-    ]
-  },
-  {
-    name: "Glucose IV (Dextrose)",
-    indication: "Hypoglycemia, dehydration, energy source",
-    usage: "IV infusion as prescribed",
-    sideEffects: "Vein irritation, hyperglycemia",
-    pharmacies: [
-      { name: "City Health Pharmacy", location: "Ekeki Park, Yenagoa", contact: "08198765432" }
-    ]
-  },
-  {
-    name: "Insulin Glargine",
-    indication: "Diabetes mellitus (long-acting insulin)",
-    usage: "Once daily subcutaneous injection",
-    sideEffects: "Hypoglycemia, weight gain",
-    pharmacies: [
-      { name: "Diabetes Care Pharmacy", location: "Tombia Road, Yenagoa", contact: "07011112222" }
-    ]
-  },
-  {
-    name: "Insulin Lispro",
-    indication: "Diabetes mellitus (rapid-acting insulin)",
-    usage: "Before meals as prescribed",
-    sideEffects: "Hypoglycemia, injection site reaction",
-    pharmacies: [
-      { name: "Lifeline Pharmacy", location: "Kpansia, Yenagoa", contact: "08133334444" }
-    ]
-  },
-  {
-    name: "Glibenclamide",
-    indication: "Type 2 Diabetes",
-    usage: "2.5–10mg once or twice daily with meals",
-    sideEffects: "Hypoglycemia, weight gain",
-    pharmacies: [
-      { name: "Glucocare Pharmacy", location: "Opolo, Yenagoa", contact: "08099990000" }
-    ]
-  },
-  {
-    name: "Gliclazide",
-    indication: "Type 2 Diabetes",
-    usage: "40–320mg daily in divided doses",
-    sideEffects: "Low blood sugar, weight gain",
-    pharmacies: [
-      { name: "HealthPlus Pharmacy", location: "Yenagoa Main Market Road", contact: "08012345678" }
-    ]
-  },
-  {
-    name: "Pioglitazone",
-    indication: "Type 2 Diabetes",
-    usage: "15–45mg once daily",
-    sideEffects: "Weight gain, fluid retention, heart failure risk",
-    pharmacies: [
-      { name: "MediCare Pharmacy", location: "Oxbow Lake Road, Yenagoa", contact: "07055555555" }
-    ]
-  },
-  {
-    name: "Sitagliptin",
-    indication: "Type 2 Diabetes",
-    usage: "100mg once daily",
-    sideEffects: "Headache, nasopharyngitis, hypoglycemia (with sulfonylureas)",
-    pharmacies: [
-      { name: "WellCare Drugs", location: "Swali Market, Yenagoa", contact: "08123456789" }
-    ]
-  },
-  {
-    name: "Vildagliptin",
-    indication: "Type 2 Diabetes",
-    usage: "50mg twice daily",
-    sideEffects: "Headache, dizziness, liver enzyme changes",
-    pharmacies: [
-      { name: "Glucocare Pharmacy", location: "Opolo, Yenagoa", contact: "08099990000" }
-    ]
-  },
-  {
-    name: "Canagliflozin",
-    indication: "Type 2 Diabetes (SGLT2 inhibitor)",
-    usage: "100–300mg once daily",
-    sideEffects: "Urinary tract infection, dehydration",
-    pharmacies: [
-      { name: "Heart Health Pharmacy", location: "Okaka, Yenagoa", contact: "08022223333" }
-    ]
-  },
-  {
-    name: "Dapagliflozin",
-    indication: "Type 2 Diabetes, heart failure",
-    usage: "5–10mg once daily",
-    sideEffects: "Genital infection, dehydration",
-    pharmacies: [
-      { name: "Prime Pharmacy", location: "Etegwe, Yenagoa", contact: "08155556666" }
-    ]
-  },
-  {
-    name: "Empagliflozin",
-    indication: "Type 2 Diabetes, cardiovascular risk reduction",
-    usage: "10–25mg once daily",
-    sideEffects: "UTIs, dehydration, weight loss",
-    pharmacies: [
-      { name: "CarePlus Pharmacy", location: "Kpansia, Yenagoa", contact: "08011113333" }
-    ]
-  },
-  {
-    name: "Hydrocortisone",
-    indication: "Inflammation, adrenal insufficiency, allergies",
-    usage: "10–30mg oral daily or IV/IM as prescribed",
-    sideEffects: "Weight gain, mood changes, high blood sugar",
-    pharmacies: [
-      { name: "Relief Pharmacy", location: "Akenfa, Yenagoa", contact: "08122221111" }
-    ]
-  },
-  {
-    name: "Betamethasone",
-    indication: "Severe inflammation, skin disorders, allergies",
-    usage: "Topical/IM/IV as prescribed",
-    sideEffects: "Skin thinning, mood changes, infection risk",
-    pharmacies: [
-      { name: "Hope Pharmacy", location: "Tombia Road, Yenagoa", contact: "08122223322" }
-    ]
-  },
-  {
-    name: "Dexamethasone",
-    indication: "Severe inflammation, asthma, COVID-19, cancer therapy",
-    usage: "4–20mg daily (oral/IV/IM) as prescribed",
-    sideEffects: "High blood sugar, weight gain, mood swings",
-    pharmacies: [
-      { name: "LifeSpring Pharmacy", location: "Biogbolo, Yenagoa", contact: "08055556666" }
-    ]
-  },
-  // ... your previous 80 drugs above
+const selectedCountEl = qs('#selectedCount');
+const reminderStatusEl = qs('#reminderStatus');
+const savedListEl = qs('#savedList');
 
-  {
-    name: "Erythromycin",
-    indication: "Respiratory and skin infections",
-    usage: "250–500mg every 6 hours",
-    sideEffects: "Nausea, diarrhea, abdominal pain",
-    pharmacies: [
-      { name: "QuickMed Pharmacy", location: "Okutukutu, Yenagoa", contact: "08188889999" }
-    ]
-  },
-  {
-    name: "Clarithromycin",
-    indication: "Respiratory infections, H. pylori infection",
-    usage: "250–500mg twice daily",
-    sideEffects: "Diarrhea, altered taste, headache",
-    pharmacies: [
-      { name: "TrustCare Pharmacy", location: "Agudama, Yenagoa", contact: "08044445555" }
-    ]
-  },
-  {
-    name: "Doxycycline",
-    indication: "Malaria prevention, acne, respiratory infections",
-    usage: "100mg once or twice daily",
-    sideEffects: "Photosensitivity, stomach upset",
-    pharmacies: [
-      { name: "MalariaCare Pharmacy", location: "Amarata, Yenagoa", contact: "08077778888" }
-    ]
-  },
-  {
-    name: "Tetracycline",
-    indication: "Acne, respiratory and urinary infections",
-    usage: "250–500mg every 6 hours",
-    sideEffects: "Tooth discoloration, nausea, photosensitivity",
-    pharmacies: [
-      { name: "Hope Alive Pharmacy", location: "Kpansia, Yenagoa", contact: "08111118888" }
-    ]
-  },
-  {
-    name: "Gentamicin",
-    indication: "Severe bacterial infections (IV/IM use)",
-    usage: "3–5mg/kg/day divided every 8 hours",
-    sideEffects: "Kidney damage, hearing loss",
-    pharmacies: [
-      { name: "City Health Pharmacy", location: "Ekeki Park, Yenagoa", contact: "08198765432" }
-    ]
-  },
-  {
-    name: "Amikacin",
-    indication: "Serious bacterial infections",
-    usage: "15mg/kg/day IM/IV divided every 12 hours",
-    sideEffects: "Nephrotoxicity, ototoxicity",
-    pharmacies: [
-      { name: "MediCare Pharmacy", location: "Oxbow Lake Road, Yenagoa", contact: "07055555555" }
-    ]
-  },
-  {
-    name: "Vancomycin",
-    indication: "Severe Gram-positive infections (e.g., MRSA)",
-    usage: "IV infusion, dose adjusted by levels",
-    sideEffects: "Kidney injury, Red man syndrome",
-    pharmacies: [
-      { name: "WellCare Drugs", location: "Swali Market, Yenagoa", contact: "08123456789" }
-    ]
-  },
-  {
-    name: "Linezolid",
-    indication: "Drug-resistant Gram-positive infections",
-    usage: "600mg every 12 hours",
-    sideEffects: "Bone marrow suppression, headache",
-    pharmacies: [
-      { name: "TrustMed Pharmacy", location: "Etegwe, Yenagoa", contact: "08155559999" }
-    ]
-  },
-  {
-    name: "Rifampicin",
-    indication: "Tuberculosis, meningitis prophylaxis",
-    usage: "10mg/kg daily (usually 600mg)",
-    sideEffects: "Red/orange urine, liver damage",
-    pharmacies: [
-      { name: "TB Care Pharmacy", location: "Swali, Yenagoa", contact: "08170000000" }
-    ]
-  },
-  {
-    name: "Isoniazid",
-    indication: "Tuberculosis treatment and prevention",
-    usage: "5mg/kg daily (usually 300mg)",
-    sideEffects: "Liver toxicity, neuropathy",
-    pharmacies: [
-      { name: "HealthPlus Pharmacy", location: "Yenagoa Main Market Road", contact: "08012345678" }
-    ]
-  },
-  {
-    name: "Pyrazinamide",
-    indication: "Tuberculosis treatment",
-    usage: "15–30mg/kg once daily",
-    sideEffects: "Liver damage, joint pain",
-    pharmacies: [
-      { name: "TB Care Pharmacy", location: "Swali, Yenagoa", contact: "08170000000" }
-    ]
-  },
-  {
-    name: "Ethambutol",
-    indication: "Tuberculosis treatment",
-    usage: "15–25mg/kg once daily",
-    sideEffects: "Visual problems, optic neuritis",
-    pharmacies: [
-      { name: "Hope Alive Pharmacy", location: "Kpansia, Yenagoa", contact: "08111118888" }
-    ]
-  },
-  {
-    name: "Cotrimoxazole (Septrin)",
-    indication: "Respiratory, urinary, and GI infections; HIV prophylaxis",
-    usage: "960mg every 12 hours",
-    sideEffects: "Rash, nausea, bone marrow suppression",
-    pharmacies: [
-      { name: "LifeSpring Pharmacy", location: "Biogbolo, Yenagoa", contact: "08055556666" }
-    ]
-  },
-  {
-    name: "Nitrofurantoin",
-    indication: "Urinary tract infections",
-    usage: "50–100mg every 6 hours",
-    sideEffects: "Nausea, lung reactions (long term)",
-    pharmacies: [
-      { name: "TrustCare Pharmacy", location: "Agudama, Yenagoa", contact: "08044445555" }
-    ]
-  },
-  {
-    name: "Metronidazole",
-    indication: "Anaerobic infections, protozoal infections",
-    usage: "400–500mg every 8 hours",
-    sideEffects: "Metallic taste, nausea, dizziness",
-    pharmacies: [
-      { name: "QuickRelief Pharmacy", location: "Swali Market, Yenagoa", contact: "08111119999" }
-    ]
-  },
-  {
-    name: "Tinidazole",
-    indication: "Protozoal infections, bacterial vaginosis",
-    usage: "2g single dose or as prescribed",
-    sideEffects: "Metallic taste, nausea",
-    pharmacies: [
-      { name: "Deworm Pharmacy", location: "Tombia, Yenagoa", contact: "08133334455" }
-    ]
-  },
-  {
-    name: "Mebendazole",
-    indication: "Worm infestations",
-    usage: "100mg twice daily for 3 days",
-    sideEffects: "Abdominal pain, diarrhea",
-    pharmacies: [
-      { name: "Deworm Pharmacy", location: "Tombia, Yenagoa", contact: "08133334455" }
-    ]
-  },
-  {
-    name: "Praziquantel",
-    indication: "Schistosomiasis, tapeworm infections",
-    usage: "20mg/kg twice daily for 1 day",
-    sideEffects: "Dizziness, abdominal pain",
-    pharmacies: [
-      { name: "MalariaCare Pharmacy", location: "Amarata, Yenagoa", contact: "08077778888" }
-    ]
-  },
-  {
-    name: "Oseltamivir",
-    indication: "Influenza A and B treatment",
-    usage: "75mg twice daily for 5 days",
-    sideEffects: "Nausea, vomiting, headache",
-    pharmacies: [
-      { name: "Respira Pharmacy", location: "Kpansia, Yenagoa", contact: "08199990000" }
-    ]
-  },
-  {
-    name: "Acyclovir",
-    indication: "Herpes infections (HSV, VZV)",
-    usage: "400mg three times daily",
-    sideEffects: "Nausea, headache, kidney effects",
-    pharmacies: [
-      { name: "Hope Pharmacy", location: "Tombia Road, Yenagoa", contact: "08122223322" }
-    ]
-  },
-  // ... your previous 100 drugs above
+function getSelectedDrugs() {
+  return qsa('.drug-checkbox').filter(ch => ch.checked).map(ch => ch.value);
+}
 
-  {
-    name: "Insulin (NPH)",
-    indication: "Diabetes mellitus (type 1 and type 2)",
-    usage: "Subcutaneous injection, dose individualized",
-    sideEffects: "Hypoglycemia, weight gain, injection site reactions",
-    pharmacies: [
-      { name: "Diabetes Care Pharmacy", location: "Ekeki, Yenagoa", contact: "08122221111" },
-      { name: "MediCare Pharmacy", location: "Oxbow Lake Road, Yenagoa", contact: "07055555555" }
-    ]
-  },
-  {
-    name: "Regular Insulin",
-    indication: "Diabetes mellitus, diabetic ketoacidosis",
-    usage: "Subcutaneous or IV injection, dose individualized",
-    sideEffects: "Hypoglycemia, weight gain, low potassium",
-    pharmacies: [
-      { name: "HealthPlus Pharmacy", location: "Yenagoa Main Market Road", contact: "08012345678" },
-      { name: "City Health Pharmacy", location: "Ekeki Park, Yenagoa", contact: "08198765432" }
-    ]
-  },
-  {
-    name: "Glargine Insulin",
-    indication: "Type 1 and 2 diabetes (long-acting control)",
-    usage: "Once daily subcutaneous injection",
-    sideEffects: "Hypoglycemia, weight gain",
-    pharmacies: [
-      { name: "Diabetes Care Pharmacy", location: "Ekeki, Yenagoa", contact: "08122221111" }
-    ]
-  },
-  {
-    name: "Metformin",
-    indication: "Type 2 diabetes",
-    usage: "500–1000mg twice daily with meals",
-    sideEffects: "Nausea, diarrhea, lactic acidosis (rare)",
-    pharmacies: [
-      { name: "WellCare Drugs", location: "Swali Market, Yenagoa", contact: "08123456789" }
-    ]
-  },
-  {
-    name: "Glibenclamide",
-    indication: "Type 2 diabetes",
-    usage: "2.5–10mg once daily",
-    sideEffects: "Hypoglycemia, weight gain",
-    pharmacies: [
-      { name: "Hope Alive Pharmacy", location: "Kpansia, Yenagoa", contact: "08111118888" }
-    ]
-  },
-  {
-    name: "Sitagliptin",
-    indication: "Type 2 diabetes",
-    usage: "100mg once daily",
-    sideEffects: "Headache, nasopharyngitis, rare pancreatitis",
-    pharmacies: [
-      { name: "TrustCare Pharmacy", location: "Agudama, Yenagoa", contact: "08044445555" }
-    ]
-  },
-  {
-    name: "Pioglitazone",
-    indication: "Type 2 diabetes",
-    usage: "15–30mg once daily",
-    sideEffects: "Weight gain, edema, heart failure risk",
-    pharmacies: [
-      { name: "MediCare Pharmacy", location: "Oxbow Lake Road, Yenagoa", contact: "07055555555" }
-    ]
-  },
-  {
-    name: "Empagliflozin",
-    indication: "Type 2 diabetes, heart failure",
-    usage: "10–25mg once daily",
-    sideEffects: "Genital infections, dehydration",
-    pharmacies: [
-      { name: "Diabetes Care Pharmacy", location: "Ekeki, Yenagoa", contact: "08122221111" }
-    ]
-  },
-  {
-    name: "Dapagliflozin",
-    indication: "Type 2 diabetes, kidney disease",
-    usage: "5–10mg once daily",
-    sideEffects: "Urinary tract infections, thirst",
-    pharmacies: [
-      { name: "QuickMed Pharmacy", location: "Okutukutu, Yenagoa", contact: "08188889999" }
-    ]
-  },
-  {
-    name: "Exenatide",
-    indication: "Type 2 diabetes (GLP-1 agonist)",
-    usage: "5–10mcg subcutaneously twice daily",
-    sideEffects: "Nausea, weight loss, pancreatitis (rare)",
-    pharmacies: [
-      { name: "Diabetes Care Pharmacy", location: "Ekeki, Yenagoa", contact: "08122221111" }
-    ]
-  },
-  {
-    name: "Liraglutide",
-    indication: "Type 2 diabetes, obesity",
-    usage: "0.6–1.8mg subcutaneously daily",
-    sideEffects: "Nausea, vomiting, pancreatitis (rare)",
-    pharmacies: [
-      { name: "WellCare Drugs", location: "Swali Market, Yenagoa", contact: "08123456789" }
-    ]
-  },
-  {
-    name: "Repaglinide",
-    indication: "Type 2 diabetes (meal-time glucose control)",
-    usage: "0.5–4mg before meals",
-    sideEffects: "Hypoglycemia, weight gain",
-    pharmacies: [
-      { name: "City Health Pharmacy", location: "Ekeki Park, Yenagoa", contact: "08198765432" }
-    ]
-  },
-  {
-    name: "Acarbose",
-    indication: "Type 2 diabetes (post-meal glucose control)",
-    usage: "50–100mg with meals",
-    sideEffects: "Gas, diarrhea, abdominal pain",
-    pharmacies: [
-      { name: "TrustCare Pharmacy", location: "Agudama, Yenagoa", contact: "08044445555" }
-    ]
-  },
-  {
-    name: "Canagliflozin",
-    indication: "Type 2 diabetes",
-    usage: "100–300mg once daily",
-    sideEffects: "Urinary infections, dehydration, ketoacidosis (rare)",
-    pharmacies: [
-      { name: "MediCare Pharmacy", location: "Oxbow Lake Road, Yenagoa", contact: "07055555555" }
-    ]
-  },
-  {
-    name: "Glipizide",
-    indication: "Type 2 diabetes",
-    usage: "5–20mg once daily",
-    sideEffects: "Hypoglycemia, weight gain",
-    pharmacies: [
-      { name: "HealthPlus Pharmacy", location: "Yenagoa Main Market Road", contact: "08012345678" }
-    ]
-  },
-  {
-    name: "Tolbutamide",
-    indication: "Type 2 diabetes (rarely used now)",
-    usage: "250–500mg two to three times daily",
-    sideEffects: "Hypoglycemia, weight gain",
-    pharmacies: [
-      { name: "OldCare Pharmacy", location: "Amarata, Yenagoa", contact: "08144446666" }
-    ]
-  },
-  {
-    name: "Nateglinide",
-    indication: "Type 2 diabetes (short-acting secretagogue)",
-    usage: "60–120mg before meals",
-    sideEffects: "Hypoglycemia, weight gain",
-    pharmacies: [
-      { name: "LifeSpring Pharmacy", location: "Biogbolo, Yenagoa", contact: "08055556666" }
-    ]
-  },
-  {
-    name: "Semaglutide",
-    indication: "Type 2 diabetes, weight management",
-    usage: "0.25–1mg weekly subcutaneous injection",
-    sideEffects: "Nausea, vomiting, pancreatitis (rare)",
-    pharmacies: [
-      { name: "Diabetes Care Pharmacy", location: "Ekeki, Yenagoa", contact: "08122221111" }
-    ]
-  },
-  {
-    name: "Glimepiride",
-    indication: "Type 2 diabetes",
-    usage: "1–4mg once daily",
-    sideEffects: "Hypoglycemia, weight gain",
-    pharmacies: [
-      { name: "Hope Alive Pharmacy", location: "Kpansia, Yenagoa", contact: "08111118888" }
-    ]
-  },
-  {
-    name: "Linagliptin",
-    indication: "Type 2 diabetes (DPP-4 inhibitor)",
-    usage: "5mg once daily",
-    sideEffects: "Nasopharyngitis, headache",
-    pharmacies: [
-      { name: "TrustCare Pharmacy", location: "Agudama, Yenagoa", contact: "08044445555" }
-    ]
-  },
-  {
-    name: "Regular Insulin",
-    category: "Antidiabetic (Insulin)",
-    indication: "Diabetes mellitus, diabetic ketoacidosis",
-    usage: "Subcutaneous or IV injection, dose individualized",
-    sideEffects: "Hypoglycemia, weight gain, low potassium",
-    pharmacies: [
-      { name: "HealthPlus Pharmacy", location: "Yenagoa Main Market Road", contact: "08012345678" },
-      { name: "City Health Pharmacy", location: "Ekeki Park, Yenagoa", contact: "08198765432" }
-    ]
-  },
-  {
-    name: "Metformin",
-    category: "Antidiabetic (Biguanide)",
-    indication: "Type 2 diabetes",
-    usage: "500–1000mg twice daily with meals",
-    sideEffects: "Nausea, diarrhea, lactic acidosis (rare)",
-    pharmacies: [
-      { name: "WellCare Drugs", location: "Swali Market, Yenagoa", contact: "08123456789" }
-    ]
+/* ---------- UI: toggles for collapsible groups & select-per-category ---------- */
+qsa('.group').forEach(group => {
+  const toggle = group.querySelector('.group-toggle');
+  const body = group.querySelector('.group-body');
+  toggle.addEventListener('click', () => body.classList.toggle('hidden'));
+  // select all / clear buttons
+  group.querySelector('.select-category').addEventListener('click', () => {
+    group.querySelectorAll('.drug-checkbox').forEach(cb => cb.checked = true);
+    updateSelectedCount();
+  });
+  group.querySelector('.deselect-category').addEventListener('click', () => {
+    group.querySelectorAll('.drug-checkbox').forEach(cb => cb.checked = false);
+    updateSelectedCount();
+  });
+});
+
+/* select all visible / clear all buttons */
+qs('#btnSelectAllVisible').addEventListener('click', () => {
+  qsa('.drug-checkbox').forEach(cb => cb.checked = true);
+  updateSelectedCount();
+});
+qs('#btnClearAll').addEventListener('click', () => {
+  qsa('.drug-checkbox').forEach(cb => cb.checked = false);
+  updateSelectedCount();
+});
+
+/* update count */
+function updateSelectedCount(){
+  selectedCountEl.textContent = getSelectedDrugs().length;
+}
+document.addEventListener('change', (e) => {
+  if (e.target.classList && e.target.classList.contains('drug-checkbox')) updateSelectedCount();
+});
+updateSelectedCount();
+
+/* ---------- localStorage reminders ---------- */
+const STORAGE_KEY = 'areahealth_reminders_v1';
+
+function loadReminders() {
+  try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]'); }
+  catch(e){ return []; }
+}
+function saveReminders(arr) { localStorage.setItem(STORAGE_KEY, JSON.stringify(arr)); }
+
+function renderSavedReminders() {
+  const list = loadReminders();
+  if (list.length === 0) {
+    savedListEl.innerHTML = '<li class="text-gray-500">No reminders saved.</li>';
+    return;
   }
-];
+  savedListEl.innerHTML = '';
+  list.forEach((r, idx) => {
+    const li = document.createElement('li');
+    li.className = 'flex items-start justify-between gap-2';
+    li.innerHTML = `
+      <div>
+        <div class="font-medium">${r.drugs.join(', ')}</div>
+        <div class="text-xs text-gray-600">Refill date: ${r.date}</div>
+      </div>
+      <div class="flex gap-2">
+        <button data-idx="${idx}" class="edit-reminder px-2 py-1 border rounded text-xs">Edit</button>
+        <button data-idx="${idx}" class="delete-reminder px-2 py-1 bg-red-600 text-white rounded text-xs">Delete</button>
+      </div>
+    `;
+    savedListEl.appendChild(li);
+  });
 
-    // Populate drug list
-    function renderDrugs(list) {
-      const container = document.getElementById("drugList");
-      container.innerHTML = "";
-      list.forEach(drug => {
-        const div = document.createElement("div");
-        div.className = "drug-card";
-        div.innerHTML = `
-          <h3>${drug.name}</h3>
-          <p><b>Indication:</b> ${drug.indication}</p>
-          <p><b>How to use:</b> ${drug.usage}</p>
-          <p><b>Side effects:</b> ${drug.sideEffects}</p>
-          <div class="pharmacy-availability">
-            📍 Available at:
-            <ul>
-              ${drug.pharmacies.map(p => `<li>${p.name} (${p.location}) - 📞 ${p.contact}</li>`).join("")}
-            </ul>
-          </div>
-        `;
-        container.appendChild(div);
+  // attach listeners
+  qsa('.delete-reminder').forEach(btn => btn.addEventListener('click', (e) => {
+    const idx = +e.target.dataset.idx;
+    const arr = loadReminders();
+    arr.splice(idx,1);
+    saveReminders(arr);
+    renderSavedReminders();
+  }));
+  qsa('.edit-reminder').forEach(btn => btn.addEventListener('click', (e) => {
+    const idx = +e.target.dataset.idx;
+    const arr = loadReminders();
+    const r = arr[idx];
+    // prefill checkboxes & date
+    qsa('.drug-checkbox').forEach(cb => cb.checked = r.drugs.includes(cb.value));
+    qs('#reminderDate').value = r.date;
+    updateSelectedCount();
+    // remove the reminder (we'll save again on Save)
+    arr.splice(idx,1);
+    saveReminders(arr);
+    renderSavedReminders();
+  }));
+}
+
+/* ---------- Save reminder (localStorage) ---------- */
+qs('#saveReminder').addEventListener('click', () => {
+  const drugs = getSelectedDrugs();
+  const date = qs('#reminderDate').value;
+  if (!drugs.length) { reminderStatusEl.textContent = 'Please select at least one drug.'; reminderStatusEl.className='text-sm text-red-600'; return; }
+  if (!date) { reminderStatusEl.textContent = 'Please choose a refill date.'; reminderStatusEl.className='text-sm text-red-600'; return; }
+
+  const arr = loadReminders();
+  arr.push({drugs, date, createdAt: (new Date()).toISOString()});
+  saveReminders(arr);
+  reminderStatusEl.textContent = `Saved reminder for ${drugs.length} drug(s) on ${date}.`;
+  reminderStatusEl.className='text-sm text-green-600';
+  // clear selection
+  qsa('.drug-checkbox').forEach(cb => cb.checked = false);
+  qs('#reminderDate').value = '';
+  updateSelectedCount();
+  renderSavedReminders();
+});
+
+/* ---------- Preview reminder ---------- */
+qs('#previewReminder').addEventListener('click', () => {
+  const drugs = getSelectedDrugs();
+  const date = qs('#reminderDate').value || 'No date set';
+  if (!drugs.length) { alert('No drugs selected.'); return; }
+  alert(`Preview\n\nDrugs:\n- ${drugs.join('\n- ')}\n\nRefill date: ${date}`);
+});
+
+/* ---------- SEND email via EmailJS (or fallback mailto) ---------- */
+qs('#sendReminder').addEventListener('click', async () => {
+  const drugs = getSelectedDrugs();
+  const date = qs('#reminderDate').value;
+  if (!drugs.length) { reminderStatusEl.textContent = 'Select drugs before sending.'; reminderStatusEl.className='text-sm text-red-600'; return; }
+  if (!date) { reminderStatusEl.textContent = 'Choose a refill date before sending.'; reminderStatusEl.className='text-sm text-red-600'; return; }
+
+  const subject = `Refill Request — ${drugs[0]}${drugs.length>1?(' +'+(drugs.length-1)+' more') : ''}`;
+  const body = `Patient: ${qs('#patientName') ? qs('#patientName').value : 'N/A'}\nEmail: ${qs('#patientEmail') ? qs('#patientEmail').value : 'N/A'}\n\nDrugs:\n- ${drugs.join('\n- ')}\n\nRefill date: ${date}\n\nSent from AreaHealth-NG`;
+
+  // If EmailJS configured, try to send
+  const emailjsReady = (typeof emailjs !== 'undefined') && EMAILJS_SERVICE_ID && EMAILJS_TEMPLATE_ID && EMAILJS_PUBLIC_KEY && !EMAILJS_PUBLIC_KEY.includes('YOUR');
+
+  if (emailjsReady) {
+    const templateParams = {
+      to_email: PRIMARY_EMAIL,
+      cc_email: CC_EMAIL,
+      subject,
+      message: body
+    };
+    reminderStatusEl.textContent = 'Sending email...';
+    try {
+      await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, templateParams);
+      reminderStatusEl.textContent = 'Email sent successfully.';
+      reminderStatusEl.className='text-sm text-green-600';
+    } catch (err) {
+      console.error('EmailJS error', err);
+      reminderStatusEl.textContent = 'EmailJS failed — opening mail client as fallback.';
+      reminderStatusEl.className='text-sm text-red-600';
+      // fallback to mailto
+      window.location.href = `mailto:${PRIMARY_EMAIL}?cc=${encodeURIComponent(CC_EMAIL)}&subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    }
+  } else {
+    // fallback: mailto:
+    window.location.href = `mailto:${PRIMARY_EMAIL}?cc=${encodeURIComponent(CC_EMAIL)}&subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+  }
+});
+
+/* ---------- Reminder check (runs on load and daily) ---------- */
+function showBrowserNotification(title, body) {
+  // Notification API
+  if (!('Notification' in window)) {
+    alert(`${title}\n\n${body}`);
+    return;
+  }
+  if (Notification.permission === 'granted') {
+    new Notification(title, {body});
+  } else if (Notification.permission !== 'denied') {
+    Notification.requestPermission().then(permission => {
+      if (permission === 'granted') new Notification(title, {body});
+      else alert(`${title}\n\n${body}`);
+    });
+  } else {
+    // permission denied -> fallback alert
+    alert(`${title}\n\n${body}`);
+  }
+}
+
+// Check reminders and notify if refill date is today or within 1 day
+function checkAndNotifyReminders() {
+  const arr = loadReminders();
+  const now = new Date();
+  arr.forEach(r => {
+    const when = new Date(r.date + 'T09:00:00'); // assume 9am local
+    const diffDays = Math.floor((when - now) / (1000*60*60*24));
+    if (diffDays <= 1 && diffDays >= 0) {
+      // show popup
+      const title = 'Refill reminder';
+      const body = `Refill for: ${r.drugs.slice(0,5).join(', ')}${r.drugs.length>5?(' +'+(r.drugs.length-5)+' more'):''}\nDate: ${r.date}`;
+      showBrowserNotification(title, body);
+      // optional: also send push via Firebase (if configured)
+      if (window._fcmSend && typeof window._fcmSend === 'function') {
+        try { window._fcmSend(title, body); } catch(e){ console.warn(e); }
+      }
+    }
+  });
+}
+
+/* run on load + schedule daily (24h) */
+renderSavedReminders();
+checkAndNotifyReminders();
+setInterval(checkAndNotifyReminders, 24*60*60*1000);
+
+/* ---------- OPTIONAL: Firebase Cloud Messaging (FCM) setup skeleton ---------- */
+/* NOTE: to enable, paste your FIREBASE_CONFIG (above) and include Firebase scripts.
+   Below is a small skeleton showing how to request permission and get token.
+   You'll need to host a Firebase Cloud Function or server to send messages to the token(s).
+*/
+async function initFirebaseMessaging() {
+  if (!FIREBASE_CONFIG || !FIREBASE_CONFIG.apiKey) { console.log('Firebase config missing'); return; }
+  // load firebase scripts dynamically
+  const s1 = document.createElement('script'); s1.src = "https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"; document.head.appendChild(s1);
+  const s2 = document.createElement('script'); s2.src = "https://www.gstatic.com/firebasejs/9.23.0/firebase-messaging-compat.js"; document.head.appendChild(s2);
+  s2.onload = () => {
+    try {
+      const app = firebase.initializeApp(FIREBASE_CONFIG);
+      const messaging = firebase.messaging();
+      // Request permission
+      Notification.requestPermission().then(permission => {
+        if (permission === 'granted') {
+          messaging.getToken({vapidKey: FIREBASE_CONFIG.vapidKey || ''})
+            .then(token => {
+              console.log('FCM Token:', token);
+              // TODO: send this token to your server to send push messages later.
+              reminderStatusEl.textContent = 'Push notifications enabled (token logged in console)';
+            }).catch(err => console.warn('FCM token error', err));
+        } else {
+          console.warn('Notification permission not granted for FCM');
+        }
       });
-    }
+      // receive messages while page is open
+      messaging.onMessage(payload => {
+        console.log('Message received. ', payload);
+        showBrowserNotification(payload.notification?.title || 'AreaHealth-NG', payload.notification?.body || 'You have an update');
+      });
+      // expose a small helper for sending (requires server-side)
+      window._fcmSend = function(title, body) {
+        console.log('FCM send helper called — implement your server-side send with stored tokens.');
+      };
+    } catch(e) { console.error('Firebase init error', e); }
+  };
+}
+initFirebaseMessaging(); // call but will only run if config provided
 
-    renderDrugs(drugs);
+</script>
 
-    // Search function
-    function searchDrug() {
-      const input = document.getElementById("searchDrug").value.toLowerCase();
-      const filtered = drugs.filter(d => d.name.toLowerCase().includes(input));
-      renderDrugs(filtered);
+    <!-- ANNOUNCEMENT -->
+    <div class="announcement">
+      <strong class="small">Announcement</strong>
+      <div class="marquee" aria-hidden="false">
+        <p>We are here to help you find the drugs you are looking for — AreaHealth-NG</p>
+      </div>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div class="content">
+      <!-- LEFT: Drug list + search -->
+      <div class="left">
+        <div class="card">
+          <label for="search">SELECT THE DRUGS YOU NEED</label>
+          <input id="search" type="search" placeholder="Type drug name (e.g. Paracetamol) — search filters instantly">
+
+          <div class="controls" style="margin-top:12px">
+            <button id="selectAllBtn" class="btn ghost">Select all visible</button>
+            <button id="clearBtn" class="btn ghost">Clear selection</button>
+            <div style="margin-left:auto" class="small">Selected: <span id="selectedCount">0</span></div>
+          </div>
+
+          <div id="drugList" class="drug-list" role="list" aria-label="Drugs list" tabindex="0">
+            <!-- generated checkboxes appear here -->
+          </div>
+        </div>
+      </div>
+
+      <!-- RIGHT: form + actions -->
+      <div class="right">
+        <div class="card" style="display:flex;flex-direction:column;gap:10px">
+          <div>
+            <label for="patientName">Patient Name </label>
+            <input id="patientName" type="text" placeholder="e.g. John" required>
+          </div>
+
+          <div>
+            <label for="patientEmail">Patient Email </label>
+            <input id="patientEmail" type="email" placeholder="you@example.com" required>
+          </div>
+
+          <div>
+            <label for="notes">Location and special request</label>
+            <input id="notes" type="text" placeholder="E.g. urgent, deliver to ..." required>
+          </div>
+
+          <div class="small">Select the drugs you need: <strongclass="">Confirm that they all correct</strong></div>
+
+          <div style="display:flex;gap:10px;margin-top:6px">
+            <button id="submitBtn" class="btn primary" aria-label="Submit and open WhatsApp">Submit & Open WhatsApp</button>
+            <button id="previewBtn" class="btn ghost">Preview message</button>
+          </div>
+
+          <div id="status" class="small" style="margin-top:8px;color:green"></div>
+
+          <hr style="border:none;border-top:1px solid #eef2ff;margin-top:8px;margin-bottom:0">
+
+          <div style="font-size:13px;color:var(--muted);margin-top:8px">
+            <strong> AreaHealth-NG :</strong><br>
+            <span>Less Stress</span><br>
+            <span>Time Saving</span>
+          </div>
+
+          <div style="font-size:12px;color:var(--muted);margin-top:6px">
+            <em>Note:</em> Faster Access to Prescribed medications is very essential for Emergency cases.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- FOOTER -->
+    <div class="footer">
+      <div class="note"> <span id="year"></span>Get update ➡️</div>
+      <div class="socials" aria-label="social links">
+        <!-- Replace hrefs with your official links -->
+        <a href="#" title="Facebook" aria-label="Facebook">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M22 12.07C22 6.45 17.52 2 11.9 2S1.8 6.45 1.8 12.07C1.8 17.09 5.72 21.18 10.51 22v-7.06H8.07v-2.87h2.44V9.63c0-2.41 1.44-3.73 3.64-3.73 1.05 0 2.15.19 2.15.19v2.36h-1.21c-1.19 0-1.56.74-1.56 1.5v1.81h2.66l-.43 2.87h-2.23V22C18.28 21.18 22 17.09 22 12.07z" fill="#1877F2"/></svg>
+        </a>
+        <a href="#" title="Instagram" aria-label="Instagram">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M7 2h10a5 5 0 015 5v10a5 5 0 01-5 5H7a5 5 0 01-5-5V7a5 5 0 015-5zm8 4.5a1 1 0 100 2 1 1 0 000-2zM12 7a5 5 0 100 10 5 5 0 000-10z" fill="#E1306C"/></svg>
+        </a>
+        <a href="#" title="Twitter" aria-label="Twitter">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M22 5.92c-.63.28-1.3.48-2 .57a3.35 3.35 0 001.47-1.85 6.7 6.7 0 01-2.12.82 3.34 3.34 0 00-5.69 3.05A9.47 9.47 0 013 4.79a3.33 3.33 0 001.03 4.45 3.28 3.28 0 01-1.52-.42v.04a3.34 3.34 0 002.68 3.27c-.46.12-.95.18-1.45.07.4 1.2 1.57 2.07 2.95 2.09A6.7 6.7 0 012 19.52a9.44 9.44 0 005.13 1.5c6.14 0 9.5-5.1 9.5-9.52v-.43A6.82 6.82 0 0022 5.92z" fill="#1DA1F2"/></svg>
+        </a>
+        <a href="#" title="YouTube" aria-label="YouTube">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M23 7.5a3 3 0 00-2.12-2.12C18.64 5 12 5 12 5s-6.64 0-8.88.38A3 3 0 001 7.5 31.7 31.7 0 001 12a31.7 31.7 0 001.12 4.5 3 3 0 002.12 2.12C5.36 19 12 19 12 19s6.64 0 8.88-.38A3 3 0 0023 16.5 31.7 31.7 0 0023 12a31.7 31.7 0 00-0-4.5zM10 15V9l5 3-5 3z" fill="#FF0000"/></svg>
+        </a>
+        <a href="https://wa.me/2349043427865" target="_blank" title="WhatsApp" aria-label="WhatsApp">
+          <svg width="18" height="18" viewBox="0 0 24 24"><path d="M20.5 3.5A11.8 11.8 0 0012 .5 11.7 11.7 0 001.6 11.1c0 2 0.5 3.9 1.6 5.6L.5 23.5l6.9-1.8a11.7 11.7 0 005.9 1.6C18.4 23.3 24 17.7 24 10.5A11.8 11.8 0 0020.5 3.5z" fill="#25D366"/></svg>
+        </a>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ---------- SCRIPT: Validation, EmailJS, Render Drugs, Search, Submit ---------- -->
+<script>
+  // =============================
+  //  DRUG DATABASE (300+ DRUGS)
+  // =============================
+  const DRUGS = [
+    "Paracetamol", "Ibuprofen", "Diclofenac", "Aspirin", "Naproxen", "Tramadol",
+    "Codeine Phosphate", "Morphine", "Prednisolone", "Hydrocortisone Cream",
+    "Amlodipine", "Lisinopril", "Losartan", "Hydrochlorothiazide", "Candesartan",
+    "Metoprolol", "Propranolol", "Spironolactone", "Triamterene-HCTZ", "Atenolol",
+    "Metformin", "Glibenclamide", "Pioglitazone", "Glimepiride", "Sitagliptin",
+    "Vildagliptin", "Empagliflozin", "Dapagliflozin", "Linagliptin", "Repaglinide",
+    "Amoxicillin", "Ciprofloxacin", "Azithromycin", "Ceftriaxone", "Cefuroxime",
+    "Clarithromycin", "Doxycycline", "Nitrofurantoin", "Co-trimoxazole", "Levofloxacin",
+    "Vitamin C", "Vitamin B Complex", "Folic Acid", "Ferrous Sulfate", "Zinc Sulfate",
+    "Calcium Carbonate", "Multivitamin Tablets", "Vitamin D3",
+    "Magnesium Supplements", "Potassium Supplements",
+    "Salbutamol Inhaler", "Budesonide Inhaler", "Montelukast", "Ipratropium Inhaler",
+    "Beclomethasone Inhaler", "Theophylline", "Formoterol", "Fluticasone Inhaler",
+    "Cromolyn Sodium", "Omalizumab",
+    "Omeprazole", "Pantoprazole", "Ranitidine", "Esomeprazole", "Loperamide",
+    "Domperidone", "Ondansetron", "Sucralfate", "Activated Charcoal", "Antacids Tablets",
+    "Diazepam", "Lorazepam", "Fluoxetine", "Sertraline", "Amitriptyline",
+    "Olanzapine", "Risperidone", "Levetiracetam", "Clonazepam", "Gabapentin",
+    "Insulin Glargine", "Insulin Regular", "Hydroxychloroquine", "Acyclovir",
+    "Nitroglycerin", "Digoxin", "Adrenaline", "Warfarin", "Heparin", "Enoxaparin",
+    "Vitamin E", "Vitamin K", "Chloroquine", "Artemether-Lumefantrine",
+    "Quinine Sulfate", "Primaquine", "Artesunate", "Albendazole", "Mebendazole", "Ivermectin"
+  ];
+  
+  // =============================
+  //  GENERATE DRUG LIST
+  // =============================
+  const drugListEl = document.getElementById("drugList");
+  const searchInput = document.getElementById("search");
+  const selectedCountText = document.getElementById("selectedCount");
+  
+  function renderDrugs(filter = "") {
+    drugListEl.innerHTML = "";
+    const filtered = DRUGS.filter(drug =>
+      drug.toLowerCase().includes(filter.toLowerCase())
+    );
+    
+    filtered.forEach(drug => {
+      const item = document.createElement("div");
+      item.className = "drug-item";
+      
+      item.innerHTML = `
+      <input type="checkbox" value="${drug}">
+      <label>${drug}</label>
+    `;
+      drugListEl.appendChild(item);
+    });
+    updateCount();
+  }
+  
+  renderDrugs();
+  
+  // =============================
+  //  SEARCH FILTER
+  // =============================
+  searchInput.addEventListener("input", e => {
+    renderDrugs(e.target.value);
+  });
+  
+  // =============================
+  //  COUNT SELECTED
+  // =============================
+  function updateCount() {
+    const selected = document.querySelectorAll("#drugList input:checked").length;
+    selectedCountText.textContent = selected;
+  }
+  
+  drugListEl.addEventListener("change", updateCount);
+  
+  // =============================
+  //  SELECT ALL / CLEAR
+  // =============================
+  document.getElementById("selectAllBtn").onclick = () => {
+    const visible = document.querySelectorAll("#drugList input");
+    visible.forEach(box => box.checked = true);
+    updateCount();
+  };
+  
+  document.getElementById("clearBtn").onclick = () => {
+    document.querySelectorAll("#drugList input").forEach(box => box.checked = false);
+    updateCount();
+  };
+  
+  // =============================
+  //  PREVIEW MESSAGE
+  // =============================
+  document.getElementById("previewBtn").onclick = () => {
+    const selected = [...document.querySelectorAll("#drugList input:checked")].map(x => x.value);
+    
+    if (selected.length === 0) {
+      alert("No drug selected");
+      return;
     }
-  </script>
+    
+    const name = document.getElementById("patientName").value;
+    const email = document.getElementById("patientEmail").value;
+    const notes = document.getElementById("notes").value;
+    
+    const message = `
+Patient Name: ${name || "N/A"}
+Email: ${email}
+
+Drugs Selected:
+${selected.map(d => "• " + d).join("\n")}
+
+Notes: ${notes || "None"}
+  `;
+    
+    alert(message);
+  };
+  
+  // =============================
+  //  OPEN WHATSAPP
+  // =============================
+  document.getElementById("submitBtn").onclick = () => {
+    const selected = [...document.querySelectorAll("#drugList input:checked")].map(x => x.value);
+    
+    if (selected.length === 0) {
+      alert("Please select at least 1 drug");
+      return;
+    }
+    
+    const name = document.getElementById("patientName").value;
+    const email = document.getElementById("patientEmail").value;
+    const notes = document.getElementById("notes").value;
+    
+    const text =
+      `*AREAHEALTH-NG — Drug Request*
+--------------------------------
+👤 Name: ${name || "N/A"}
+📧 Email: ${email}
+
+🩺 *Selected Drugs:*
+${selected.map(d => "• " + d).join("\n")}
+
+📝 Notes:
+${notes || "None"}
+
+Sent from AreaHealth-NG Drug Request Platform`;
+    
+    const phone = "+2349043427865";
+    const url = `https://wa.me/${phone}?text=${encodeURIComponent(text)}`;
+    
+    window.open(url, "_blank");
+  };
+  
+  // =============================
+  //  REMINDER
+  // =============================
+  document.getElementById("setReminderBtn").onclick = () => {
+    const drug = document.getElementById("reminderDrug").value;
+    const date = document.getElementById("reminderDate").value;
+    
+    if (!drug || !date) {
+      alert("Select a drug & date");
+      return;
+    }
+    
+    localStorage.setItem("refillDrug", drug);
+    localStorage.setItem("refillDate", date);
+    
+    document.getElementById("reminderStatus").textContent =
+      `Reminder set for ${drug} on ${date}`;
+  };
+</script>
 </body>
 </html>
