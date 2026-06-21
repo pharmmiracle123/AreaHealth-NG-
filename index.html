@@ -370,11 +370,7 @@ installBtn.addEventListener("click", async () => {
 });
 
 // AFTER INSTALL → permanently hide
-window.addEventListener("appinstalled", () => {
-  installBtn.style.display = "none";
-  deferredPrompt = null;
-  console.log("PWA Installed Successfully");
-});
+
 </script>
   <script>
 if ('serviceWorker' in navigator) {
