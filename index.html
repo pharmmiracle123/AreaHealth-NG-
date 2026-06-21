@@ -181,6 +181,52 @@ px-8 py-4 rounded-full
 border-4 border-white">
 🚀 INSTALL APP
 </button>
+  <script>
+let deferredPrompt;
+
+const installBtn = document.getElementById("installBtn");
+
+// Hide button if already installed
+if (
+    window.matchMedia('(display-mode: standalone)').matches ||
+    window.navigator.standalone === true
+) {
+    installBtn.style.display = "none";
+}
+
+// Show install button
+window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+
+    deferredPrompt = e;
+
+    installBtn.classList.remove("hidden");
+});
+
+// Install app
+installBtn.addEventListener('click', async () => {
+
+    if (!deferredPrompt) return;
+
+    deferredPrompt.prompt();
+
+    const choiceResult = await deferredPrompt.userChoice;
+
+    if (choiceResult.outcome === 'accepted') {
+        installBtn.style.display = "none";
+    }
+
+    deferredPrompt = null;
+});
+
+// Hide button after installation
+window.addEventListener('appinstalled', () => {
+
+    installBtn.style.display = "none";
+
+    console.log("App Installed");
+});
+</script>
   <!-- Why Choose Us -->
   <section>
     <h2>Why Choose AreaHealth?</h2>
@@ -327,51 +373,7 @@ border-4 border-white">
 
 <!-- Font Awesome Icons (Required) -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
- <script>
-let deferredPrompt;
-const installBtn = document.getElementById("installBtn");
-
-// Always start hidden
-installBtn.style.display = "none";
-
-// If already installed → never show
-function isAppInstalled() {
-  return window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
-}
-
-if (isAppInstalled()) {
-  installBtn.style.display = "none";
-}
-
-// When install is available → show button
-window.addEventListener("beforeinstallprompt", (e) => {
-  e.preventDefault();
-  deferredPrompt = e;
-
-  // ONLY show if not installed
-  if (!isAppInstalled()) {
-    installBtn.style.display = "block";
-  }
-});
-
-// When user clicks install
-installBtn.addEventListener("click", async () => {
-  if (!deferredPrompt) return;
-
-  deferredPrompt.prompt();
-
-  const choice = await deferredPrompt.userChoice;
-
-  if (choice.outcome === "accepted") {
-    installBtn.style.display = "none";
-  }
-
-  deferredPrompt = null;
-});
-
-// AFTER INSTALL → permanently hide
-
-</script>
+ 
   <script>
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('sw.js')
@@ -379,6 +381,6 @@ if ('serviceWorker' in navigator) {
             console.log('Service Worker Registered');
         });
 }
-  </script>
+</script>
 </body>
 </html> 
