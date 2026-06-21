@@ -356,50 +356,53 @@ animation:pulseGlow 1.5s infinite;
 
 <!-- Font Awesome Icons (Required) -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-  <script>
+ <script>
 let deferredPrompt;
-
 const installBtn = document.getElementById("installBtn");
 
-// Hide button if already installed
-if (
-    window.matchMedia('(display-mode: standalone)').matches ||
-    window.navigator.standalone === true
-) {
-    installBtn.style.display = "none";
+// Always start hidden
+installBtn.style.display = "none";
+
+// If already installed → never show
+function isAppInstalled() {
+  return window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
 }
 
-// Show install button
-window.addEventListener('beforeinstallprompt', (e) => {
-    e.preventDefault();
+if (isAppInstalled()) {
+  installBtn.style.display = "none";
+}
 
-    deferredPrompt = e;
+// When install is available → show button
+window.addEventListener("beforeinstallprompt", (e) => {
+  e.preventDefault();
+  deferredPrompt = e;
 
-    installBtn.classList.remove("hidden");
+  // ONLY show if not installed
+  if (!isAppInstalled()) {
+    installBtn.style.display = "block";
+  }
 });
 
-// Install app
-installBtn.addEventListener('click', async () => {
+// When user clicks install
+installBtn.addEventListener("click", async () => {
+  if (!deferredPrompt) return;
 
-    if (!deferredPrompt) return;
+  deferredPrompt.prompt();
 
-    deferredPrompt.prompt();
+  const choice = await deferredPrompt.userChoice;
 
-    const choiceResult = await deferredPrompt.userChoice;
-
-    if (choiceResult.outcome === 'accepted') {
-        installBtn.style.display = "none";
-    }
-
-    deferredPrompt = null;
-});
-
-// Hide button after installation
-window.addEventListener('appinstalled', () => {
-
+  if (choice.outcome === "accepted") {
     installBtn.style.display = "none";
+  }
 
-    console.log("App Installed");
+  deferredPrompt = null;
+});
+
+// AFTER INSTALL → permanently hide
+window.addEventListener("appinstalled", () => {
+  installBtn.style.display = "none";
+  deferredPrompt = null;
+  console.log("PWA Installed Successfully");
 });
 </script>
   <script>
