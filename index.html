@@ -122,6 +122,37 @@
     .cta-btn:hover {
       background: #0F178B;
     }
+    #installBtn {
+  position: fixed;
+  
+  z-index: 9999;
+  
+  padding: 15px 28px;
+  font-size: 10px;
+  font-weight: bold;
+  
+  color: white;
+  background: linear-gradient(135deg, #12B416, #0F178B);
+  
+  border: 3px solid white;
+  border-radius: 50px;
+  
+  cursor: pointer;
+  display: block;
+  
+  box-shadow: 0 0 15px rgba(18, 180, 22, 0.6);
+  
+  transition: all 0.3s ease;
+}
+
+#installBtn:hover {
+  transform: scale(1.08);
+  box-shadow: 0 0 25px rgba(15, 23, 139, 0.8);
+}
+
+#installBtn:active {
+  transform: scale(0.96);
+}
   </style>
 </head>
 <body>
@@ -173,58 +204,37 @@
     </p>
     <button onclick="window.location.href='Medication.html'"  class="cta-btn">Search For Drugs</button>
   </section>
-<button id="installBtn"
-class="hidden install-glow fixed bottom-5 right-5 z-50
-bg-gradient-to-r from-green-500 via-blue-500 to-purple-600
-text-white font-black text-xl
-px-8 py-4 rounded-full
-border-4 border-white">
-🚀 INSTALL APP
+<button id="installBtn">
+  🚀 INSTALL APP
 </button>
   <script>
 let deferredPrompt;
 
 const installBtn = document.getElementById("installBtn");
 
-// Hide button if already installed
-if (
-    window.matchMedia('(display-mode: standalone)').matches ||
-    window.navigator.standalone === true
-) {
-    installBtn.style.display = "none";
-}
-
-// Show install button
-window.addEventListener('beforeinstallprompt', (e) => {
-    e.preventDefault();
-
-    deferredPrompt = e;
-
-    installBtn.classList.remove("hidden");
+window.addEventListener("beforeinstallprompt", (e) => {
+  e.preventDefault();
+  deferredPrompt = e;
 });
 
-// Install app
-installBtn.addEventListener('click', async () => {
-
-    if (!deferredPrompt) return;
-
+installBtn.addEventListener("click", async () => {
+  if (deferredPrompt) {
     deferredPrompt.prompt();
-
-    const choiceResult = await deferredPrompt.userChoice;
-
-    if (choiceResult.outcome === 'accepted') {
-        installBtn.style.display = "none";
+    
+    const { outcome } = await deferredPrompt.userChoice;
+    
+    if (outcome === "accepted") {
+      installBtn.style.display = "none";
     }
-
+    
     deferredPrompt = null;
+  } else {
+    alert("Installation is not available yet. Please use Chrome on Android and open this site over HTTPS.");
+  }
 });
 
-// Hide button after installation
-window.addEventListener('appinstalled', () => {
-
-    installBtn.style.display = "none";
-
-    console.log("App Installed");
+window.addEventListener("appinstalled", () => {
+  installBtn.style.display = "none";
 });
 </script>
   <!-- Why Choose Us -->
@@ -381,6 +391,48 @@ if ('serviceWorker' in navigator) {
             console.log('Service Worker Registered');
         });
 }
+
+const btn = document.getElementById("installBtn");
+
+let dragging = false;
+let offsetX = 0;
+let offsetY = 0;
+
+// Mouse support
+btn.addEventListener("mousedown", (e) => {
+  dragging = true;
+  offsetX = e.clientX - btn.offsetLeft;
+  offsetY = e.clientY - btn.offsetTop;
+});
+
+document.addEventListener("mousemove", (e) => {
+  if (!dragging) return;
+  
+  btn.style.left = (e.clientX - offsetX) + "px";
+  btn.style.top = (e.clientY - offsetY) + "px";
+});
+
+document.addEventListener("mouseup", () => {
+  dragging = false;
+});
+
+// Touch support (for the install btn)
+btn.addEventListener("touchstart", (e) => {
+  dragging = true;
+  offsetX = e.touches[0].clientX - btn.offsetLeft;
+  offsetY = e.touches[0].clientY - btn.offsetTop;
+});
+
+document.addEventListener("touchmove", (e) => {
+  if (!dragging) return;
+  
+  btn.style.left = (e.touches[0].clientX - offsetX) + "px";
+  btn.style.top = (e.touches[0].clientY - offsetY) + "px";
+});
+
+document.addEventListener("touchend", () => {
+  dragging = false;
+});
 </script>
 </body>
 </html> 
