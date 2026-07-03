@@ -1,6 +1,6 @@
 {
-  "name": "MediConnect",
-  "short_name": "MediConnect",
+  "name": "AreaHealth",
+  "short_name": "AreaHealth",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#ffffff",
